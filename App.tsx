@@ -1,20 +1,78 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import "./styles/global.css";
+
+import "@/lib/i18n";
+
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { DarkTheme, DefaultTheme, NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import "react-native-reanimated";
+
+import BottomTabsNavigator from "@/navigation/BottomTabsNavigator";
+import ExerciseScreen from "@/screens/ExerciseScreen/ExerciseScreen";
+import ModalScreen from "@/screens/ModalScreen";
+import Header from "@/components/Header";
+import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import Modal from "@/components/modals/Modal";
+
+SplashScreen.preventAutoHideAsync();
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [loaded, error] = useFonts({
+    SpaceMono: require("./assets/fonts/SpaceMono-Regular.ttf"),
+    ...FontAwesome.font,
+  });
+
+  const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    if (error) throw error;
+  }, [error]);
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
+
+  const theme = colorScheme === "dark" ? DarkTheme : DefaultTheme;
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style="dark" />
+      <GestureHandlerRootView className="flex-1">
+        <BottomSheetModalProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              screenOptions={{
+                header: (props) => <Header title={props.options.title} />,
+              }}
+            >
+              <Stack.Screen name="(tabs)" component={BottomTabsNavigator} options={{ headerShown: false }} />
+              <Stack.Screen
+                name="exercise"
+                component={ExerciseScreen}
+                options={({ route }) => ({
+                  headerShown: true,
+                })}
+              />
+              <Stack.Screen name="modal" component={ModalScreen} options={{ presentation: "modal" }} />
+            </Stack.Navigator>
+          </NavigationContainer>
+          <Modal />
+        </BottomSheetModalProvider>
+      </GestureHandlerRootView>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

@@ -1,0 +1,14 @@
+{
+  "bodyParts": {
+    "options": {
+      "arms": "Arms",
+      "legs": "Legs",
+      "neck": "Neck",
+      "shoulders": "Shoulders",
+      "cardio": "Cardio",
+      "chest": "Chest",
+      "back": "Back",
+      "waist": "Waist"
+    }
+  }
+}

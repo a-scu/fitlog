@@ -1,0 +1,136 @@
+{
+  "muscles": {
+    "label": "Músculos",
+    "options": {
+      "shins": "Tibiales",
+      "hands": "Manos",
+      "sternocleidomastoid": "Esternocleidomastoideo",
+      "soleus": "Sóleo",
+      "inner thighs": "Aductores (internos)",
+      "lower abs": "Abdominales inferiores",
+      "grip muscles": "Músculos de agarre",
+      "abdominals": "Abdominales",
+      "wrist extensors": "Extensores de muñeca",
+      "wrist flexors": "Flexores de muñeca",
+      "latissimus dorsi": "Dorsal ancho",
+      "upper chest": "Pecho superior",
+      "rotator cuff": "Manguito rotador",
+      "wrists": "Muñecas",
+      "groin": "Ingle",
+      "brachialis": "Braquial",
+      "deltoids": "Deltoides",
+      "feet": "Pies",
+      "ankles": "Tobillos",
+      "trapezius": "Trapecio",
+      "rear deltoids": "Deltoides posteriores",
+      "chest": "Pecho",
+      "quadriceps": "Cuádriceps",
+      "back": "Espalda",
+      "core": "Core (Zona media)",
+      "shoulders": "Hombros",
+      "ankle stabilizers": "Estabilizadores de tobillo",
+      "rhomboids": "Romboides",
+      "obliques": "Oblicuos",
+      "lower back": "Lumbares",
+      "hip flexors": "Flexores de cadera",
+      "levator scapulae": "Elevador de la escápula",
+      "abductors": "Abductores",
+      "serratus anterior": "Serrato anterior",
+      "traps": "Trapecios",
+      "forearms": "Antebrazos",
+      "delts": "Deltoides",
+      "biceps": "Bíceps",
+      "upper back": "Espalda superior",
+      "spine": "Columna vertebral",
+      "cardiovascular system": "Sistema cardiovascular",
+      "triceps": "Tríceps",
+      "adductors": "Aductores",
+      "hamstrings": "Isquiotibiales",
+      "glutes": "Glúteos",
+      "pectorals": "Pectorales",
+      "calves": "Gemelos",
+      "lats": "Dorsales",
+      "quads": "Cuádriceps",
+      "abs": "Abdominales"
+    }
+  },
+
+  "bodyParts": {
+    "label": "Partes del cuerpo",
+    "options": {
+      "neck": "Cuello",
+      "arms": "Brazos",
+      "shoulders": "Hombros",
+      "cardio": "Cardio",
+      "chest": "Pecho",
+      "legs": "Piernas",
+      "back": "Espalda",
+      "waist": "Cintura"
+    }
+  },
+
+  "equipments": {
+    "label": "Equipamiento",
+    "options": {
+      "stepmill machine": "Máquina stepmill",
+      "elliptical machine": "Máquina elíptica",
+      "trap bar": "Barra trap",
+      "tire": "Neumático",
+      "stationary bike": "Bicicleta fija",
+      "wheel roller": "Rueda de ejercicios",
+      "smith machine": "Máquina Smith",
+      "hammer": "Martillo",
+      "skierg machine": "Máquina SkiErg",
+      "roller": "Rodillo",
+      "resistance band": "Banda de resistencia",
+      "bosu ball": "Bosu",
+      "weighted": "Con peso",
+      "olympic barbell": "Barra olímpica",
+      "kettlebell": "Kettlebell",
+      "upper body ergometer": "Ergómetro de tren superior",
+      "sled machine": "Trineo",
+      "ez barbell": "Barra EZ",
+      "dumbbell": "Mancuerna",
+      "rope": "Cuerda",
+      "barbell": "Barra",
+      "band": "Banda",
+      "stability ball": "Pelota de estabilidad",
+      "medicine ball": "Balón medicinal",
+      "assisted": "Asistido",
+      "leverage machine": "Máquina de palancas",
+      "cable": "Polea",
+      "body weight": "Peso corporal"
+    }
+  },
+
+  "screens": {
+    "exercises": {
+      "search": "Buscar",
+      "noExercisesFound": "No se encontraron ejercicios que cumplan con los filtros seleccionados.",
+      "clearFilters": "Limpiar filtros"
+    },
+
+    "exercise": {
+      "notFound": "Ejercicio no encontrado",
+      "targetMuscles": "Músculos objetivo",
+      "secondaryMuscles": "Músculos secundarios",
+      "equipment": "Equipamiento",
+      "none": "Ninguno",
+      "instructions": "Instrucciones",
+      "bodyParts": "Partes del cuerpo"
+    },
+
+    "tabs": {
+      "exercises": "Ejercicios",
+      "exercise": "Ejercicio"
+    },
+
+    "notFound": {
+      "title": "¡Ups!",
+      "description": "Esta pantalla no existe.",
+      "cta": "Ir a la pantalla principal"
+    }
+  },
+
+  "exercises": {}
+}
