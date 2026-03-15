@@ -1,12 +1,13 @@
-import * as Haptics from "expo-haptics";
-import React, { useEffect, useRef, useState } from "react";
-import { Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { GestureDetector, Gesture, NativeViewGestureHandler } from "react-native-gesture-handler";
 import Animated, { cancelAnimation, runOnJS, useAnimatedReaction, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import { Platform, Text, TextInput, TouchableOpacity, View, Pressable, useWindowDimensions } from "react-native";
+import { GestureDetector, Gesture } from "react-native-gesture-handler";
+import React, { useEffect, useRef, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { clamp, objectMove, SET_HEIGHT, FAST_SPRING, SCROLL_THRESHOLD, ExerciseSet } from "./utils";
-import { SET_TYPES } from "@/constants/SetTypes";
-import { useModalStore } from "@/store/useModalStore";
+import * as Haptics from "expo-haptics";
+
+import DropSetItem from "./DropSetItem";
+
+import { clamp, objectMove, SET_HEIGHT, FAST_SPRING, SCROLL_THRESHOLD, DROP_SET_HEIGHT } from "./utils";
 
 export default function ExerciseSetItem({
   id,
@@ -14,48 +15,83 @@ export default function ExerciseSetItem({
   index,
   positions,
   scrollY,
-  setCount,
-  onUpdateWeight,
-  onUpdateReps,
-  onToggleModifier,
-  onDelete,
-  dimensions,
-  insets,
+  setsCount,
+  updateWeight,
+  updateReps,
+  updateRir,
+  toggleModifier,
+  deleteSet,
   onDragEnd,
   listOffset,
+  itemHeights,
   duplicateSet,
-  setsCount,
+  expanded,
+  toggleExpand,
+  addDropSet,
+  updateDropSet,
+  deleteDropSet,
 }: any) {
-  const { showModal, hideModal } = useModalStore();
+  const dimensions = useWindowDimensions();
   const [isMoving, setIsMoving] = useState(false);
   const [anyFocused, setAnyFocused] = useState(false);
+  const expansion = useSharedValue(0);
+  const dropSetsHeightAnim = useSharedValue((set.dropSets?.length || 0) * DROP_SET_HEIGHT);
   const top = useSharedValue(index * SET_HEIGHT);
   const translateX = useSharedValue(0);
   const initialTopValue = useSharedValue(0);
   const initialAbsoluteY = useSharedValue(0);
 
-  // Refs for NativeViewGestureHandler on each TextInput
-  const weightNativeRef = useRef<any>(null);
-  const repsNativeRef = useRef<any>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  const weightRef = useRef<TextInput>(null);
+  const repsRef = useRef<TextInput>(null);
+  const rirRef = useRef<TextInput>(null);
 
   useEffect(() => {
-    if (!isMoving) {
-      top.value = withSpring(index * SET_HEIGHT, FAST_SPRING);
+    expansion.value = withSpring(expanded ? 1 : 0, FAST_SPRING);
+  }, [expanded]);
+
+  useEffect(() => {
+    dropSetsHeightAnim.value = withSpring(expanded ? (set.dropSets?.length || 0) * DROP_SET_HEIGHT : 0, FAST_SPRING);
+  }, [set.dropSets?.length, expanded]);
+
+  useEffect(() => {
+    if (!isMoving && itemHeights) {
+      const myPos = positions.value[id] ?? index;
+      let targetTop = 0;
+      for (const otherId in positions.value) {
+        if (positions.value[otherId] < myPos) {
+          targetTop += itemHeights.value[otherId] || SET_HEIGHT;
+        }
+      }
+      top.value = withSpring(targetTop, FAST_SPRING);
     }
-  }, [index, isMoving]);
+  }, [index, isMoving, expanded, id, itemHeights, set.dropSets?.length]);
 
   useAnimatedReaction(
-    () => positions.value[id],
-    (currentPos, prevPos) => {
-      if (currentPos !== prevPos && !isMoving && currentPos !== undefined) {
-        top.value = withSpring(currentPos * SET_HEIGHT, FAST_SPRING);
+    () => {
+      const myPos = positions.value[id] ?? index;
+      let targetTop = 0;
+      if (itemHeights?.value) {
+        for (const otherId in positions.value) {
+          if (positions.value[otherId] < myPos) {
+            targetTop += itemHeights.value[otherId] || SET_HEIGHT;
+          }
+        }
+      }
+      return targetTop;
+    },
+    (targetTop) => {
+      if (!isMoving && targetTop !== undefined && targetTop !== null) {
+        top.value = withSpring(targetTop, FAST_SPRING);
       }
     },
-    [isMoving],
+    [isMoving, itemHeights],
   );
 
   const reorderGesture = Gesture.Pan()
-    .minDistance(0) // Activate immediately on first movement
+    .activateAfterLongPress(250)
+    .enabled(setsCount > 1)
     .onStart((event) => {
       cancelAnimation(top);
       initialTopValue.value = top.value;
@@ -81,11 +117,11 @@ export default function ExerciseSetItem({
       // NO JUMP: New top is just the initial top plus the delta movement
       const deltaY = currentAbsoluteY - initialAbsoluteY.value;
       const rawTop = initialTopValue.value + deltaY;
-      const maxTop = (setCount - 1) * SET_HEIGHT;
+      const maxTop = (setsCount - 1) * SET_HEIGHT;
       top.value = clamp(rawTop, 0, maxTop);
 
       // Determine new position based on the center of the item
-      const newPosition = clamp(Math.floor((top.value + SET_HEIGHT / 2) / SET_HEIGHT), 0, setCount - 1);
+      const newPosition = clamp(Math.floor((top.value + SET_HEIGHT / 2) / SET_HEIGHT), 0, setsCount - 1);
 
       if (newPosition !== positions.value[id]) {
         positions.value = objectMove(positions.value, positions.value[id], newPosition);
@@ -108,7 +144,6 @@ export default function ExerciseSetItem({
     .enabled(!anyFocused && setsCount > 1) // Disable when a TextInput is focused to avoid conflicting with text cursor
     .activeOffsetX(20) // Only start horizontal swipe after 20px
     .failOffsetY([-15, 15]) // If moving vertically more than 15px, fail and let ScrollView take over
-    .simultaneousWithExternalGesture(weightNativeRef, repsNativeRef) // Allow swipe even when gestures start over TextInputs
     .onUpdate((event) => {
       if (event.translationX > 0) {
         translateX.value = event.translationX;
@@ -117,7 +152,7 @@ export default function ExerciseSetItem({
     .onEnd((event) => {
       if (event.translationX > dimensions.width * 0.1) {
         translateX.value = withTiming(dimensions.width, {}, () => {
-          runOnJS(onDelete)(id);
+          runOnJS(deleteSet)(id);
         });
       } else {
         translateX.value = withSpring(0);
@@ -132,8 +167,10 @@ export default function ExerciseSetItem({
     left: 0,
     right: 0,
     top: top.value,
-    height: SET_HEIGHT,
+    height: SET_HEIGHT + expansion.value * DROP_SET_HEIGHT + dropSetsHeightAnim.value,
     backgroundColor: "white",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f5f5f5", // neutral-100
     transform: [{ translateX: translateX.value }, { scale: withSpring(isMoving ? 1.02 : 1, FAST_SPRING) }],
     zIndex: isMoving ? 100 : 1,
     shadowColor: "#000",
@@ -141,7 +178,23 @@ export default function ExerciseSetItem({
     shadowOpacity: withSpring(isMoving ? 0.2 : 0, FAST_SPRING),
     shadowRadius: 10,
     elevation: isMoving ? 5 : 0,
+    opacity: isMoving ? 0.9 : 1,
+    overflow: "hidden",
   }));
+
+  const dropSetsContainerStyle = useAnimatedStyle(() => ({
+    height: dropSetsHeightAnim.value,
+    opacity: expansion.value,
+    overflow: "hidden",
+  }));
+
+  const lowerRowStyle = useAnimatedStyle(() => ({
+    height: expansion.value * DROP_SET_HEIGHT,
+    opacity: expansion.value,
+    overflow: "hidden",
+  }));
+
+  const combinedGesture = Gesture.Exclusive(reorderGesture, swipeGesture);
 
   const [currentIndex, setCurrentIndex] = useState(index);
   useAnimatedReaction(
@@ -154,119 +207,128 @@ export default function ExerciseSetItem({
 
   return (
     <Animated.View style={animatedStyle}>
-      <GestureDetector gesture={swipeGesture}>
-        <Animated.View>
-          <View style={{ height: SET_HEIGHT }} className="flex-row items-center bg-white border-b border-neutral-100">
-            {/* Content row */}
-            <View className="flex-1 flex-row items-center h-full pl-4">
-              <View className="size-8 mr-4 items-center justify-center rounded-full bg-neutral-100">
-                <Text className="text-sm font-bold text-neutral-400">{currentIndex + 1}</Text>
-              </View>
+      <GestureDetector gesture={combinedGesture}>
+        <View className="flex-1">
+          {/* Upper Row */}
+          <View style={{ height: SET_HEIGHT }} className="flex-row items-center px-4">
+            <TouchableOpacity onPress={toggleExpand} className="size-8 items-center mr-4 justify-center rounded-full bg-red-50">
+              <Text className="text-sm font-semibold text-red-400">{currentIndex + 1}</Text>
+            </TouchableOpacity>
 
-              <View className="flex-1 flex-row items-center">
-                <View className="w-20">
-                  <NativeViewGestureHandler ref={weightNativeRef} disallowInterruption={false}>
-                    <TextInput
-                      value={set.weight}
-                      placeholder="0"
-                      onChangeText={(t) => onUpdateWeight(set.id, t)}
-                      keyboardType="numeric"
-                      style={{ includeFontPadding: false, textAlignVertical: "center", verticalAlign: "middle" }}
-                      className="m-0 p-0 text-base font-semibold text-center text-neutral-600"
-                      selectTextOnFocus
-                      onFocus={() => setAnyFocused(true)}
-                      onBlur={() => setAnyFocused(false)}
-                    />
-                  </NativeViewGestureHandler>
-                </View>
+            <View className="flex-1 relative">
+              <TextInput
+                ref={weightRef}
+                value={set.weight}
+                placeholder="-"
+                onChangeText={(t) => updateWeight(set.id, t)}
+                keyboardType="numeric"
+                style={{ includeFontPadding: false, textAlignVertical: "center", verticalAlign: "middle", height: SET_HEIGHT }}
+                className="m-0 p-0 text-sm font-semibold text-center text-neutral-600"
+                selectTextOnFocus
+                onFocus={() => {
+                  setFocusedField("weight");
+                  setAnyFocused(true);
+                }}
+                onBlur={() => {
+                  setFocusedField(null);
+                  setAnyFocused(false);
+                }}
+              />
+              {focusedField !== "weight" && <Pressable onPress={() => weightRef.current?.focus()} className="absolute inset-0 z-10" />}
+            </View>
 
-                <View className="w-20">
-                  <NativeViewGestureHandler ref={repsNativeRef} disallowInterruption={false}>
-                    <TextInput
-                      value={set.reps}
-                      placeholder="0"
-                      onChangeText={(t) => onUpdateReps(set.id, t)}
-                      keyboardType="numeric"
-                      style={{ includeFontPadding: false, textAlignVertical: "center", verticalAlign: "middle" }}
-                      className="m-0 p-0 text-base text-center font-semibold text-neutral-600"
-                      selectTextOnFocus
-                      onFocus={() => setAnyFocused(true)}
-                      onBlur={() => setAnyFocused(false)}
-                    />
-                  </NativeViewGestureHandler>
-                </View>
+            <View className="flex-1 relative">
+              <TextInput
+                ref={repsRef}
+                value={set.reps}
+                placeholder="-"
+                onChangeText={(t) => updateReps(set.id, t)}
+                keyboardType="numeric"
+                style={{ includeFontPadding: false, textAlignVertical: "center", verticalAlign: "middle", height: SET_HEIGHT }}
+                className="m-0 p-0 text-sm text-center font-semibold text-neutral-600"
+                selectTextOnFocus
+                onFocus={() => {
+                  setFocusedField("reps");
+                  setAnyFocused(true);
+                }}
+                onBlur={() => {
+                  setFocusedField(null);
+                  setAnyFocused(false);
+                }}
+              />
+              {focusedField !== "reps" && <Pressable onPress={() => repsRef.current?.focus()} className="absolute inset-0 z-10" />}
+            </View>
 
-                <View className="flex-1">
-                  <TouchableOpacity
-                    onPress={() =>
-                      showModal({
-                        title: "Modificadores de serie",
-                        content: (
-                          <View className="gap-3">
-                            {SET_TYPES.map((t) => {
-                              const isActive = set.modifiers.includes(t.id);
-                              return (
-                                <TouchableOpacity
-                                  key={t.id}
-                                  className={`flex-row items-center p-4 rounded-xl ${
-                                    isActive ? t.color + " border border-" + t.textColor.replace("text-", "").split("/")[0] : "bg-neutral-50"
-                                  }`}
-                                  onPress={() => {
-                                    onToggleModifier(set.id, t.id);
-                                    if (Platform.OS !== "web") {
-                                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    }
-                                  }}
-                                >
-                                  <View className={`size-3 rounded-full mr-3 ${t.textColor.replace("text-", "bg-").split("/")[0]}`} />
-                                  <Text className={`text-base font-semibold ${t.textColor.split("/")[0]}`}>{t.label}</Text>
-                                  {isActive && <Ionicons name="checkmark" size={20} className={`ml-auto ${t.textColor.split("/")[0]}`} />}
-                                </TouchableOpacity>
-                              );
-                            })}
-                          </View>
-                        ),
-                        snapPoints: ["55%"],
-                      })
-                    }
-                    className="items-center justify-center h-full"
-                  >
-                    <View className="flex-row gap-1 flex-wrap justify-center px-1">
-                      {set.modifiers && set.modifiers.length > 0 ? (
-                        set.modifiers.map((modId: string) => {
-                          const mod = SET_TYPES.find((t) => t.id === modId);
-                          if (!mod) return null;
-                          return (
-                            <View key={modId} className={`px-2 py-0.5 rounded-md ${mod.color}`}>
-                              <Text className={`text-[10px] font-bold ${mod.textColor.split("/")[0]} text-center`} style={{ includeFontPadding: false }}>
-                                {mod.label}
-                              </Text>
-                            </View>
-                          );
-                        })
-                      ) : (
-                        <View className="px-2 py-0.5 rounded-md bg-neutral-100">
-                          <Text className="text-[10px] font-bold text-neutral-400 text-center">Normal</Text>
-                        </View>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </View>
+            <View className="flex-1 relative">
+              <TextInput
+                ref={rirRef}
+                value={set.rir}
+                placeholder="-"
+                onChangeText={(t) => updateRir(set.id, t)}
+                keyboardType="numeric"
+                style={{ includeFontPadding: false, textAlignVertical: "center", verticalAlign: "middle", height: SET_HEIGHT }}
+                className="m-0 p-0 text-sm text-center font-semibold text-neutral-600"
+                selectTextOnFocus
+                onFocus={() => {
+                  setFocusedField("rir");
+                  setAnyFocused(true);
+                }}
+                onBlur={() => {
+                  setFocusedField(null);
+                  setAnyFocused(false);
+                }}
+              />
+              {focusedField !== "rir" && <Pressable onPress={() => rirRef.current?.focus()} className="absolute inset-0 z-10" />}
+            </View>
 
-              <TouchableOpacity onPress={duplicateSet} className="h-full justify-center px-4">
-                <Ionicons name="duplicate-outline" size={20} className="!text-neutral-400" />
+            {/* <TouchableOpacity onPress={onToggleExpand} className="justify-center px-3" style={{ height: 64 }}>
+              <Ionicons name="options-outline" size={20} className={expanded ? "!text-red-400" : "!text-neutral-400"} />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={duplicateSet} className="justify-center px-3" style={{ height: 64 }}>
+              <Ionicons name="duplicate-outline" size={20} className="!text-neutral-400" />
+            </TouchableOpacity> */}
+          </View>
+
+          {/* Drop Sets */}
+          <Animated.View style={dropSetsContainerStyle}>
+            {set.dropSets?.map((dropSet: any, dsIndex: number) => (
+              <DropSetItem
+                key={dropSet.id}
+                dropSet={dropSet}
+                dsIndex={dsIndex}
+                onUpdate={(field: any, val: any) => updateDropSet(dropSet.id, field, val)}
+                onDelete={() => deleteDropSet(dropSet.id)}
+                setAnyFocused={setAnyFocused}
+                dimensions={dimensions}
+                parentSwipeGesture={swipeGesture}
+              />
+            ))}
+          </Animated.View>
+
+          {/* Lower Row (Expanded Options) */}
+          <Animated.View style={lowerRowStyle} className="flex-row items-center px-4 white gap-4">
+            <View className="flex-row h-full items-center gap-1">
+              <TouchableOpacity onPress={addDropSet} className="items-center h-full justify-center">
+                <Text className="text-xs text-cyan-400 bg-cyan-100 font-medium px-1 py-0.5 rounded">Serie Efectiva</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={addDropSet} className="items-center h-full justify-center">
+                <Text className="text-xs text-purple-400 bg-purple-100 font-medium px-1 py-0.5 rounded">Al fallo</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Reorder Handle */}
-            <GestureDetector gesture={reorderGesture}>
-              <View className="items-center pr-3 pl-4 justify-center h-full">
-                <Ionicons name="apps-outline" size={20} className="!text-neutral-400" />
-              </View>
-            </GestureDetector>
-          </View>
-        </Animated.View>
+            <TouchableOpacity onPress={addDropSet} className="ml-auto items-center h-full flex-row gap-1">
+              <Ionicons name="add-circle-outline" size={14} className="!text-neutral-400" />
+              <Text className="text-xs text-neutral-400">Add Drop Set</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={duplicateSet} className="items-center h-full flex-row gap-1">
+              <Ionicons name="duplicate-outline" size={14} className="!text-neutral-400" />
+              <Text className="text-xs text-neutral-400">Duplicate Set</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
       </GestureDetector>
     </Animated.View>
   );

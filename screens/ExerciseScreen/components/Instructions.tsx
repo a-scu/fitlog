@@ -16,8 +16,8 @@ const Instructions = ({ children: instructions }: { children: ExerciseTranslatio
           <View className="gap-4">
             {instructions.map((instruction: string, index: number) => (
               <View key={instruction} className="flex flex-row justify-start items-center">
-                <View className="size-8 rounded-full border border-neutral-200/75 items-center justify-center aspect-square mr-3">
-                  <Text className="text-sm font-regular text-neutral-400">{index + 1}</Text>
+                <View className="size-6 rounded-full border border-neutral-200 items-center justify-center aspect-square mr-3">
+                  <Text className="text-xs font-regular text-neutral-400">{index + 1}</Text>
                 </View>
                 <Text className="text-sm text-gray-600 leading-6 border-neutral-200/75 flex-1 rounded-md">{formatInstruction(instruction)}</Text>
               </View>

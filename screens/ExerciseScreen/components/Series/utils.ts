@@ -1,8 +1,18 @@
+
 export interface ExerciseSet {
   id: string;
   weight: string;
   reps: string;
+  rir: string;
   modifiers: string[];
+  dropSets?: DropSet[];
+}
+
+export interface DropSet {
+  id: string;
+  weight: string;
+  reps: string;
+  rir: string;
 }
 
 export function clamp(value: number, lowerBound: number, upperBound: number) {
@@ -31,7 +41,8 @@ export function listToObject(list: ExerciseSet[]) {
   return object;
 }
 
-export const SET_HEIGHT = 64;
+export const SET_HEIGHT = 56;
+export const DROP_SET_HEIGHT = 42;
 export const SCROLL_THRESHOLD = SET_HEIGHT;
 
 export const FAST_SPRING = {
@@ -42,3 +53,4 @@ export const FAST_SPRING = {
   restDisplacementThreshold: 0.1,
   restSpeedThreshold: 0.1,
 };
+
