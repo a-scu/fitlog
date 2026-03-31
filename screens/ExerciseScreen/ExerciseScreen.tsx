@@ -85,6 +85,16 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
     itemHeights.value = newHeights;
   }, [exerciseSets, expandedId]);
 
+  const handleScroll = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const handleDragEnd = useCallback(() => {
+    const newOrder = [...exerciseSets].sort((a, b) => (positions.value[a.id] ?? 0) - (positions.value[b.id] ?? 0));
+    setExerciseSets(newOrder);
+  }, [exerciseSets, positions]);
+
+
   const toggleUnit = async (newUnit: "kg" | "lbs") => {
     if (newUnit === unit) return;
     setUnit(newUnit);
@@ -94,29 +104,6 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
     } catch (error) {
       console.error("Error saving preferred unit:", error);
     }
-  };
-
-  const toggleModifier = (id: string, modifierId: string) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => {
-        if (s.id !== id) return s;
-        const exists = s.modifiers.includes(modifierId);
-        const newModifiers = exists ? s.modifiers.filter((m) => m !== modifierId) : [...s.modifiers, modifierId];
-        return { ...s, modifiers: newModifiers };
-      }),
-    );
-  };
-
-  const updateWeight = (id: string, weight: string) => {
-    setExerciseSets((prev) => prev.map((s) => (s.id === id ? { ...s, weight } : s)));
-  };
-
-  const updateReps = (id: string, reps: string) => {
-    setExerciseSets((prev) => prev.map((s) => (s.id === id ? { ...s, reps } : s)));
-  };
-
-  const updateRir = (id: string, rir: string) => {
-    setExerciseSets((prev) => prev.map((s) => (s.id === id ? { ...s, rir } : s)));
   };
 
   const addSet = ({ weight, reps, rir }: { weight?: string; reps?: string; rir?: string }) => {
@@ -138,6 +125,29 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
   const deleteSet = (id: string) => {
     setExerciseSets((prev) => (prev.length > 1 ? prev.filter((s) => s.id !== id) : prev));
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const updateWeight = (id: string, weight: string) => {
+    setExerciseSets((prev) => prev.map((s) => (s.id === id ? { ...s, weight } : s)));
+  };
+
+  const updateReps = (id: string, reps: string) => {
+    setExerciseSets((prev) => prev.map((s) => (s.id === id ? { ...s, reps } : s)));
+  };
+
+  const updateRir = (id: string, rir: string) => {
+    setExerciseSets((prev) => prev.map((s) => (s.id === id ? { ...s, rir } : s)));
+  };
+
+  const toggleModifier = (id: string, modifierId: string) => {
+    setExerciseSets((prev) =>
+      prev.map((s) => {
+        if (s.id !== id) return s;
+        const exists = s.modifiers.includes(modifierId);
+        const newModifiers = exists ? s.modifiers.filter((m) => m !== modifierId) : [...s.modifiers, modifierId];
+        return { ...s, modifiers: newModifiers };
+      }),
+    );
   };
 
   const addDropSet = (setId: string) => {
@@ -178,15 +188,6 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
     );
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
-
-  const handleDragEnd = useCallback(() => {
-    const newOrder = [...exerciseSets].sort((a, b) => (positions.value[a.id] ?? 0) - (positions.value[b.id] ?? 0));
-    setExerciseSets(newOrder);
-  }, [exerciseSets, positions]);
-
-  const handleScroll = useAnimatedScrollHandler((event) => {
-    scrollY.value = event.contentOffset.y;
-  });
 
   const setsContainerStyle = useAnimatedStyle(() => {
     let totalHeight = 0;
