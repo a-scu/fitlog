@@ -2,7 +2,6 @@ import { create } from "zustand";
 import React from "react";
 
 interface ModalOptions {
-  title?: string;
   content: React.ReactNode;
   snapPoints?: string[];
 }

@@ -1,121 +1,137 @@
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
-import { runOnJS } from "react-native-worklets";
-import { useRef, useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
+import MetricInput from "./MetricInput";
+import { useGlobalRoutinesSettings } from "@/stores/GlobalRoutinesSettings";
 import { Ionicons } from "@expo/vector-icons";
-import { DROP_SET_HEIGHT } from "./utils";
+import PartialReps from "./PartialReps";
 
-export default function DropSetItem({ dropSet, dsIndex, onUpdate, onDelete, setAnyFocused, dimensions, parentSwipeGesture }: any) {
-  const [focusedField, setFocusedField] = useState<string | null>(null);
-  const translateX = useSharedValue(0);
-  const weightRef = useRef<TextInput>(null);
-  const repsRef = useRef<TextInput>(null);
-  const rirRef = useRef<TextInput>(null);
-
-  const localSwipe = Gesture.Pan()
-    .activeOffsetX(20)
-    .failOffsetY([-15, 15])
-    .onUpdate((event) => {
-      if (event.translationX > 0) {
-        translateX.value = event.translationX;
-      }
-    })
-    .onEnd((event) => {
-      if (event.translationX > dimensions.width * 0.1) {
-        translateX.value = withTiming(dimensions.width, {}, () => {
-          runOnJS(onDelete)();
-        });
-      } else {
-        translateX.value = withSpring(0);
-      }
-    });
-
-  // Combine with root gesture so we don't block swipe
-  const finalGesture = Gesture.Exclusive(localSwipe, parentSwipeGesture);
-
-  const style = useAnimatedStyle(() => ({
-    height: DROP_SET_HEIGHT,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    transform: [{ translateX: translateX.value }],
-  }));
+export default function DropSetItem({
+  index,
+  dropSet,
+  set,
+  updateDropSetField,
+  deleteDropSet,
+  openDropSetPartialRepsModal,
+  deletePartialReps,
+}: any) {
+  const weightUnit = useGlobalRoutinesSettings((state) => state.weightUnit);
 
   return (
-    <GestureDetector gesture={finalGesture}>
-      <Animated.View style={style} className="bg-red-200 pr-4">
-        <View className="items-center mx-4 w-8 justify-center">
-          <Ionicons name="return-down-forward" size={14} className="!text-neutral-400" />
-          <Text className="text-xs text-neutral-400">{dsIndex + 1}</Text>
+    <View key={index} className="gap-1 pr-1">
+      <View className="flex-row">
+        <View className="">
+          <Ionicons
+            name="return-down-forward-outline"
+            size={14}
+            className="p-2"
+          />
         </View>
 
-        <View className="flex-1 relative">
-          <TextInput
-            ref={weightRef}
+        <View className="flex-1 gap-1 flex-row">
+          {/* Weight */}
+          <MetricInput
+            label={<Text>PESO ({weightUnit})</Text>}
             value={dropSet.weight}
-            placeholder="-"
-            onChangeText={(t) => onUpdate("weight", t)}
-            keyboardType="numeric"
-            style={{ includeFontPadding: false, textAlignVertical: "center", verticalAlign: "middle", height: DROP_SET_HEIGHT }}
-            className="m-0 p-0 text-xs font-regular text-center text-neutral-600"
-            selectTextOnFocus
-            onFocus={() => {
-              setFocusedField("weight");
-              setAnyFocused(true);
-            }}
-            onBlur={() => {
-              setFocusedField(null);
-              setAnyFocused(false);
-            }}
+            minValue={dropSet.minWeight}
+            maxValue={dropSet.maxWeight}
+            rangeEnabled={dropSet.weightIsRange}
+            onUpdateValue={(text: string) =>
+              updateDropSetField(set.id, dropSet.id, "weight", text)
+            }
+            onUpdateMinValue={(text: string) =>
+              updateDropSetField(set.id, dropSet.id, "minWeight", text)
+            }
+            onUpdateMaxValue={(text: string) =>
+              updateDropSetField(set.id, dropSet.id, "maxWeight", text)
+            }
+            onToggleMinMax={() =>
+              updateDropSetField(
+                set.id,
+                dropSet.id,
+                "weightIsRange",
+                !dropSet.weightIsRange,
+              )
+            }
           />
-          {focusedField !== "weight" && <Pressable onPress={() => weightRef.current?.focus()} className="absolute inset-0 z-10" />}
-        </View>
 
-        <View className="flex-1 relative">
-          <TextInput
-            ref={repsRef}
+          {/* Reps */}
+          <MetricInput
+            label={<Text>REPES</Text>}
             value={dropSet.reps}
-            placeholder="-"
-            onChangeText={(t) => onUpdate("reps", t)}
-            keyboardType="numeric"
-            style={{ includeFontPadding: false, textAlignVertical: "center", verticalAlign: "middle", height: DROP_SET_HEIGHT }}
-            className="m-0 p-0 text-xs text-center font-regular text-neutral-600"
-            selectTextOnFocus
-            onFocus={() => {
-              setFocusedField("reps");
-              setAnyFocused(true);
-            }}
-            onBlur={() => {
-              setFocusedField(null);
-              setAnyFocused(false);
-            }}
+            minValue={dropSet.minReps}
+            maxValue={dropSet.maxReps}
+            rangeEnabled={dropSet.repsIsRange}
+            onUpdateValue={(text: string) =>
+              updateDropSetField(set.id, dropSet.id, "reps", text)
+            }
+            onUpdateMinValue={(text: string) =>
+              updateDropSetField(set.id, dropSet.id, "minReps", text)
+            }
+            onUpdateMaxValue={(text: string) =>
+              updateDropSetField(set.id, dropSet.id, "maxReps", text)
+            }
+            onToggleMinMax={() =>
+              updateDropSetField(
+                set.id,
+                dropSet.id,
+                "repsIsRange",
+                !dropSet.repsIsRange,
+              )
+            }
           />
-          {focusedField !== "reps" && <Pressable onPress={() => repsRef.current?.focus()} className="absolute inset-0 z-10" />}
-        </View>
 
-        <View className="flex-1 relative">
-          <TextInput
-            ref={rirRef}
+          {/* Rir */}
+          <MetricInput
+            label={<Text>RIR</Text>}
             value={dropSet.rir}
-            placeholder="-"
-            onChangeText={(t) => onUpdate("rir", t)}
-            keyboardType="numeric"
-            style={{ includeFontPadding: false, textAlignVertical: "center", verticalAlign: "middle", height: DROP_SET_HEIGHT }}
-            className="m-0 p-0 text-xs text-center font-regular text-neutral-600"
-            selectTextOnFocus
-            onFocus={() => {
-              setFocusedField("rir");
-              setAnyFocused(true);
-            }}
-            onBlur={() => {
-              setFocusedField(null);
-              setAnyFocused(false);
-            }}
+            minValue={dropSet.minRir}
+            maxValue={dropSet.maxRir}
+            rangeEnabled={dropSet.rirIsRange}
+            onUpdateValue={(text: string) =>
+              updateDropSetField(set.id, dropSet.id, "rir", text)
+            }
+            onUpdateMinValue={(text: string) =>
+              updateDropSetField(set.id, dropSet.id, "minRir", text)
+            }
+            onUpdateMaxValue={(text: string) =>
+              updateDropSetField(set.id, dropSet.id, "maxRir", text)
+            }
+            onToggleMinMax={() =>
+              updateDropSetField(
+                set.id,
+                dropSet.id,
+                "rirIsRange",
+                !dropSet.rirIsRange,
+              )
+            }
           />
-          {focusedField !== "rir" && <Pressable onPress={() => rirRef.current?.focus()} className="absolute inset-0 z-10" />}
         </View>
-      </Animated.View>
-    </GestureDetector>
+      </View>
+
+      {/* Partials Toggle */}
+      <TouchableOpacity
+        onPress={() => openDropSetPartialRepsModal(dropSet)}
+        className={`justify-center flex-row self-start items-center px-1.5 rounded-full border ${dropSet.partialReps?.count != 0 ? "bg-red-400 border-red-400" : "border-neutral-200"}`}
+      >
+        {dropSet.partialReps?.count != 0 && (
+          <TouchableOpacity onPress={() => deletePartialReps(dropSet.id)}>
+            <Ionicons name="close" size={12} className="mr-2" />
+          </TouchableOpacity>
+        )}
+
+        {dropSet.partialReps?.count != 0 ? (
+          <PartialReps set={dropSet} />
+        ) : (
+          <Text
+            className={`text-[10px] font-bold ${dropSet.partialReps?.count != 0 ? "text-white" : "text-neutral-400"}`}
+          >
+            Parciales
+          </Text>
+        )}
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => deleteDropSet(dropSet.id)}>
+        <Text>Eliminar Dropset</Text>
+      </TouchableOpacity>
+    </View>
   );
 }

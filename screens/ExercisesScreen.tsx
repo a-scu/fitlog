@@ -1,5 +1,12 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { FlatList, Text, TextInput, View, Keyboard, TouchableOpacity } from "react-native";
+import {
+  FlatList,
+  Text,
+  TextInput,
+  View,
+  Keyboard,
+  TouchableOpacity,
+} from "react-native";
 import { useMemo, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,7 +18,7 @@ import ExerciseItem from "@/components/exercises/ExerciseItem";
 
 import EXERCISES from "@/assets/data/exercises.json";
 
-export default function ExercisesScreen() {
+export default function ExercisesScreen({ navigation }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const search = useFilters((state) => state.search);
@@ -34,10 +41,18 @@ export default function ExercisesScreen() {
   return (
     <View style={{ paddingTop: insets.top }} className="bg-white flex-1">
       <View className="pt-3 flex-row items-center">
-        <TouchableOpacity className="px-4 items-center justify-center">
-          <Ionicons name="arrow-back" className="!text-xl left-px !text-neutral-800" />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          className="px-4 items-center justify-center"
+        >
+          <Ionicons
+            name="arrow-back"
+            className="!text-xl left-px !text-neutral-800"
+          />
         </TouchableOpacity>
-        <Text className="text-xl font-medium text-neutral-800">Agregar ejercicios</Text>
+        <Text className="text-xl font-medium text-neutral-800">
+          Agregar ejercicios
+        </Text>
       </View>
 
       <View className="pt-3 pl-3 mb-2 flex-row">
@@ -45,7 +60,11 @@ export default function ExercisesScreen() {
           <TextInput
             ref={inputRef}
             style={{ includeFontPadding: false }}
-            placeholder={t("screens.exercises.search") + " " + t("screens.tabs.exercises").toLowerCase()}
+            placeholder={
+              t("screens.exercises.search") +
+              " " +
+              t("screens.tabs.exercises").toLowerCase()
+            }
             className="flex-1 p-4 text-base text-neutral-800 placeholder:text-neutral-400"
             value={search}
             onChangeText={(text) => setField("search", text)}
@@ -54,11 +73,21 @@ export default function ExercisesScreen() {
             selectionHandleColor={"#a3a3a380"}
             selectTextOnFocus
           />
-          <Ionicons pointerEvents="none" name="search-outline" className="!text-xl !text-neutral-400 right-3" />
+          <Ionicons
+            pointerEvents="none"
+            name="search-outline"
+            className="!text-xl !text-neutral-400 right-3"
+          />
         </View>
 
-        <TouchableOpacity onPress={() => setShowFilters(!showFilters)} className="px-4 items-center justify-center">
-          <Ionicons name="filter" className={`!text-xl ${showFilters ? "!text-red-400" : "!text-neutral-400"}`} />
+        <TouchableOpacity
+          onPress={() => setShowFilters(!showFilters)}
+          className="px-4 items-center justify-center"
+        >
+          <Ionicons
+            name="filter"
+            className={`!text-xl ${showFilters ? "!text-red-400" : "!text-neutral-400"}`}
+          />
         </TouchableOpacity>
       </View>
 
@@ -82,12 +111,19 @@ const ExerciseList = ({ search }: ExerciseListProps) => {
       if (search) {
         const searchWords = search.toLowerCase().trim().split(/\s+/);
         const exerciseName = exercise.name.toLowerCase();
-        const matchesSearch = searchWords.every((word) => exerciseName.includes(word));
+        const matchesSearch = searchWords.every((word) =>
+          exerciseName.includes(word),
+        );
         if (!matchesSearch) return false;
       }
       if (bodyParts && !exercise.bodyParts.includes(bodyParts)) return false;
       if (equipments && !exercise.equipments.includes(equipments)) return false;
-      if (muscles && !exercise.targetMuscles.includes(muscles) && !exercise.secondaryMuscles.includes(muscles)) return false;
+      if (
+        muscles &&
+        !exercise.targetMuscles.includes(muscles) &&
+        !exercise.secondaryMuscles.includes(muscles)
+      )
+        return false;
 
       return true;
     });
@@ -103,6 +139,7 @@ const ExerciseList = ({ search }: ExerciseListProps) => {
     <View className="flex-1 items-center">
       <FlatList
         className="w-full"
+        numColumns={2}
         data={filteredExercises}
         onEndReachedThreshold={0.5}
         scrollEventThrottle={16}
@@ -118,7 +155,9 @@ const ExerciseList = ({ search }: ExerciseListProps) => {
         initialNumToRender={15}
         ListEmptyComponent={() => (
           <View className="items-center py-12">
-            <Text className="text-center max-w-xs text-neutral-400">{t("screens.exercises.noExercisesFound")}</Text>
+            <Text className="text-center max-w-xs text-neutral-400">
+              {t("screens.exercises.noExercisesFound")}
+            </Text>
           </View>
         )}
       />
