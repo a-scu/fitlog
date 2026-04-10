@@ -139,6 +139,7 @@ export default function SetItem({
               )}
             </TouchableOpacity>
           </View>
+
           {/* Notes */}
           {set.notes.enabled && (
             <TextInput
@@ -150,6 +151,10 @@ export default function SetItem({
               onChangeText={(text) => updateNotes(text)}
             />
           )}
+
+          {/* Rest Pause */}
+
+          {/* Descansos entre dropsets */}
 
           {/* Drop Sets */}
           {set?.dropSets?.length > 0 && (

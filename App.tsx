@@ -23,6 +23,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import Modal from "@/components/modals/Modal";
 import ExercisesScreen from "./screens/ExercisesScreen";
+import Routine from "./screens/Routine/Routine";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -78,6 +79,13 @@ export default function App() {
               <Stack.Screen
                 name="exercise"
                 component={ExerciseScreen}
+                options={({ route }) => ({
+                  headerShown: true,
+                })}
+              />
+              <Stack.Screen
+                name="routine"
+                component={Routine}
                 options={({ route }) => ({
                   headerShown: true,
                 })}

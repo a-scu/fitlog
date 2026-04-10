@@ -25,6 +25,7 @@ import HeaderInfo from "./components/HeaderInfo";
 import { useGlobalRoutinesSettings } from "@/stores/GlobalRoutinesSettings";
 import { useModalStore } from "@/stores/useModalStore";
 import PartialRepsModal from "./modals/PartialRepsModal";
+import { useRoutines } from "@/stores/RoutinesStore";
 
 interface ExerciseScreenProps {
   navigation: any;
@@ -40,6 +41,7 @@ export default function ExerciseScreen({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const showModal = useModalStore((state) => state.showModal);
+  const setRoutines = useRoutines((state) => state.setRoutines);
 
   const weightUnit = useGlobalRoutinesSettings((state) => state.weightUnit);
   const showSliders = useGlobalRoutinesSettings((state) => state.showSliders);
@@ -318,6 +320,12 @@ export default function ExerciseScreen({
     );
   };
 
+  const addToRoutine = () => {
+    setRoutines((prev) => {
+      console.log("Routines asdsa", prev);
+    });
+  };
+
   if (!exercise) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -340,6 +348,10 @@ export default function ExerciseScreen({
       >
         {/* Content */}
         <View className="pb-3">
+          <TouchableOpacity onPress={addToRoutine}>
+            <Text>Agregar a la rutina</Text>
+          </TouchableOpacity>
+
           {/* Header Info */}
           <HeaderInfo exercise={exercise} />
 

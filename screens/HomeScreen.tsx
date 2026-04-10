@@ -27,10 +27,26 @@ export default function HomeScreen({ navigation }) {
       <ScrollView className="flex-1" contentContainerClassName="p-3">
         <TouchableOpacity
           onPress={createRoutine}
-          className="w-full h-24 border border-neutral-400 justify-center p-3 rounded-2xl"
+          className="w-full h-24 border mb-2 border-neutral-400 justify-center p-3 rounded-2xl"
         >
           <Text>Crear rutina</Text>
         </TouchableOpacity>
+
+        {/* Rutinas */}
+
+        <View className="gap-2">
+          {routines.map((routine) => (
+            <TouchableOpacity
+              key={routine.id}
+              onPress={() =>
+                navigation.navigate("routine", { routineId: routine.id })
+              }
+              className="w-full h-24 border border-neutral-400 justify-center p-3 rounded-2xl"
+            >
+              <Text>{routine.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
