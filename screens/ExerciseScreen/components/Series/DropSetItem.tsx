@@ -1,4 +1,7 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useRoutineDraftStore } from "@/stores/RoutineDraftStore";
+import { useModalStore } from "@/stores/useModalStore";
+import PartialRepsModal from "../../modals/PartialRepsModal";
 import MetricInput from "./MetricInput";
 import { useGlobalRoutinesSettings } from "@/stores/GlobalRoutinesSettings";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,11 +11,18 @@ export default function DropSetItem({
   index,
   dropSet,
   set,
-  updateDropSetField,
-  deleteDropSet,
-  openDropSetPartialRepsModal,
-  deletePartialReps,
 }: any) {
+  const updateDropSetField = useRoutineDraftStore(s => s.updateDropSetField);
+  const deleteDropSet = useRoutineDraftStore(s => s.deleteDropSet);
+  const deletePartialReps = useRoutineDraftStore(s => s.deletePartialReps);
+  const updateDropSetPartialRepsField = useRoutineDraftStore(s => s.updateDropSetPartialRepsField);
+  const showModal = useModalStore(s => s.showModal);
+  
+  const openDropSetPartialRepsModal = (ds: any) => {
+    showModal({
+      content: <PartialRepsModal set={ds} updatePartialRepsField={(id: string, field: string, value: any) => updateDropSetPartialRepsField(set.id, id, field, value)} />
+    });
+  };
   const weightUnit = useGlobalRoutinesSettings((state) => state.weightUnit);
 
   return (
@@ -44,12 +54,7 @@ export default function DropSetItem({
               updateDropSetField(set.id, dropSet.id, "maxWeight", text)
             }
             onToggleMinMax={() =>
-              updateDropSetField(
-                set.id,
-                dropSet.id,
-                "weightIsRange",
-                !dropSet.weightIsRange,
-              )
+              updateDropSetField(set.id, dropSet.id, "weightIsRange", !dropSet.weightIsRange)
             }
           />
 
@@ -70,12 +75,7 @@ export default function DropSetItem({
               updateDropSetField(set.id, dropSet.id, "maxReps", text)
             }
             onToggleMinMax={() =>
-              updateDropSetField(
-                set.id,
-                dropSet.id,
-                "repsIsRange",
-                !dropSet.repsIsRange,
-              )
+              updateDropSetField(set.id, dropSet.id, "repsIsRange", !dropSet.repsIsRange)
             }
           />
 
@@ -96,12 +96,7 @@ export default function DropSetItem({
               updateDropSetField(set.id, dropSet.id, "maxRir", text)
             }
             onToggleMinMax={() =>
-              updateDropSetField(
-                set.id,
-                dropSet.id,
-                "rirIsRange",
-                !dropSet.rirIsRange,
-              )
+              updateDropSetField(set.id, dropSet.id, "rirIsRange", !dropSet.rirIsRange)
             }
           />
         </View>
@@ -113,7 +108,7 @@ export default function DropSetItem({
         className={`justify-center flex-row self-start items-center px-1.5 rounded-full border ${dropSet.partialReps?.count != 0 ? "bg-red-400 border-red-400" : "border-neutral-200"}`}
       >
         {dropSet.partialReps?.count != 0 && (
-          <TouchableOpacity onPress={() => deletePartialReps(dropSet.id)}>
+          <TouchableOpacity onPress={() => deletePartialReps(set.id, dropSet.id)}>
             <Ionicons name="close" size={12} className="mr-2" />
           </TouchableOpacity>
         )}
@@ -129,7 +124,7 @@ export default function DropSetItem({
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => deleteDropSet(dropSet.id)}>
+      <TouchableOpacity onPress={() => deleteDropSet(set.id, dropSet.id)}>
         <Text>Eliminar Dropset</Text>
       </TouchableOpacity>
     </View>

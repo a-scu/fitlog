@@ -18,7 +18,9 @@ import ExerciseItem from "@/components/exercises/ExerciseItem";
 
 import EXERCISES from "@/assets/data/exercises.json";
 
-export default function ExercisesScreen({ navigation }) {
+export default function ExercisesScreen({ navigation, route }) {
+  const routineId = route.params.routineId;
+
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const search = useFilters((state) => state.search);
@@ -91,16 +93,17 @@ export default function ExercisesScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ExerciseList search={search} />
+      <ExerciseList search={search} routineId={routineId} />
     </View>
   );
 }
 
 interface ExerciseListProps {
   search: string;
+  routineId: string;
 }
 
-const ExerciseList = ({ search }: ExerciseListProps) => {
+const ExerciseList = ({ search, routineId }: ExerciseListProps) => {
   const { t } = useTranslation();
   const bodyParts = useFilters((state) => state.bodyParts);
   const equipments = useFilters((state) => state.equipments);
@@ -131,7 +134,9 @@ const ExerciseList = ({ search }: ExerciseListProps) => {
 
   const renderItem = useMemo(
     () =>
-      ({ item }: { item: any }) => <ExerciseItem exercise={item} />,
+      ({ item }: { item: any }) => (
+        <ExerciseItem exercise={item} routineId={routineId} />
+      ),
     [],
   );
 

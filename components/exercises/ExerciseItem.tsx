@@ -15,7 +15,13 @@ import Animated, {
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 
-const ExerciseItem = ({ exercise }: { exercise: any }) => {
+const ExerciseItem = ({
+  exercise,
+  routineId,
+}: {
+  exercise: any;
+  routineId: string;
+}) => {
   const navigation = useNavigation<any>();
 
   const { equipments = [], gifUrl, name, targetMuscles = [] } = exercise;
@@ -30,7 +36,7 @@ const ExerciseItem = ({ exercise }: { exercise: any }) => {
   }));
 
   const handlePress = useCallback(() => {
-    navigation.navigate("exercise", { exercise });
+    navigation.navigate("exercise", { exercise, routineId });
   }, [navigation, exercise]);
 
   return (

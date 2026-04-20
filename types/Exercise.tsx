@@ -1,10 +1,10 @@
 export type Exercise = {
-  bodyParts: string[];
   exerciseId: string;
-  equipments: string[];
-  gifUrl: string;
   name: string;
-  instructions: string;
+  gifUrl: string;
   targetMuscles: string[];
+  bodyParts: string[];
+  equipments: string[];
   secondaryMuscles: string[];
+  instructions: string;
 };

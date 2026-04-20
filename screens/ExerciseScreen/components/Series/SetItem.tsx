@@ -8,23 +8,30 @@ import { useGlobalRoutinesSettings } from "@/stores/GlobalRoutinesSettings";
 import DropSets from "./DropSets";
 import PartialReps from "./PartialReps";
 import { Ionicons } from "@expo/vector-icons";
+import { useRoutineDraftStore } from "@/stores/RoutineDraftStore";
+import { useModalStore } from "@/stores/useModalStore";
+import PartialRepsModal from "../../modals/PartialRepsModal";
 
 export default function SetItem({
   index,
   set,
-  updateSetField,
-  deleteSet,
-  duplicateSet,
-  openPartialRepsModal,
-  addDropSet,
-  toggleDropSets,
-  updateDropSetField,
-  deleteDropSet,
-  openDropSetPartialRepsModal,
-  deletePartialReps,
-  toggleNotes,
-  updateNotes,
 }: any) {
+  const updateSetField = useRoutineDraftStore(s => s.updateSetField);
+  const deleteStep = useRoutineDraftStore(s => s.deleteStep);
+  const addSet = useRoutineDraftStore(s => s.addSet);
+  const toggleDropSets = useRoutineDraftStore(s => s.toggleDropSets);
+  const addDropSet = useRoutineDraftStore(s => s.addDropSet);
+  const toggleNotes = useRoutineDraftStore(s => s.toggleNotes);
+  const updateNotes = useRoutineDraftStore(s => s.updateNotes);
+  const deletePartialReps = useRoutineDraftStore(s => s.deletePartialReps);
+  const updatePartialRepsField = useRoutineDraftStore(s => s.updatePartialRepsField);
+  const showModal = useModalStore(s => s.showModal);
+  
+  const openPartialRepsModal = (step: any) => {
+    showModal({
+      content: <PartialRepsModal set={step} updatePartialRepsField={updatePartialRepsField} />
+    });
+  };
   const weightUnit = useGlobalRoutinesSettings((state) => state.weightUnit);
   const advancedMode = useGlobalRoutinesSettings((state) => state.advancedMode);
 
@@ -108,14 +115,14 @@ export default function SetItem({
 
           <View className="flex-row">
             <TouchableOpacity
-              onPress={toggleNotes}
+              onPress={() => toggleNotes(set.id)}
               className={`rounded-full px-2 py-px border ${set.notes.enabled ? "bg-red-400" : ""}`}
             >
               <Text>Notas</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={toggleDropSets}
+              onPress={() => toggleDropSets(set.id)}
               className={`rounded-full px-2 py-px border ${set.dropSets?.length > 0 ? "bg-red-400" : ""}`}
             >
               <Text>Drop Sets</Text>
@@ -127,7 +134,7 @@ export default function SetItem({
               className={`rounded-full flex-row items-center px-2 py-px border ${set.partialReps?.count > 0 ? "bg-red-400" : ""}`}
             >
               {set.partialReps?.count != 0 && (
-                <TouchableOpacity onPress={() => deletePartialReps()}>
+                <TouchableOpacity onPress={() => deletePartialReps(set.id)}>
                   <Ionicons name="close" size={12} className="mr-2" />
                 </TouchableOpacity>
               )}
@@ -145,10 +152,9 @@ export default function SetItem({
             <TextInput
               value={set.notes.text}
               className="border"
-              autoFocus
               placeholder="Nota para esta serie..."
               selectTextOnFocus
-              onChangeText={(text) => updateNotes(text)}
+              onChangeText={(text) => updateNotes(set.id, text)}
             />
           )}
 
@@ -162,13 +168,9 @@ export default function SetItem({
               <DropSets
                 set={set}
                 advancedMode={advancedMode}
-                updateDropSetField={updateDropSetField}
-                deleteDropSet={deleteDropSet}
-                openDropSetPartialRepsModal={openDropSetPartialRepsModal}
-                deletePartialReps={deletePartialReps}
               />
 
-              <TouchableOpacity onPress={addDropSet}>
+              <TouchableOpacity onPress={() => addDropSet(set.id)}>
                 <Text>Agregar Drop Set</Text>
               </TouchableOpacity>
             </View>
@@ -177,11 +179,11 @@ export default function SetItem({
       )}
 
       <View className="flex-row gap-2">
-        <TouchableOpacity onPress={duplicateSet}>
+        <TouchableOpacity onPress={() => addSet(set.exerciseId, { weight: set.weight, reps: set.reps, rir: set.rir })}>
           <Text>Duplicar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={deleteSet}>
+        <TouchableOpacity onPress={() => deleteStep(set.id)}>
           <Text>Eliminar</Text>
         </TouchableOpacity>
       </View>

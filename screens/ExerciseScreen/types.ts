@@ -1,6 +1,16 @@
-export type ExerciseTranslations = {
+
+
+
+export type Rest = {
+  id: string;
+  type: "rest";
+  duration: number; // in seconds
+};
+
+export type Routine = {
+  id: string;
   name: string;
-  instructions?: string[];
+  steps: (Set | Rest)[];
 };
 
 export type SetTypes = "effective" | "warm_up" | "approximation" | "custom";
@@ -10,6 +20,7 @@ export interface Set {
   weight: string;
   reps: string;
   rir: string;
+  exerciseId: string;
   type: SetTypes;
   customTypeName?: string;
   dropSets?: DropSet[];
@@ -32,9 +43,11 @@ export interface Notes {
 }
 
 export interface PartialReps {
-  count: string;
-  rom: string;
+  count?: string;
+  rom?: string;
   customRom?: string;
+  min?: string;
+  max?: string;
 }
 
 export interface DropSet {
@@ -44,3 +57,9 @@ export interface DropSet {
   rir: string;
   partialReps: PartialReps;
 }
+
+
+export type ExerciseTranslations = {
+  name: string;
+  instructions?: string[];
+};

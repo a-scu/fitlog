@@ -3,15 +3,7 @@ import { RootStackParamList } from "@/navigation/types";
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-import {
-  Text,
-  TouchableOpacity,
-  View,
-  ScrollView,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { Text, TouchableOpacity, View, ScrollView, Keyboard, KeyboardAvoidingView, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { randomId } from "@/utils/random";
@@ -19,75 +11,88 @@ import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
 
 import Instructions from "./components/Instructions";
-import { ExerciseTranslations, Set } from "./types";
+import { ExerciseTranslations, Routine, Set } from "./types";
 import SetItem from "./components/Series/SetItem";
 import HeaderInfo from "./components/HeaderInfo";
 import { useGlobalRoutinesSettings } from "@/stores/GlobalRoutinesSettings";
 import { useModalStore } from "@/stores/useModalStore";
 import PartialRepsModal from "./modals/PartialRepsModal";
-import { useRoutines } from "@/stores/RoutinesStore";
+import { useRoutinesStore } from "@/stores/RoutinesStore";
+import { useRoutineDraftStore } from "@/stores/RoutineDraftStore";
+import { TextInput } from "react-native";
 
 interface ExerciseScreenProps {
   navigation: any;
-  route: RouteProp<RootStackParamList, "exercise">;
+  route: any;
 }
 
-export default function ExerciseScreen({
-  navigation,
-  route,
-}: ExerciseScreenProps) {
+export default function ExerciseScreen({ navigation, route }: ExerciseScreenProps) {
   const exercise = route.params?.exercise;
+  const routineId = route.params?.routineId;
 
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+
   const showModal = useModalStore((state) => state.showModal);
-  const setRoutines = useRoutines((state) => state.setRoutines);
+
+  const setRoutines = useRoutinesStore((state) => state.setRoutines);
+  const routines = useRoutinesStore((state) => state.routines);
 
   const weightUnit = useGlobalRoutinesSettings((state) => state.weightUnit);
-  const showSliders = useGlobalRoutinesSettings((state) => state.showSliders);
   const advancedMode = useGlobalRoutinesSettings((state) => state.advancedMode);
-  const toggleWeightUnit = useGlobalRoutinesSettings(
-    (state) => state.toggleWeightUnit,
-  );
-  const toggleShowSliders = useGlobalRoutinesSettings(
-    (state) => state.toggleShowSliders,
-  );
-  const toggleAdvancedMode = useGlobalRoutinesSettings(
-    (state) => state.toggleAdvancedMode,
-  );
+  const toggleWeightUnit = useGlobalRoutinesSettings((state) => state.toggleWeightUnit);
+  const toggleAdvancedMode = useGlobalRoutinesSettings((state) => state.toggleAdvancedMode);
 
-  const [exerciseSets, setExerciseSets] = useState<Set[]>([
-    {
-      id: "1",
-      weight: "",
-      reps: "",
-      rir: "",
-      type: "effective",
-      weightIsRange: false,
-      repsIsRange: false,
-      rirIsRange: false,
-      dropSets: [],
-      partialReps: {
-        count: "",
-        rom: "",
-        customRom: "",
-      },
-      notes: { enabled: false, text: "" },
-    },
-  ]);
+  const steps = useRoutineDraftStore((state) => state.steps);
+  const setSteps = useRoutineDraftStore((state) => state.setSteps);
+  const clearDraft = useRoutineDraftStore((state) => state.clearDraft);
+  const addSet = useRoutineDraftStore((state) => state.addSet);
+  const addRest = useRoutineDraftStore((state) => state.addRest);
+  const updateRestDuration = useRoutineDraftStore((state) => state.updateRestDuration);
+  const deleteStep = useRoutineDraftStore((state) => state.deleteStep);
 
-  console.log(exerciseSets);
+  useEffect(() => {
+    if (route.params.editMode && route.params.startIndex !== undefined) {
+      const routine = useRoutinesStore.getState().routines.find((r: any) => r.id === routineId);
+      if (routine) {
+        const editableSteps = routine.steps.slice(route.params.startIndex, route.params.endIndex + 1);
+        setSteps(editableSteps);
+      }
+    } else if (steps.length === 0 && exercise) {
+      setSteps([
+        {
+          id: randomId(),
+          weight: "",
+          reps: "",
+          rir: "",
+          exerciseId: exercise.exerciseId,
+          type: "effective",
+          weightIsRange: false,
+          repsIsRange: false,
+          rirIsRange: false,
+          dropSets: [],
+          partialReps: {
+            count: "",
+            rom: "",
+            customRom: "",
+          },
+          notes: { enabled: false, text: "" },
+        },
+      ]);
+    }
+    
+    return () => {
+      clearDraft();
+    };
+  }, [exercise, route.params.editMode]);
 
-  const exerciseKey = exercise.name.toLowerCase();
+  const exerciseKey = exercise?.name?.toLowerCase() ?? "";
   const translatedExercise = t(`exercises.${exerciseKey}`, {
     returnObjects: true,
     defaultValue: {},
   }) as ExerciseTranslations;
-  const displayName =
-    translatedExercise?.name ??
-    (exercise?.name ? capitalize(exercise.name) : "");
-  const instructions =
-    translatedExercise?.instructions ?? exercise?.instructions ?? [];
+  const displayName = translatedExercise?.name ?? (exercise?.name ? capitalize(exercise.name) : "");
+  const instructions = translatedExercise?.instructions ?? exercise?.instructions ?? [];
 
   useEffect(() => {
     if (displayName) {
@@ -105,227 +110,6 @@ export default function ExerciseScreen({
     };
   }, []);
 
-  const addSet = ({
-    weight,
-    reps,
-    rir,
-  }: {
-    weight?: string;
-    reps?: string;
-    rir?: string;
-  }) => {
-    const newId = randomId();
-    const lastSet = exerciseSets[exerciseSets.length - 1];
-    setExerciseSets((prev) => [
-      ...prev,
-      {
-        id: newId,
-        weight: weight ?? lastSet?.weight ?? "",
-        reps: reps ?? lastSet?.reps ?? "10",
-        rir: rir ?? lastSet?.rir ?? "0",
-        type: lastSet?.type ?? "effective",
-        weightIsRange: false,
-        repsIsRange: false,
-        rirIsRange: false,
-        dropSets: [],
-        partialReps: {
-          count: "",
-          rom: "",
-          customRom: "",
-        },
-        notes: { enabled: false, text: "" },
-      },
-    ]);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  };
-
-  const deleteSet = (id: string) => {
-    setExerciseSets((prev) =>
-      prev.length > 1 ? prev.filter((s) => s.id !== id) : prev,
-    );
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const updateSetField = (setId: string, field: string, value: any) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => (s.id === setId ? { ...s, [field]: value } : s)),
-    );
-  };
-
-  const toggleDropSets = (set: Set) => {
-    if (set?.dropSets?.length > 0) {
-      deleteDropSet(set.id, set.dropSets[set.dropSets.length - 1].id);
-      return;
-    }
-
-    addDropSet(set.id);
-  };
-
-  const addDropSet = (setId: string) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => {
-        if (s.id !== setId) return s;
-        const newDropSetId = randomId();
-        const newDropSet = {
-          id: newDropSetId,
-          weight: s.dropSets?.length
-            ? s.dropSets[s.dropSets.length - 1].weight
-            : s.weight,
-          reps: s.dropSets?.length
-            ? s.dropSets[s.dropSets.length - 1].reps
-            : s.reps,
-          rir: s.dropSets?.length
-            ? s.dropSets[s.dropSets.length - 1].rir
-            : s.rir,
-          partialReps: {
-            count: "",
-            rom: "",
-            customRom: "",
-          },
-        };
-        return { ...s, dropSets: [...(s.dropSets || []), newDropSet] };
-      }),
-    );
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const deleteDropSet = (setId: string, dropSetId: string) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => {
-        if (s.id !== setId) return s;
-        return {
-          ...s,
-          dropSets: s.dropSets?.filter((ds: any) => ds.id !== dropSetId),
-        };
-      }),
-    );
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const updateDropSetField = (
-    setId: string,
-    dropSetId: string,
-    field: string,
-    value: any,
-  ) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => {
-        if (s.id !== setId) return s;
-        return {
-          ...s,
-          dropSets: s.dropSets?.map((ds: any) =>
-            ds.id === dropSetId ? { ...ds, [field]: value } : ds,
-          ),
-        };
-      }),
-    );
-  };
-
-  const updateDropSetPartialRepsField = (
-    setId: string,
-    dropSetId: string,
-    field: string,
-    value: any,
-  ) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => {
-        if (s.id !== setId) return s;
-        return {
-          ...s,
-          dropSets: s.dropSets?.map((ds: any) =>
-            ds.id === dropSetId
-              ? {
-                  ...ds,
-                  partialReps: { ...ds.partialReps, [field]: value },
-                }
-              : ds,
-          ),
-        };
-      }),
-    );
-  };
-
-  const deletePartialReps = (setId: string, dropSetId?: string) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => {
-        if (s.id !== setId) return s;
-        if (dropSetId) {
-          return {
-            ...s,
-            dropSets: s.dropSets?.map((ds: any) =>
-              ds.id === dropSetId
-                ? {
-                    ...ds,
-                    partialReps: {
-                      count: "",
-                      rom: "",
-                      customRom: "",
-                    },
-                  }
-                : ds,
-            ),
-          };
-        }
-        return {
-          ...s,
-          partialReps: {
-            count: "",
-            rom: "",
-            customRom: "",
-          },
-        };
-      }),
-    );
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const openPartialRepsModal = (
-    set: any,
-    updateFn: (id: string, field: string, value: any) => void,
-  ) => {
-    showModal({
-      content: <PartialRepsModal set={set} updatePartialRepsField={updateFn} />,
-    });
-
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const updatePartialRepsField = (setId: string, field: string, value: any) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => {
-        if (s.id !== setId) return s;
-        return { ...s, partialReps: { ...s.partialReps, [field]: value } };
-      }),
-    );
-  };
-
-  const toggleNotes = (setId: string) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => {
-        if (s.id !== setId) return s;
-        return {
-          ...s,
-          notes: { enabled: s.notes.enabled ? false : true, text: "" },
-        };
-      }),
-    );
-  };
-
-  const updateNotes = (setId: string, note: string) => {
-    setExerciseSets((prev) =>
-      prev.map((s) => {
-        if (s.id !== setId) return s;
-        return { ...s, notes: { ...s.notes, text: note } };
-      }),
-    );
-  };
-
-  const addToRoutine = () => {
-    setRoutines((prev) => {
-      console.log("Routines asdsa", prev);
-    });
-  };
-
   if (!exercise) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -334,11 +118,37 @@ export default function ExerciseScreen({
     );
   }
 
+  const addToRoutine = () => {
+    const isNewRoutine = !routines.some((r) => r.id === routineId);
+
+    if (isNewRoutine) {
+      const newRoutine: Routine = {
+        id: routineId,
+        name: "New Routine",
+        steps: [...steps],
+      };
+      setRoutines([newRoutine, ...routines]);
+    } else {
+      const updatedRoutines = routines.map((r) => {
+        if (r.id === routineId) {
+          if (route.params.editMode && route.params.startIndex !== undefined) {
+             const newSteps = [...r.steps];
+             newSteps.splice(route.params.startIndex, route.params.endIndex - route.params.startIndex + 1, ...steps);
+             return { ...r, steps: newSteps };
+          } else {
+             return { ...r, steps: [...r.steps, ...steps] };
+          }
+        }
+        return r;
+      });
+      setRoutines(updatedRoutines);
+    }
+    clearDraft();
+    navigation.goBack();
+  };
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
       <ScrollView
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
@@ -348,10 +158,11 @@ export default function ExerciseScreen({
       >
         {/* Content */}
         <View className="pb-3">
-          <TouchableOpacity onPress={addToRoutine}>
-            <Text>Agregar a la rutina</Text>
+          <TouchableOpacity onPress={addToRoutine} className="bg-red-400 m-3 p-3 rounded-lg">
+            <Text className="text-white text-center font-bold">
+              {route.params.editMode ? "Guardar cambios" : "Agregar a la rutina"}
+            </Text>
           </TouchableOpacity>
-
           {/* Header Info */}
           <HeaderInfo exercise={exercise} />
 
@@ -366,103 +177,41 @@ export default function ExerciseScreen({
             <View className="gap-4 flex-row items-center justify-end pr-3">
               {/* Toggle Peso */}
 
-              <TouchableOpacity
-                onPress={toggleWeightUnit}
-                className="flex-row items-center justify-center gap-0.5"
-              >
+              <TouchableOpacity onPress={toggleWeightUnit} className="flex-row items-center justify-center gap-0.5">
                 <Text className="text-[10px] text-center font-medium uppercase text-neutral-400">
                   Peso ({weightUnit})
                 </Text>
-                <Ionicons
-                  name="repeat"
-                  size={12}
-                  className="!text-neutral-400"
-                />
-              </TouchableOpacity>
-
-              {/* Toggle Sliders */}
-
-              <TouchableOpacity
-                onPress={toggleShowSliders}
-                className="flex-row items-center justify-center gap-0.5"
-              >
-                <Text className="text-[10px] text-center font-medium uppercase text-neutral-400">
-                  Sliders
-                </Text>
-
-                <Ionicons
-                  name={showSliders ? "checkbox" : "square-outline"}
-                  size={12}
-                  className="!text-neutral-400"
-                />
+                <Ionicons name="repeat" size={12} className="!text-neutral-400" />
               </TouchableOpacity>
 
               {/* Toggle Modo Avanzado */}
 
-              <TouchableOpacity
-                onPress={toggleAdvancedMode}
-                className="flex-row items-center justify-center gap-0.5"
-              >
-                <Text className="text-[10px] text-center font-medium uppercase text-neutral-400">
-                  Modo Avanzado
-                </Text>
+              <TouchableOpacity onPress={toggleAdvancedMode} className="flex-row items-center justify-center gap-0.5">
+                <Text className="text-[10px] text-center font-medium uppercase text-neutral-400">Modo Avanzado</Text>
 
-                <Ionicons
-                  name={advancedMode ? "checkbox" : "square-outline"}
-                  size={12}
-                  className="!text-neutral-400"
-                />
+                <Ionicons name={advancedMode ? "checkbox" : "square-outline"} size={12} className="!text-neutral-400" />
               </TouchableOpacity>
             </View>
 
             {/* Sets List */}
 
             <View className="border-t border-neutral-100 gap-6 p-3">
-              {exerciseSets.map((set, index) => (
-                <SetItem
-                  key={set.id}
-                  set={set}
-                  index={index}
-                  setsCount={exerciseSets.length}
-                  updateSetField={updateSetField}
-                  deleteSet={() => deleteSet(set.id)}
-                  setExerciseSets={setExerciseSets}
-                  duplicateSet={() =>
-                    addSet({ weight: set.weight, reps: set.reps, rir: set.rir })
-                  }
-                  addDropSet={() => addDropSet(set.id)}
-                  updateDropSetField={updateDropSetField}
-                  deleteDropSet={(dropSetId: string) =>
-                    deleteDropSet(set.id, dropSetId)
-                  }
-                  toggleDropSets={() => toggleDropSets(set)}
-                  openPartialRepsModal={() =>
-                    openPartialRepsModal(set, updatePartialRepsField)
-                  }
-                  updatePartialRepsField={updatePartialRepsField}
-                  updateDropSetPartialRepsField={updateDropSetPartialRepsField}
-                  openDropSetPartialRepsModal={(dropSet: any) =>
-                    openPartialRepsModal(dropSet, (id, field, value) =>
-                      updateDropSetPartialRepsField(set.id, id, field, value),
-                    )
-                  }
-                  deletePartialReps={(dropSetId?: string) =>
-                    deletePartialReps(set.id, dropSetId)
-                  }
-                  toggleNotes={() => toggleNotes(set.id)}
-                  updateNotes={(note: string) => updateNotes(set.id, note)}
-                />
-              ))}
+              {steps.map((step, index) => {
+
+
+                const set = step as Set;
+                return <SetItem key={set.id} set={set} index={index} setsCount={steps.length} />;
+              })}
             </View>
 
+            
+
             <TouchableOpacity
-              onPress={() => addSet({})}
+              onPress={() => addSet(exercise.exerciseId, {})}
               className="mx-3 flex-row items-center justify-center gap-2 rounded-md h-16"
             >
               <Ionicons name="add" size={20} className="!text-neutral-900" />
-              <Text className="font-semibold text-sm text-neutral-900">
-                AGREGAR SERIE
-              </Text>
+              <Text className="font-semibold text-sm text-neutral-900">AGREGAR SERIE</Text>
             </TouchableOpacity>
           </View>
 

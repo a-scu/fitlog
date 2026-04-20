@@ -4,10 +4,6 @@ import DropSetItem from "./DropSetItem";
 
 export default function DropSets({
   set,
-  updateDropSetField,
-  deleteDropSet,
-  openDropSetPartialRepsModal,
-  deletePartialReps,
 }: any) {
   return (
     <View>
@@ -19,10 +15,6 @@ export default function DropSets({
           index={index}
           dropSet={dropSet}
           set={set}
-          updateDropSetField={updateDropSetField}
-          deleteDropSet={deleteDropSet}
-          openDropSetPartialRepsModal={openDropSetPartialRepsModal}
-          deletePartialReps={deletePartialReps}
         />
       ))}
     </View>

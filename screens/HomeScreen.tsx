@@ -1,23 +1,24 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React from "react";
 import Header from "@/components/Header";
-import { useRoutines } from "@/stores/RoutinesStore";
+import { useRoutinesStore } from "@/stores/RoutinesStore";
 import { randomId } from "@/utils/random";
 
 export default function HomeScreen({ navigation }) {
-  const routines = useRoutines((state) => state.routines);
-  const setRoutines = useRoutines((state) => state.setRoutines);
+  const routines = useRoutinesStore((state) => state.routines);
+  const setRoutines = useRoutinesStore((state) => state.setRoutines);
 
   console.log("Routines", routines);
 
   const createRoutine = () => {
-    const newRoutine = {
-      id: randomId(),
-      name: "Rutina " + (routines.length + 1),
-      steps: [],
-    };
-    setRoutines([...routines, newRoutine]);
-    navigation.navigate("exercises", { routineId: newRoutine.id });
+    const routineId = randomId();
+    const newRoutine = { id: routineId, name: "Nueva Rutina", steps: [] };
+    setRoutines([newRoutine, ...routines]);
+    navigation.navigate("routine", { routineId });
+  };
+
+  const deleteRoutines = () => {
+    setRoutines([]);
   };
 
   return (
@@ -34,13 +35,15 @@ export default function HomeScreen({ navigation }) {
 
         {/* Rutinas */}
 
+        <TouchableOpacity onPress={deleteRoutines}>
+          <Text>Delete routines</Text>
+        </TouchableOpacity>
+
         <View className="gap-2">
           {routines.map((routine) => (
             <TouchableOpacity
               key={routine.id}
-              onPress={() =>
-                navigation.navigate("routine", { routineId: routine.id })
-              }
+              onPress={() => navigation.navigate("routine", { routineId: routine.id })}
               className="w-full h-24 border border-neutral-400 justify-center p-3 rounded-2xl"
             >
               <Text>{routine.name}</Text>
