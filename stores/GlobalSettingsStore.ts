@@ -9,7 +9,7 @@ interface GlobalRoutinesSettings {
     toggleAdvancedMode : () => void;
 }
 
-export const useGlobalRoutinesSettings = create<GlobalRoutinesSettings>()(
+export const useGlobalSettingsStore = create<GlobalRoutinesSettings>()(
     persist(
         (set) => ({
             weightUnit : 'kg',

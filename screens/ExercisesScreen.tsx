@@ -7,19 +7,26 @@ import {
   Keyboard,
   TouchableOpacity,
 } from "react-native";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useFilters } from "@/stores/FiltersStore";
+import { useRoutinesStore } from "@/stores/RoutinesStore";
 
 import Filters from "@/components/exercises/Filters";
 import ExerciseItem from "@/components/exercises/ExerciseItem";
 
 import EXERCISES from "@/assets/data/exercises.json";
 
-export default function ExercisesScreen({ navigation, route }) {
-  const routineId = route.params.routineId;
+export default function ExercisesScreen({ navigation }) {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const addSet = useRoutinesStore((state) => state.addSet);
+
+  const addSelectedToRoutine = () => {
+    selectedIds.forEach(id => addSet(id, {}));
+    navigation.goBack();
+  };
 
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -93,17 +100,26 @@ export default function ExercisesScreen({ navigation, route }) {
         </TouchableOpacity>
       </View>
 
-      <ExerciseList search={search} routineId={routineId} />
+      <ExerciseList search={search} selectedIds={selectedIds} setSelectedIds={setSelectedIds} />
+      
+      {selectedIds.length > 0 && (
+        <View className="absolute bottom-10 w-full px-4">
+          <TouchableOpacity onPress={addSelectedToRoutine} className="bg-red-500 p-4 rounded-xl shadow-lg">
+            <Text className="text-white text-center font-bold text-lg">Agregar {selectedIds.length} ejercicios</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
 
 interface ExerciseListProps {
   search: string;
-  routineId: string;
+  selectedIds: string[];
+  setSelectedIds: any;
 }
 
-const ExerciseList = ({ search, routineId }: ExerciseListProps) => {
+const ExerciseList = ({ search, selectedIds, setSelectedIds }: ExerciseListProps) => {
   const { t } = useTranslation();
   const bodyParts = useFilters((state) => state.bodyParts);
   const equipments = useFilters((state) => state.equipments);
@@ -135,9 +151,9 @@ const ExerciseList = ({ search, routineId }: ExerciseListProps) => {
   const renderItem = useMemo(
     () =>
       ({ item }: { item: any }) => (
-        <ExerciseItem exercise={item} routineId={routineId} />
+        <ExerciseItem exercise={item} selected={selectedIds.includes(item.exerciseId)} onToggle={() => setSelectedIds((prev: any) => prev.includes(item.exerciseId) ? prev.filter((i: any) => i !== item.exerciseId) : [...prev, item.exerciseId])} selectionMode={selectedIds.length > 0} />
       ),
-    [],
+    [selectedIds],
   );
 
   return (
@@ -169,32 +185,3 @@ const ExerciseList = ({ search, routineId }: ExerciseListProps) => {
     </View>
   );
 };
-
-// const PAGE_SIZE = 15;
-
-// const [itemsLimit, setItemsLimit] = useState(PAGE_SIZE);
-// const [isLoading, setIsLoading] = useState(false);
-
-// useEffect(() => {
-//   setItemsLimit(PAGE_SIZE);
-// }, [search, bodyParts, equipments, muscles]);
-
-// const dataToShow = useMemo(() => (filteredExercises.slice(0, itemsLimit)), [filteredExercises, itemsLimit]);
-
-// const onEndReached = () => {
-//   if (isLoading || dataToShow.length >= filteredExercises.length) return;
-
-//   setIsLoading(true);
-//   // Simulamos un pequeño delay para que la transición sea suave y el footer sea visible
-//   setItemsLimit((prev) => prev + PAGE_SIZE);
-//   setIsLoading(false);
-// };
-
-//  ListFooterComponent={() =>
-//     isLoading ? (
-//       <View className="w-full px-4 py-6 justify-center items-center">
-//         <Image source={require("@/assets/images/loading.gif")} style={{ width: 32, height: 32 }} />
-//       </View>
-//     ) : null
-//   }
-// onEndReached={onEndReached}

@@ -14,7 +14,7 @@ export default function HomeScreen({ navigation }) {
     const routineId = randomId();
     const newRoutine = { id: routineId, name: "Nueva Rutina", steps: [] };
     setRoutines([newRoutine, ...routines]);
-    navigation.navigate("routine", { routineId });
+    navigation.navigate("editRoutine", { routineId });
   };
 
   const deleteRoutines = () => {

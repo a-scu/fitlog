@@ -3,11 +3,7 @@ import "./styles/global.css";
 import "@/lib/i18n";
 
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import {
-  DarkTheme,
-  DefaultTheme,
-  NavigationContainer,
-} from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -24,6 +20,8 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import Modal from "@/components/modals/Modal";
 import ExercisesScreen from "./screens/ExercisesScreen";
 import Routine from "./screens/Routine/Routine";
+import EditRoutine from "./screens/EditRoutine/EditRoutine";
+import { useThemeStore } from "@/stores/ThemeStore";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,7 +33,11 @@ export default function App() {
     ...FontAwesome.font,
   });
 
+  // useColorScheme() already reflects Appearance.setColorScheme() set by ThemeStore
   const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+  // Keep the store subscribed so the component re-renders when mode changes
+  useThemeStore((s) => s.mode);
 
   useEffect(() => {
     if (error) throw error;
@@ -51,24 +53,20 @@ export default function App() {
     return null;
   }
 
-  const theme = colorScheme === "dark" ? DarkTheme : DefaultTheme;
+  const navTheme = isDark ? DarkTheme : DefaultTheme;
 
   return (
     <>
-      <StatusBar style="dark" />
+      <StatusBar style={isDark ? "light" : "dark"} />
       <GestureHandlerRootView className="flex-1">
         <BottomSheetModalProvider>
-          <NavigationContainer>
+          <NavigationContainer theme={navTheme}>
             <Stack.Navigator
               screenOptions={{
                 header: (props) => <Header title={props.options.title} />,
               }}
             >
-              <Stack.Screen
-                name="(tabs)"
-                component={BottomTabsNavigator}
-                options={{ headerShown: false }}
-              />
+              <Stack.Screen name="(tabs)" component={BottomTabsNavigator} options={{ headerShown: false }} />
               <Stack.Screen
                 name="exercises"
                 component={ExercisesScreen}
@@ -86,6 +84,13 @@ export default function App() {
               <Stack.Screen
                 name="routine"
                 component={Routine}
+                options={({ route }) => ({
+                  headerShown: true,
+                })}
+              />
+              <Stack.Screen
+                name="editRoutine"
+                component={EditRoutine}
                 options={({ route }) => ({
                   headerShown: true,
                 })}

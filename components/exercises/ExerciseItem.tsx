@@ -17,10 +17,14 @@ const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 const ExerciseItem = ({
   exercise,
-  routineId,
+  selected,
+  onToggle,
+  selectionMode,
 }: {
   exercise: any;
-  routineId: string;
+  selected?: boolean;
+  onToggle?: () => void;
+  selectionMode?: boolean;
 }) => {
   const navigation = useNavigation<any>();
 
@@ -36,13 +40,22 @@ const ExerciseItem = ({
   }));
 
   const handlePress = useCallback(() => {
-    navigation.navigate("exercise", { exercise, routineId });
-  }, [navigation, exercise]);
+    if (selectionMode && onToggle) {
+      onToggle();
+    } else {
+      navigation.navigate("exercise", { exercise });
+    }
+  }, [navigation, exercise, selectionMode, onToggle]);
+
+  const handleLongPress = useCallback(() => {
+    if (onToggle) onToggle();
+  }, [onToggle]);
 
   return (
     <Pressable
       onPress={handlePress}
-      className="flex flex-row flex-1 justify-between bg-white gap-3 px-3 py-2"
+      onLongPress={handleLongPress}
+      className={`flex flex-row flex-1 justify-between gap-3 px-3 py-2 rounded-lg ${selected ? "bg-red-50 border-2 border-red-500" : "bg-white border-2 border-transparent"}`}
     >
       <View className="overflow-hidden size-24 items-center justify-center bg-neutral-50 rounded-md">
         <Ionicons
@@ -51,6 +64,11 @@ const ExerciseItem = ({
           className="!text-neutral-200 absolute"
         />
 
+        {selected && (
+          <View className="absolute z-10 top-1 right-1 bg-white rounded-full">
+            <Ionicons name="checkmark-circle" size={24} color="#ef4444" />
+          </View>
+        )}
         <AnimatedImage
           source={{ uri: gifUrl }}
           style={[

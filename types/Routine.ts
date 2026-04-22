@@ -1,38 +1,36 @@
-
-
-
 export type Rest = {
   id: string;
   type: "rest";
   duration: number; // in seconds
 };
 
+export type Step = Set | Rest;
+
 export type Routine = {
   id: string;
   name: string;
-  steps: (Set | Rest)[];
+  steps: Step[];
 };
 
 export type SetTypes = "effective" | "warm_up" | "approximation" | "custom";
 
+/** Metric used for weight, reps and rir */
+export interface Metric {
+  value: string;
+  min: string;
+  max: string;
+  isRange: boolean;
+}
+
 export interface Set {
   id: string;
-  weight: string;
-  reps: string;
-  rir: string;
+  weight: Metric;
+  reps: Metric;
+  rir: Metric;
   exerciseId: string;
   type: SetTypes;
   customTypeName?: string;
-  dropSets?: DropSet[];
-  weightIsRange?: boolean;
-  repsIsRange?: boolean;
-  rirIsRange?: boolean;
-  minWeight?: string;
-  maxWeight?: string;
-  minReps?: string;
-  maxReps?: string;
-  minRir?: string;
-  maxRir?: string;
+  dropSets: DropSet[];
   partialReps: PartialReps;
   notes: Notes;
 }
@@ -43,21 +41,21 @@ export interface Notes {
 }
 
 export interface PartialReps {
-  count?: string;
-  rom?: string;
-  customRom?: string;
-  min?: string;
-  max?: string;
+  isRange: boolean;
+  value: string;  // used when isRange = false
+  min: string;    // used when isRange = true
+  max: string;    // used when isRange = true
+  rom: string;
+  customRom: string;
 }
 
 export interface DropSet {
   id: string;
-  weight: string;
-  reps: string;
-  rir: string;
+  weight: Metric;
+  reps: Metric;
+  rir: Metric;
   partialReps: PartialReps;
 }
-
 
 export type ExerciseTranslations = {
   name: string;

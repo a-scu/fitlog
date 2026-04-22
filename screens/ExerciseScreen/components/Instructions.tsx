@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 import { formatInstruction } from "@/lib/utils";
-import { ExerciseTranslations } from "../types";
+import { ExerciseTranslations } from "@/types/Routine";
 
 const Instructions = ({ children: instructions }: { children: ExerciseTranslations["instructions"] }) => {
   const { t } = useTranslation();
