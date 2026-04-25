@@ -10,6 +10,7 @@ import PartialReps from "./PartialReps";
 import PartialRepsModal from "../modals/PartialRepsModal";
 
 import { Set as SetType, DropSet as DropSetType } from "@/types/Routine";
+import colors from "tailwindcss/colors";
 
 export default function DropSet({ set, dropSet, index }: { set: SetType; dropSet: DropSetType; index: number }) {
   const updateDropSetMetricField = useRoutinesStore((s) => s.updateDropSetMetricField);
@@ -38,14 +39,17 @@ export default function DropSet({ set, dropSet, index }: { set: SetType; dropSet
     : dropSet.partialReps.value;
 
   return (
-    <View key={index} className="gap-1 pr-1">
-      <View className="flex-row">
-        <Ionicons name="return-down-forward-outline" size={14} className="p-2" />
+    <View key={index} className="gap-1.5 pr-1">
+      <View className="flex-row items-center">
+        <View className="items-center justify-center p-2">
+          <Text className="leading-none text-sm">{index + 1}</Text>
+          <Ionicons name="return-down-forward-outline" className="text-base leading-none" />
+        </View>
 
-        <View className="flex-1 gap-1 flex-row">
+        <View className="flex-1 gap-1.5 flex-row">
           {/* Weight */}
           <MetricInput
-            label={<Text>PESO ({weightUnit})</Text>}
+            label={`PESO (${weightUnit})`}
             metric={dropSet.weight}
             onUpdateValue={(text) => updateDropSetMetricField(set.id, dropSet.id, "weight", "value", text)}
             onUpdateMin={(text) => updateDropSetMetricField(set.id, dropSet.id, "weight", "min", text)}
@@ -57,7 +61,7 @@ export default function DropSet({ set, dropSet, index }: { set: SetType; dropSet
 
           {/* Reps */}
           <MetricInput
-            label={<Text>REPES</Text>}
+            label="REPES"
             metric={dropSet.reps}
             onUpdateValue={(text) => updateDropSetMetricField(set.id, dropSet.id, "reps", "value", text)}
             onUpdateMin={(text) => updateDropSetMetricField(set.id, dropSet.id, "reps", "min", text)}
@@ -67,7 +71,7 @@ export default function DropSet({ set, dropSet, index }: { set: SetType; dropSet
 
           {/* RIR */}
           <MetricInput
-            label={<Text>RIR</Text>}
+            label="RIR"
             metric={dropSet.rir}
             onUpdateValue={(text) => updateDropSetMetricField(set.id, dropSet.id, "rir", "value", text)}
             onUpdateMin={(text) => updateDropSetMetricField(set.id, dropSet.id, "rir", "min", text)}
@@ -77,28 +81,43 @@ export default function DropSet({ set, dropSet, index }: { set: SetType; dropSet
         </View>
       </View>
 
-      {/* Partials Toggle */}
-      <TouchableOpacity
-        onPress={openDropSetPartialRepsModal}
-        className={`justify-center flex-row self-start items-center px-1.5 rounded-full border ${
-          hasPartialReps ? "bg-red-400 border-red-400" : "border-neutral-200"
-        }`}
-      >
-        {hasPartialReps && (
-          <TouchableOpacity onPress={() => deletePartialReps(set.id, dropSet.id)}>
-            <Ionicons name="close" size={12} className="mr-2" />
+      <View className="flex-row items-center gap-1">
+        {/* Partials Toggle */}
+        {hasPartialReps ? (
+          <TouchableOpacity
+            onPress={openDropSetPartialRepsModal}
+            className={`justify-center flex-row self-start items-center px-1.5 rounded-full border ${
+              hasPartialReps ? "bg-red-400 border-red-400" : "border-neutral-200"
+            }`}
+          >
+            {hasPartialReps && (
+              <TouchableOpacity onPress={() => deletePartialReps(set.id, dropSet.id)}>
+                <Ionicons name="close" size={12} className="mr-2" />
+              </TouchableOpacity>
+            )}
+            {hasPartialReps ? (
+              <PartialReps set={dropSet} />
+            ) : (
+              <Text className="text-[10px] font-bold text-neutral-400">Parciales</Text>
+            )}
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={openDropSetPartialRepsModal}
+            className="flex-row items-center gap-1 border rounded-md border-neutral-200 py-1 px-2"
+          >
+            <Text className="text-xs text-neutral-400">Parciales</Text>
           </TouchableOpacity>
         )}
-        {hasPartialReps ? (
-          <PartialReps set={dropSet} />
-        ) : (
-          <Text className="text-[10px] font-bold text-neutral-400">Parciales</Text>
-        )}
-      </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => deleteDropSet(set.id, dropSet.id)}>
-        <Text>Eliminar Dropset</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => deleteDropSet(set.id, dropSet.id)}
+          className="flex-row items-center gap-1 border rounded-md border-neutral-200 py-1 px-2"
+        >
+          <Ionicons name="trash-bin-outline" className="!text-xs !leading-none" color={colors.neutral[400]} />
+          <Text className="text-xs text-neutral-400">Eliminar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

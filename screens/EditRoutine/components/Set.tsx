@@ -1,26 +1,25 @@
-import React from "react";
-import { Ionicons } from "@expo/vector-icons";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { Set as SetType } from "@/types/Routine";
 
-import { useModalStore } from "@/stores/useModalStore";
-import { useRoutinesStore } from "@/stores/RoutinesStore";
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
+import { useRoutinesStore } from "@/stores/RoutinesStore";
+import { useModalStore } from "@/stores/useModalStore";
 
-import DropSets from "./DropSets";
-import SetTypes from "./SetTypes";
 import PartialReps from "./PartialReps";
 import MetricInput from "./MetricInput";
+import DropSets from "./DropSets";
+import SetTypes from "./SetTypes";
 
 import PartialRepsModal from "../modals/PartialRepsModal";
+import colors from "tailwindcss/colors";
 
 export default function Set({ set, index }: { set: SetType; index: number }) {
   const updateMetricField = useRoutinesStore((s) => s.updateMetricField);
   const deleteStep = useRoutinesStore((s) => s.deleteStep);
   const addSet = useRoutinesStore((s) => s.addSet);
   const toggleDropSets = useRoutinesStore((s) => s.toggleDropSets);
-  const addDropSet = useRoutinesStore((s) => s.addDropSet);
   const toggleNotes = useRoutinesStore((s) => s.toggleNotes);
   const updateNotes = useRoutinesStore((s) => s.updateNotes);
   const deletePartialReps = useRoutinesStore((s) => s.deletePartialReps);
@@ -39,18 +38,18 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
   const hasPartialReps = set.partialReps.isRange ? set.partialReps.min && set.partialReps.max : set.partialReps.value;
 
   return (
-    <View className="gap-1 border bg-neutral-200 rounded-xl p-2">
+    <View className="border border-neutral-200 rounded-md p-3">
       {/* Header */}
-      <View className="flex-row px-2">
-        <Text>SERIE {index + 1}</Text>
+      <View className="flex-row items-center mb-2">
+        <Text className="font-medium text-lg">Serie {index + 1}</Text>
         <SetTypes set={set} />
       </View>
 
       {/* Metrics Row */}
-      <View className="flex-row gap-1 px-1 flex-1">
+      <View className="flex-row gap-1.5 flex-1">
         {/* Weight */}
         <MetricInput
-          label={<Text>PESO ({weightUnit})</Text>}
+          label={`PESO (${weightUnit.toUpperCase()})`}
           metric={set.weight}
           onUpdateValue={(text) => updateMetricField(set.id, "weight", "value", text)}
           onUpdateMin={(text) => updateMetricField(set.id, "weight", "min", text)}
@@ -60,7 +59,7 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
 
         {/* Reps */}
         <MetricInput
-          label={<Text>REPES</Text>}
+          label="REPES"
           metric={set.reps}
           onUpdateValue={(text) => updateMetricField(set.id, "reps", "value", text)}
           onUpdateMin={(text) => updateMetricField(set.id, "reps", "min", text)}
@@ -71,7 +70,7 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
         {/* RIR */}
         {advancedMode && (
           <MetricInput
-            label={<Text>RIR</Text>}
+            label="RIR"
             metric={set.rir}
             onUpdateValue={(text) => updateMetricField(set.id, "rir", "value", text)}
             onUpdateMin={(text) => updateMetricField(set.id, "rir", "min", text)}
@@ -83,34 +82,97 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
 
       {/* Advanced Options */}
       {advancedMode && (
-        <View className="flex-1 gap-2">
-          {/* Toggles */}
-          <View className="flex-row">
-            <TouchableOpacity
-              onPress={() => toggleNotes(set.id)}
-              className={`rounded-full px-2 py-px border ${set.notes.enabled ? "bg-red-400" : ""}`}
-            >
-              <Text>Notas</Text>
-            </TouchableOpacity>
-
+        <View className="flex-1 gap-2 mt-2">
+          <View className="flex-row gap-1.5 w-full">
             <TouchableOpacity
               onPress={() => toggleDropSets(set.id)}
-              className={`rounded-full px-2 py-px border ${set.dropSets?.length > 0 ? "bg-red-400" : ""}`}
+              className={`gap-1 flex-1 rounded-md flex-row p-3 border items-center justify-center ${set.dropSets.length > 0 ? "bg-neutral-100 border-neutral-300" : "border-neutral-200"}`}
             >
-              <Text>Drop Sets</Text>
+              <Ionicons
+                name="return-down-forward-outline"
+                className="text-sm"
+                color={set.dropSets.length > 0 ? colors.neutral[500] : colors.neutral[400]}
+              />
+              <Text
+                className={`text-sm text-medium ${set.dropSets.length > 0 ? "text-neutral-500" : "text-neutral-400"}`}
+              >
+                Drop Sets
+              </Text>
             </TouchableOpacity>
 
             {/* Partial Reps */}
             <TouchableOpacity
               onPress={() => openPartialRepsModal(set)}
-              className={`rounded-full flex-row items-center px-2 py-px border ${hasPartialReps ? "bg-red-400" : ""}`}
+              className={`gap-1 flex-1 rounded-md flex-row p-3 border items-center justify-center ${hasPartialReps ? "bg-neutral-100 border-neutral-300" : "border-neutral-200"}`}
             >
               {hasPartialReps && (
                 <TouchableOpacity onPress={() => deletePartialReps(set.id)}>
-                  <Ionicons name="close" size={12} className="mr-2" />
+                  <Ionicons
+                    name="close"
+                    size={12}
+                    className="mr-2"
+                    color={hasPartialReps ? colors.neutral[500] : colors.neutral[400]}
+                  />
                 </TouchableOpacity>
               )}
-              {hasPartialReps ? <PartialReps set={set} /> : <Text>Parciales</Text>}
+
+              {hasPartialReps ? (
+                <PartialReps set={set} />
+              ) : (
+                <Text className={`text-sm text-medium ${hasPartialReps ? "text-neutral-500" : "text-neutral-400"}`}>
+                  Parciales
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Drop Sets */}
+          {set?.dropSets?.length > 0 && <DropSets set={set} advancedMode={advancedMode} />}
+
+          {/* Toggles Scroll */}
+          <View className="flex-row gap-1.5">
+            <TouchableOpacity
+              onPress={() => toggleNotes(set.id)}
+              className={`gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center ${set.notes.enabled ? "bg-neutral-100 border-neutral-300" : "border-neutral-200"}`}
+            >
+              <Ionicons
+                name="chatbox-ellipses-outline"
+                className="text-sm"
+                color={set.notes.enabled ? colors.neutral[500] : colors.neutral[400]}
+              />
+              <Text className={`text-sm text-medium ${set.notes.enabled ? "text-neutral-500" : "text-neutral-400"}`}>
+                Notas
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() =>
+                addSet(set.exerciseId, {
+                  weight: set.weight.value,
+                  reps: set.reps.value,
+                  rir: set.rir.value,
+                })
+              }
+              className="gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center border-neutral-200"
+            >
+              <Ionicons
+                name="duplicate-outline"
+                className="text-sm"
+                color={set.notes.enabled ? colors.neutral[500] : colors.neutral[400]}
+              />
+              <Text className="text-sm text-medium text-neutral-400">Duplicar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => deleteStep(set.id)}
+              className="gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center border-neutral-200"
+            >
+              <Ionicons
+                name="trash-bin-outline"
+                className="text-sm"
+                color={set.notes.enabled ? colors.neutral[500] : colors.neutral[400]}
+              />
+              <Text className="text-sm text-medium text-neutral-400">Eliminar</Text>
             </TouchableOpacity>
           </View>
 
@@ -118,42 +180,18 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
           {set.notes.enabled && (
             <TextInput
               value={set.notes.text}
-              className="border"
+              className="border border-neutral-400 rounded-md h-24 text-sm p-3"
+              multiline
+              // numberOfLines={20}
               placeholder="Nota para esta serie..."
+              style={{ textAlignVertical: "top" }}
               selectTextOnFocus
               onChangeText={(text) => updateNotes(set.id, text)}
+              cursorColor={colors.neutral[400]}
             />
-          )}
-
-          {/* Drop Sets */}
-          {set?.dropSets?.length > 0 && (
-            <View className="gap-1">
-              <DropSets set={set} advancedMode={advancedMode} />
-              <TouchableOpacity onPress={() => addDropSet(set.id)}>
-                <Text>Agregar Drop Set</Text>
-              </TouchableOpacity>
-            </View>
           )}
         </View>
       )}
-
-      <View className="flex-row gap-2">
-        <TouchableOpacity
-          onPress={() =>
-            addSet(set.exerciseId, {
-              weight: set.weight.value,
-              reps: set.reps.value,
-              rir: set.rir.value,
-            })
-          }
-        >
-          <Text>Duplicar</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => deleteStep(set.id)}>
-          <Text>Eliminar</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

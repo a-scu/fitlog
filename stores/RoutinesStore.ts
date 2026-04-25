@@ -50,7 +50,13 @@ interface RoutinesStore {
 
   // Acciones de Metric (weight/reps/rir) para Set y DropSet
   updateMetricField: (setId: string, metric: "weight" | "reps" | "rir", field: keyof Metric, value: any) => void;
-  updateDropSetMetricField: (setId: string, dropSetId: string, metric: "weight" | "reps" | "rir", field: keyof Metric, value: any) => void;
+  updateDropSetMetricField: (
+    setId: string,
+    dropSetId: string,
+    metric: "weight" | "reps" | "rir",
+    field: keyof Metric,
+    value: any,
+  ) => void;
 
   // Acciones de PartialReps
   updatePartialRepsField: (setId: string, field: keyof PartialReps, value: any) => void;
@@ -75,15 +81,13 @@ export const useRoutinesStore = create<RoutinesStore>()(
 
       updateRoutineName: (name) =>
         set((state) => ({
-          routines: state.routines.map((r) =>
-            r.id === state.editingRoutineId ? { ...r, name } : r
-          ),
+          routines: state.routines.map((r) => (r.id === state.editingRoutineId ? { ...r, name } : r)),
         })),
 
       deleteRoutine: (routineId?: string) =>
         set((state) => ({
           routines: state.routines.filter((r) =>
-            state.editingRoutineId ? r.id !== state.editingRoutineId : r.id !== routineId
+            state.editingRoutineId ? r.id !== state.editingRoutineId : r.id !== routineId,
           ),
         })),
 
@@ -94,9 +98,9 @@ export const useRoutinesStore = create<RoutinesStore>()(
           return {
             routines: state.routines.map((r) => {
               if (r.id !== state.editingRoutineId) return r;
-              const lastSet = [...r.steps]
-                .reverse()
-                .find((s) => s.type !== "rest" && s.exerciseId === exerciseId) as Set | undefined;
+              const lastSet = [...r.steps].reverse().find((s) => s.type !== "rest" && s.exerciseId === exerciseId) as
+                | Set
+                | undefined;
               const newSet: Set = {
                 id: newId,
                 weight: defaultMetric(weight ?? lastSet?.weight.value ?? ""),
@@ -118,7 +122,7 @@ export const useRoutinesStore = create<RoutinesStore>()(
           routines: state.routines.map((r) =>
             r.id === state.editingRoutineId
               ? { ...r, steps: [...r.steps, { id: randomId(), type: "rest", duration: 60 }] }
-              : r
+              : r,
           ),
         })),
 
@@ -128,11 +132,9 @@ export const useRoutinesStore = create<RoutinesStore>()(
             r.id === state.editingRoutineId
               ? {
                   ...r,
-                  steps: r.steps.map((s) =>
-                    s.id === stepId && s.type === "rest" ? { ...s, duration } : s
-                  ),
+                  steps: r.steps.map((s) => (s.id === stepId && s.type === "rest" ? { ...s, duration } : s)),
                 }
-              : r
+              : r,
           ),
         })),
 
@@ -142,9 +144,9 @@ export const useRoutinesStore = create<RoutinesStore>()(
             r.id === state.editingRoutineId
               ? {
                   ...r,
-                  steps: r.steps.length > 1 ? r.steps.filter((s) => s.id !== stepId) : r.steps,
+                  steps: r.steps.filter((s) => s.id !== stepId),
                 }
-              : r
+              : r,
           ),
         })),
 
@@ -154,11 +156,9 @@ export const useRoutinesStore = create<RoutinesStore>()(
             r.id === state.editingRoutineId
               ? {
                   ...r,
-                  steps: r.steps.map((s) =>
-                    s.id === setId && s.type !== "rest" ? { ...s, [field]: value } : s
-                  ),
+                  steps: r.steps.map((s) => (s.id === setId && s.type !== "rest" ? { ...s, [field]: value } : s)),
                 }
-              : r
+              : r,
           ),
         })),
 
@@ -171,12 +171,10 @@ export const useRoutinesStore = create<RoutinesStore>()(
               ? {
                   ...r,
                   steps: r.steps.map((s) =>
-                    s.id === setId && s.type !== "rest"
-                      ? { ...s, [metric]: { ...s[metric], [field]: value } }
-                      : s
+                    s.id === setId && s.type !== "rest" ? { ...s, [metric]: { ...s[metric], [field]: value } } : s,
                   ),
                 }
-              : r
+              : r,
           ),
         })),
 
@@ -191,14 +189,12 @@ export const useRoutinesStore = create<RoutinesStore>()(
                     return {
                       ...s,
                       dropSets: s.dropSets.map((ds) =>
-                        ds.id === dropSetId
-                          ? { ...ds, [metric]: { ...ds[metric], [field]: value } }
-                          : ds
+                        ds.id === dropSetId ? { ...ds, [metric]: { ...ds[metric], [field]: value } } : ds,
                       ),
                     };
                   }),
                 }
-              : r
+              : r,
           ),
         })),
 
@@ -240,8 +236,7 @@ export const useRoutinesStore = create<RoutinesStore>()(
               ...r,
               steps: r.steps.map((s) => {
                 if (s.id !== setId || s.type === "rest") return s;
-                const lastDs =
-                  s.dropSets && s.dropSets.length > 0 ? s.dropSets[s.dropSets.length - 1] : s;
+                const lastDs = s.dropSets && s.dropSets.length > 0 ? s.dropSets[s.dropSets.length - 1] : s;
                 const newDropSet = {
                   id: randomId(),
                   weight: { ...lastDs.weight },
@@ -279,9 +274,7 @@ export const useRoutinesStore = create<RoutinesStore>()(
                 if (s.id !== setId || s.type === "rest") return s;
                 return {
                   ...s,
-                  dropSets: s.dropSets.map((ds) =>
-                    ds.id === dropSetId ? { ...ds, [field]: value } : ds
-                  ),
+                  dropSets: s.dropSets.map((ds) => (ds.id === dropSetId ? { ...ds, [field]: value } : ds)),
                 };
               }),
             };
@@ -315,9 +308,7 @@ export const useRoutinesStore = create<RoutinesStore>()(
                 return {
                   ...s,
                   dropSets: s.dropSets.map((ds) =>
-                    ds.id === dropSetId
-                      ? { ...ds, partialReps: { ...ds.partialReps, [field]: value } }
-                      : ds
+                    ds.id === dropSetId ? { ...ds, partialReps: { ...ds.partialReps, [field]: value } } : ds,
                   ),
                 };
               }),
@@ -337,9 +328,7 @@ export const useRoutinesStore = create<RoutinesStore>()(
                   return {
                     ...s,
                     dropSets: s.dropSets.map((ds) =>
-                      ds.id === dropSetId
-                        ? { ...ds, partialReps: defaultPartialReps() }
-                        : ds
+                      ds.id === dropSetId ? { ...ds, partialReps: defaultPartialReps() } : ds,
                     ),
                   };
                 }
@@ -383,6 +372,6 @@ export const useRoutinesStore = create<RoutinesStore>()(
       name: "global-routines-settings",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ routines: state.routines }),
-    }
-  )
+    },
+  ),
 );

@@ -122,7 +122,8 @@
 
     "tabs": {
       "exercises": "Ejercicios",
-      "exercise": "Ejercicio"
+      "exercise": "Ejercicio",
+      "home": "Inicio"
     },
 
     "notFound": {

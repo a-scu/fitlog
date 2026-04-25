@@ -10,6 +10,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HomeScreen from "@/screens/HomeScreen";
+import { capitalize } from "@/lib/utils";
+import SettingsScreen from "@/screens/Settings/SettingsScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -25,6 +27,7 @@ export default function BottomTabsNavigator() {
       tabBar={(props) => <TabBar {...props} />}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 }
@@ -85,7 +88,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
                 style={{ includeFontPadding: false }}
                 className={`text-[10px] mt-1 font-semibold ${isFocused ? "text-red-400" : "text-neutral-400"}`}
               >
-                {t(`screens.tabs.${route.name}`)}
+                {t(`screens.tabs.${route.name.toLowerCase()}`)}
               </Text>
             </TouchableOpacity>
           );

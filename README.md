@@ -1,94 +1,187 @@
-# Personalización de Rutinas en FitLog
+# 🏋️ Fitlog
 
-Este documento detalla todas las opciones personalizables disponibles al crear o editar una rutina en la aplicación.
+Aplicación móvil de planificación y gestión de entrenamientos, orientada tanto a atletas individuales como a personal trainers que gestionan múltiples clientes.
 
-## 1. Información General de la Rutina
+---
 
-- **Nombre de la rutina:** Texto libre para identificar la rutina (ej. "Empuje A", "Pierna Enfoque Cuádriceps").
+## Flujo de la aplicación
 
-## 2. Configuración de Series (Sets)
+```
+Home
+├── Rutinas individuales        → Ver rutina → Editar rutina
+│                                              └── Agregar ejercicios
+│                                              └── Configurar sets
+│                                              └── Agregar descansos
+│
+└── Perfiles ──────────────────→ Lista de perfiles
+      └── Perfil               → Planes semanales + Notas
+            └── Plan semanal   → 7 días (Lun–Dom)
+                  └── Día      → Asignar rutina del pool
+                                └── Título y descripción del día
+                                └── Marcar como día de descanso
+```
 
-Cada serie de un ejercicio puede ser configurada de forma independiente con las siguientes opciones:
+---
 
-### Tipos de Serie
+## Funcionalidades
 
-Define el propósito de la serie:
+### 🏠 Home
 
-- **Efectiva:** Serie principal de trabajo.
-- **Calentamiento:** Serie de baja intensidad para preparar los tejidos.
-- **Aproximación:** Serie de intensidad media para preparar el sistema nervioso.
-- **Personalizada (Custom):** Permite escribir un nombre propio para el tipo de serie.
+- Lista de todas las rutinas individuales del usuario.
+- Acceso rápido a la sección de Perfiles.
+- Botón para crear una rutina nueva directamente.
 
-### Métricas (Peso, Repeticiones y RIR)
+---
 
-Cada una de estas métricas (Peso, Repeticiones y RIR - Repeticiones en Recámara) admite dos modos de entrada:
+### 📋 Rutinas individuales
 
-- **Valor Fijo:** Un único número (ej. "80 kg", "10 reps", "RIR 2").
-- **Rango (Min - Max):** Un intervalo de valores (ej. "80 - 85 kg", "8 - 12 reps", "RIR 0 - 2").
+Las rutinas forman el bloque de construcción base. Pueden usarse de forma independiente o asignarse a días dentro de un plan semanal.
 
-### Modificadores Especiales
+#### Información general
+- **Nombre de la rutina** — texto libre editable.
 
-#### Drop Sets (Series Descendentes)
+#### Sets (Series)
 
-Se pueden añadir múltiples drop sets a una serie principal. Cada drop set tiene su propia configuración de:
+Cada set de un ejercicio es configurable de forma independiente:
 
-- Peso (Fijo o Rango).
-- Repeticiones (Fijo o Rango).
-- RIR (Fijo o Rango).
-- Repeticiones Parciales.
+##### Tipo de set
+| Tipo | Descripción |
+|---|---|
+| Efectiva | Serie principal de trabajo |
+| Calentamiento | Baja intensidad, preparación de tejidos |
+| Aproximación | Intensidad media, preparación del sistema nervioso |
+| Custom | Nombre libre definido por el usuario |
 
-#### Repeticiones Parciales (Partial Reps)
+##### Métricas (Peso / Repeticiones / RIR)
 
-Configuración para realizar repeticiones con rango de movimiento incompleto:
+Cada métrica soporta dos modos:
+- **Valor fijo** — un único número (ej. `80 kg`, `10 reps`, `RIR 2`)
+- **Rango** — mínimo y máximo (ej. `80–85 kg`, `8–12 reps`, `RIR 0–2`)
 
-- **Cantidad:** Fijo o Rango (ej. "5 parciales", "5 - 8 parciales", o "Fallo").
-- **Rango de Movimiento (ROM):**
-  - Final (Parte superior/acortamiento).
-  - Inicial (Parte inferior/estiramiento).
-  - Estiramiento (Enfoque en la fase excéntrica).
-  - Personalizado (Texto libre para especificar el ROM).
+##### Drop Sets (Series descendentes)
+- Se pueden añadir múltiples drop sets a un set principal.
+- Cada drop set tiene su propia configuración de Peso, Reps, RIR y Repeticiones Parciales.
+- **Descanso entre drop sets** — duración configurable en segundos (para técnicas como rest-pause y myo-reps).
 
-#### Notas
+##### Repeticiones Parciales
+- Cantidad: valor fijo, rango, o "Fallo".
+- Rango de Movimiento (ROM):
+  - Final (parte superior / acortamiento)
+  - Inicial (parte inferior / estiramiento)
+  - Estiramiento (fase excéntrica)
+  - Personalizado (texto libre)
 
-- **Texto libre:** Espacio para anotaciones específicas de la serie (ej. "Enfocarse en la conexión mente-músculo", "Usar straps").
+##### Notas por set
+- Texto libre para anotaciones específicas (ej. "Usar straps", "Enfocarse en la bajada").
 
-## 3. Descansos (Rests)
+#### Descansos
+- Se insertan entre sets o entre ejercicios.
+- Duración configurable en segundos.
 
-Los descansos son elementos independientes que pueden colocarse entre series o entre ejercicios:
+#### Opciones de visualización
+- **Modo Avanzado** — muestra todas las métricas y opciones adicionales.
+- **Unidad de peso** — toggle entre `kg` y `lbs`.
 
-- **Duración:** Configurable en segundos (ej. "60s", "90s", "120s").
+---
 
-## 4. Estructura de la Rutina
+### 👤 Perfiles
 
-- **Orden de elementos:** Los ejercicios y descansos pueden ser organizados libremente.
-- **Selección múltiple:** Posibilidad de seleccionar múltiples ejercicios desde la base de datos para añadirlos rápidamente con una configuración por defecto.
+El sistema de perfiles permite organizar personas con sus propias rutinas, planes y notas. Está orientado principalmente a personal trainers, aunque cualquier usuario puede crear perfiles.
 
-<!-- IDEAS -->
+- Cada perfil tiene un **avatar** con iniciales y color asignado automáticamente.
+- Un perfil puede tener **múltiples planes semanales** (ej. "Mes de fuerza", "Semana de descarga").
+- Los perfiles importados de otro usuario se marcan con el badge **COMPARTIDO**.
 
-IDEAS GENERALES:
+#### Roles contextuales
+El rol de un usuario no es global — aplica solo dentro de un perfil compartido:
+- **Owner** — creador del perfil, puede editarlo libremente.
+- **Cliente** — recibió el perfil compartido, ve y actúa según los permisos otorgados.
 
-- Posibilidad de implementar un sistema mediante el cual se puedan crear 'personas' o 'usuarios', que funcionen como carpetas en las cuales se guardaran las rutinas, notas del usuario, y todo lo relacionado con dichas personas. (orientado a personal trainers que gestionan a multiples personas)
+---
 
-- Calcular RM teorico del usuario a partir de un top set (no se como se implementaria)
+### 📅 Planes semanales
 
-IDEAS RUTINAS:
+Un plan semanal organiza 7 días fijos (Lunes a Domingo), asignando una rutina a cada día.
 
-- Boton para convertir rutina en semana de descarga (-30/-50% peso/volumen de la rutina)
+- Cada día puede:
+  - Tener una **rutina asignada** del pool global de rutinas.
+  - Tener un **título libre** (ej. "Push Day", "Piernas", "Cardio").
+  - Tener una **descripción/notas** del día.
+  - Marcarse como **día de descanso**.
+- Un día puede tener rutina nueva creada desde ahí mismo, o puede reutilizar una rutina existente.
+- Al asignar una rutina, se navega directamente al editor si se crea una nueva.
 
-- Slider para aumentar o disminuir el peso/volumen de toda la rutina (porcentaje)
+---
 
-- Opcion para tomar de plantilla rutinas creadas anteriormente
+### 📝 Notas del perfil
 
-- Notas de la rutina (devolucion del usuario, sensaciones, dolor, etc.)
+Cada perfil tiene un diario de notas:
+- Texto libre con fecha de creación.
+- Preparado para diferenciación por rol (owner / cliente).
+- El entrenador puede configurar si el cliente puede agregar notas o solo leerlas.
 
-IDEAS SETS:
+---
 
-- Tipos de sets : efectiva | calentamiento | aproximacion | top set | recuperacion (back off set) | superset
+### 🔗 Compartir perfiles (base implementada)
 
-- Posibilidad de agregar tiempos de descanso entre dropsets (para simular rest pause/ myo reps)
+El sistema de compartir permite que un entrenador comparta el perfil de un cliente:
 
-- Boton rapido para hacer que la serie sea al fallo (rir y repes desactivadas)
+1. El entrenador genera un archivo **JSON de exportación** con el perfil completo.
+2. Lo comparte por WhatsApp u otro medio.
+3. El cliente lo importa en la app → ve una pantalla de **aceptar/rechazar invitación**.
+4. Si acepta, el perfil se guarda como "Perfil Compartido" con su rol y permisos.
 
-- Velocidad de repeticiones (explosiva, lenta, normal)
+#### Permisos configurables:
+- `canEditWorkouts` — el cliente puede editar los ejercicios del plan.
+- `canAddNotes` — el cliente puede agregar notas al diario.
 
-- Repeticiones con ayuda (si / no) (tambien aplica para parciales) (supongo que seria un switch si/no)
+> **Nota:** La base está implementada client-side. La sincronización en tiempo real (Firebase/Supabase) se sumará cuando se elija una base de datos.
+
+---
+
+## Modelo de datos
+
+```
+Pool global de Rutinas
+  └── Routine { id, name, steps[], createdAt }
+        └── Step = Set | Rest
+              Set { weight, reps, rir, type, dropSets[], partialReps, notes }
+              Rest { duration }
+
+Pool global de Perfiles
+  └── Profile { id, name, avatarColor, weeklyPlans[], notes[], shareConfig?, myRole? }
+        └── WeeklyPlan { id, name, days[7], createdAt }
+              └── WorkoutDay { dayIndex, title, description, isRestDay, routineId }
+```
+
+---
+
+## Ideas y roadmap
+
+### Rutinas
+- [ ] Boton para convertir rutina en semana de descarga (−30/−50% peso/volumen)
+- [ ] Slider para aumentar/disminuir el peso o volumen de toda la rutina (porcentaje)
+- [ ] Opción para usar rutinas existentes como plantilla
+- [ ] Notas de la rutina (sensaciones, dolor, devolución del usuario)
+- [ ] Calcular RM teórico a partir de un top set
+
+### Sets
+- [ ] Tipos adicionales: Top Set, Recuperación (Back Off Set), Superset
+- [ ] Botón rápido para marcar una serie "al fallo" (RIR y reps desactivadas)
+- [ ] Velocidad de repeticiones (explosiva, lenta, normal)
+- [ ] Repeticiones con ayuda (asistidas) — switch sí/no, también para parciales
+
+### Perfiles y compartir
+- [ ] Sincronización en tiempo real (Firebase / Supabase)
+- [ ] Notificaciones de cambios en planes compartidos
+- [ ] Pantalla completa de invitación con aceptar/rechazar
+- [ ] Historial de cambios por rol
+
+### General
+- [ ] Modo oscuro
+- [ ] Temporizador de descanso integrado al iniciar una rutina
+- [ ] Historial de entrenamientos completados
+
+---
+
+MODO ULTRA HIPER AVANZADO MANTECA 1000% EXTREMO KICK BUTOWSKI CON TODAS LAS OPCIONES

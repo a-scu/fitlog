@@ -6,7 +6,7 @@ import { useRoutinesStore } from "@/stores/RoutinesStore";
 
 import RoutineSteps from "./components/RoutineSteps";
 
-export default function Routine({ navigation, route }: any) {
+export default function RoutineScreen({ navigation, route }: any) {
   const { routineId } = route.params;
 
   const insets = useSafeAreaInsets();
@@ -29,6 +29,8 @@ export default function Routine({ navigation, route }: any) {
 
   return (
     <View className="flex-1 flex-grow bg-white" style={{ paddingBottom: insets.bottom }}>
+      <Text>{routine.type}</Text>
+
       <ScrollView className="flex-1 p-3">
         <RoutineSteps routine={routine} />
       </ScrollView>
