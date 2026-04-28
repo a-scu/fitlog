@@ -15,12 +15,13 @@ import { capitalize } from "@/lib/utils";
 import { SET_TYPES } from "@/constants/SetTypes";
 
 import EXERCISES from "@/assets/data/exercises.json";
-import { Routine, RoutineDay } from "@/types/Routine";
+import { Routine } from "@/types/Routine";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { dayNames } from "@/constants/DayNames";
 import { SelectRoutineModal } from "@/components/modals/SelectRoutineModal";
 import { useModalStore } from "@/stores/useModalStore";
 import { Image } from "expo-image";
+import RoutineQuickView from "@/components/RoutineQuickView";
 
 export default function OverviewTab({ workspace }: { workspace: Workspace }) {
   const navigation = useNavigation();
@@ -32,7 +33,7 @@ export default function OverviewTab({ workspace }: { workspace: Workspace }) {
   const routine = routines.find((r) => r.id === workspace.routineId);
 
   const handleCreateRoutine = () => {
-    navigation.navigate("createRoutine", { workspaceId: workspace.id });
+    navigation.navigate("createRoutine");
   };
 
   const showModal = useModalStore((s) => s.showModal);
@@ -80,7 +81,7 @@ export default function OverviewTab({ workspace }: { workspace: Workspace }) {
     >
       <View className="flex-row items-center gap-3 justify-end">
         <TouchableOpacity className="p-4 rounded-lg flex-1 bg-black border border-black flex-row items-center justify-center gap-2">
-          <Ionicons name="person-add-outline" className="!text-base !leading-none" color="white" />
+          <Ionicons name="add-outline" className="!text-base !leading-none" color="white" />
           <Text className="text-base text-white font-medium">Invitar a alguien</Text>
         </TouchableOpacity>
 
@@ -92,11 +93,11 @@ export default function OverviewTab({ workspace }: { workspace: Workspace }) {
 
       {routine ? (
         <View className="gap-3">
-          <RoutineView routine={routine} />
+          <RoutineQuickView routine={routine} />
           <WorkoutView routine={routine} />
           <TouchableOpacity
             onPress={handleRemoveRoutine}
-            className="border border-neutral-200 rounded-xl p-3 justify-center items-center gap-1 flex-row mt-2"
+            className="border border-neutral-200 rounded-xl p-3 justify-center items-center gap-1 flex-row"
           >
             <Ionicons name="close-circle-outline" className="!text-base !leading-none" color={colors.neutral[400]} />
             <Text className="text-neutral-400 font-medium text-center">Desligar rutina del workspace</Text>
@@ -124,34 +125,6 @@ export default function OverviewTab({ workspace }: { workspace: Workspace }) {
     </ScrollView>
   );
 }
-
-const RoutineView = ({ routine }: { routine: Routine }) => {
-  const navigation = useNavigation();
-
-  return (
-    <TouchableOpacity
-      onPress={() => navigation.navigate("routine", { routineId: routine.id })}
-      className="border border-neutral-200 rounded-xl p-5 items-start justify-between flex-row"
-    >
-      <View className="justify-start flex-1">
-        <Text className="text-black font-bold text-lg leading-7">{routine.name || "Rutina sin nombre"}</Text>
-
-        <View className="flex-row gap-3">
-          {routine.days.map((day) => (
-            <Text key={day.dayIndex} className={`leading-7 ${day.isRestDay ? "text-neutral-400" : "text-green-500"}`}>
-              {dayNames[day.dayIndex].slice(0, 1).toUpperCase()}
-            </Text>
-          ))}
-        </View>
-      </View>
-
-      <View className="justify-end flex-row gap-1 flex-1">
-        <Ionicons name="create-outline" className="!text-sm !leading-none" color={colors.neutral[400]} />
-        <Text className="text-neutral-400 text-end text-sm">Editar rutina</Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
 
 const RestView = ({ todayNumber, routineId }: { todayNumber: number; routineId: string }) => {
   const navigation = useNavigation();

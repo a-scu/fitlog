@@ -1,19 +1,26 @@
 export type RootStackParamList = {
   "(tabs)": undefined;
+  modal: undefined;
+
   exercises: undefined;
   exercise: { exercise: any };
-  modal: undefined;
+
+  createRoutine: undefined;
   routine: { routineId: string };
+
+  createWorkout: undefined;
   editWorkout: { workoutId: string };
+  workout: { workoutId: string };
+  activeWorkout: { workoutId: string };
+
   createWorkspace: undefined;
   workspace: { workspaceId: string; initialTab?: "overview" | "routine" };
 };
 
 export type BottomTabParamList = {
-  home: undefined;
+  dashboard: undefined;
   programs: undefined;
-  modal: undefined;
-  workspace: undefined;
+  workspaces: undefined;
   settings: undefined;
 };
 

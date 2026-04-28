@@ -1,22 +1,20 @@
 import { Routine } from "@/types/Routine";
 import { Exercise } from "@/types/Exercise";
 import EXERCISES_DATA from "@/assets/data/exercises.json";
+import { Set as SetType } from "@/types/Workout";
 
 const EXERCISES = EXERCISES_DATA as Exercise[];
 
-export const getRoutineMuscles = (routine: Routine) => {
+export const getRoutineMuscles = (sets: SetType[]) => {
   const targetMuscles = new Set<string>();
   const secondaryMuscles = new Set<string>();
 
-  routine.steps.forEach((step) => {
-    if (step.type !== "rest") {
-      // @ts-ignore - step is a Set here
-      const exerciseId = step.exerciseId;
-      const exercise = EXERCISES.find((e) => e.exerciseId === exerciseId);
-      if (exercise) {
-        exercise.targetMuscles.forEach((m) => targetMuscles.add(m));
-        exercise.secondaryMuscles.forEach((m) => secondaryMuscles.add(m));
-      }
+  sets.forEach((set) => {
+    const exerciseId = set.exerciseId;
+    const exercise = EXERCISES.find((e) => e.exerciseId === exerciseId);
+    if (exercise) {
+      exercise.targetMuscles.forEach((m) => targetMuscles.add(m));
+      exercise.secondaryMuscles.forEach((m) => secondaryMuscles.add(m));
     }
   });
 

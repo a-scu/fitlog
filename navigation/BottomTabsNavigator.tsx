@@ -6,7 +6,7 @@ import ExercisesScreen from "@/screens/ExercisesScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import HomeScreen from "@/screens/HomeScreen";
+import DashboardScreen from "@/screens/Dashboard/DashboardScreen";
 import { capitalize } from "@/lib/utils";
 import SettingsScreen from "@/screens/Settings/SettingsScreen";
 import Header from "@/components/Header";
@@ -27,7 +27,7 @@ export default function BottomTabsNavigator() {
       }}
       tabBar={(props) => <TabBar {...props} />}
     >
-      <Tab.Screen name="home" component={HomeScreen} />
+      <Tab.Screen name="dashboard" component={DashboardScreen} options={{ headerShown: true, title: "Dashboard" }} />
       <Tab.Screen name="programs" component={ProgramsScreen} />
       <Tab.Screen name="workspaces" component={WorkspacesScreen} options={{ headerShown: true, title: "Workspaces" }} />
       <Tab.Screen name="settings" component={SettingsScreen} options={{ headerShown: true, title: "Configuración" }} />
@@ -65,9 +65,9 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
             });
           };
 
-          let iconName: any = "home-outline";
-          if (route.name === "home") iconName = isFocused ? "calendar-outline" : "calendar-outline";
-          if (route.name === "programs") iconName = isFocused ? "newspaper-outline" : "newspaper-outline";
+          let iconName: any = "dashboard-outline";
+          if (route.name === "dashboard") iconName = isFocused ? "grid-outline" : "grid-outline";
+          if (route.name === "programs") iconName = isFocused ? "calendar-outline" : "calendar-outline";
           if (route.name === "workspaces") iconName = isFocused ? "folder-open-outline" : "folder-open-outline";
           if (route.name === "settings") iconName = isFocused ? "options-outline" : "options-outline";
 
@@ -86,7 +86,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
                 style={{ includeFontPadding: false }}
                 className={`text-[10px] mt-1 font-semibold ${isFocused ? "text-red-400" : "text-neutral-400"}`}
               >
-                {route.name === "home" ? "Mi Rutina" : capitalize(route.name)}
+                {route.name === "dashboard" ? "Dashboard" : capitalize(route.name)}
               </Text>
             </TouchableOpacity>
           );

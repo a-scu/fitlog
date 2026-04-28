@@ -7,6 +7,7 @@ import Animated, {
   interpolate,
   interpolateColor,
   withTiming,
+  SharedValue,
 } from "react-native-reanimated";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -168,7 +169,7 @@ const DayButton = memo(
     onPress,
   }: {
     index: number;
-    scrollX: Animated.SharedValue<number>;
+    scrollX: SharedValue<number>;
     screenWidth: number;
     hasWorkout: boolean;
     onPress: (index: number) => void;
@@ -328,7 +329,7 @@ const EmptyWorkoutView = memo(({ routineId, day }: { routineId: string; day: Rou
   const addWorkout = useWorkoutsStore((s) => s.addWorkout);
 
   const handleCreateWorkout = useCallback(() => {
-    navigation.navigate("createWorkout", { routineId, dayIndex: day.dayIndex });
+    navigation.navigate("createWorkout");
   }, [navigation, routineId, day.dayIndex]);
 
   const showModal = useModalStore((s) => s.showModal);

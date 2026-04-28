@@ -16,7 +16,7 @@ import { useThemeStore } from "@/stores/ThemeStore";
 
 import Modal from "@/components/modals/Modal";
 
-import MainStack from "./navigation/MainStack";
+import RootStack from "./navigation/RootStack";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -55,7 +55,7 @@ export default function App() {
       <GestureHandlerRootView className="flex-1">
         <BottomSheetModalProvider>
           <NavigationContainer theme={navTheme}>
-            <MainStack />
+            <RootStack />
           </NavigationContainer>
           <Modal />
         </BottomSheetModalProvider>

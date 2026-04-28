@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Workout, Set, Rest, Metric, PartialReps } from "@/types/Workout";
+import { Workout, Set, Rest, Metric, PartialReps, Step } from "@/types/Workout";
 import { randomId } from "@/utils/random";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
