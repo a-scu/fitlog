@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
 
-import { DropSet as DropSetType } from "@/types/Routine";
+import { DropSet as DropSetType } from "@/types/Workout";
 
 import PartialReps from "./PartialReps";
 

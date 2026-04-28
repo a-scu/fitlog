@@ -1,13 +1,13 @@
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import { Rest as RestType } from "@/types/Routine";
+import { Rest as RestType } from "@/types/Workout";
 
-import { useRoutinesStore } from "@/stores/RoutinesStore";
+import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 
 export default function Rest({ rest }: { rest: RestType }) {
-  const deleteStep = useRoutinesStore((state) => state.deleteStep);
-  const updateRestDuration = useRoutinesStore((state) => state.updateRestDuration);
+  const deleteStep = useWorkoutsStore((state) => state.deleteStep);
+  const updateRestDuration = useWorkoutsStore((state) => state.updateRestDuration);
 
   return (
     <View className="flex-row items-center justify-between p-3 bg-neutral-100 rounded mb-2">

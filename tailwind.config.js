@@ -6,7 +6,11 @@ module.exports = {
   // For manual toggling, call Appearance.setColorScheme() from React Native.
   darkMode: "media",
   theme: {
-    extend: {},
+    extend: {
+      borderWidth: {
+        1.5: "1.5px",
+      },
+    },
   },
   plugins: [],
 };

@@ -1,63 +1,19 @@
-export type Rest = {
-  id: string;
-  type: "rest";
-  duration: number; // in seconds
-};
+/** Un día dentro de una rutina. El `dayIndex` es fijo (0=Lun … 6=Dom). */
+export interface RoutineDay {
+  dayIndex: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  /** Título libre: "Push Day", "Piernas", "", etc. */
+  title: string;
+  /** Descripción/notas cortas del día */
+  description: string;
+  isRestDay: boolean;
+  /** Referencia a un Workout del pool global (null = sin entrenamiento asignado) */
+  workoutId: string | null;
+}
 
-export type Step = Set | Rest;
-
-export type Routine = {
+export interface Routine {
   id: string;
+  /** "Semana 1", "Mes de fuerza", etc. */
   name: string;
-  steps: Step[];
-};
-
-export type SetTypes = "effective" | "warm_up" | "approximation" | "custom";
-
-/** Metric used for weight, reps and rir */
-export interface Metric {
-  value: string;
-  min: string;
-  max: string;
-  isRange: boolean;
+  createdAt: string;
+  days: RoutineDay[];
 }
-
-export interface Set {
-  id: string;
-  weight: Metric;
-  reps: Metric;
-  rir: Metric;
-  exerciseId: string;
-  type: SetTypes;
-  customTypeName?: string;
-  dropSets: DropSet[];
-  partialReps: PartialReps;
-  notes: Notes;
-}
-
-export interface Notes {
-  enabled: boolean;
-  text: string;
-}
-
-export interface PartialReps {
-  isRange: boolean;
-  value: string;  // used when isRange = false
-  min: string;    // used when isRange = true
-  max: string;    // used when isRange = true
-  rom: string;
-  customRom: string;
-}
-
-export interface DropSet {
-  id: string;
-  weight: Metric;
-  reps: Metric;
-  rir: Metric;
-  partialReps: PartialReps;
-}
-
-export type ExerciseTranslations = {
-  name: string;
-  instructions?: string[];
-};

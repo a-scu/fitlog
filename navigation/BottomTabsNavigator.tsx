@@ -1,7 +1,4 @@
-import {
-  BottomTabBarProps,
-  createBottomTabNavigator,
-} from "@react-navigation/bottom-tabs";
+import { BottomTabBarProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -12,6 +9,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HomeScreen from "@/screens/HomeScreen";
 import { capitalize } from "@/lib/utils";
 import SettingsScreen from "@/screens/Settings/SettingsScreen";
+import Header from "@/components/Header";
+import ProgramsScreen from "@/screens/ProgramsScreen";
+import WorkspacesScreen from "@/screens/Workspaces/WorkspacesScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -23,11 +23,14 @@ export default function BottomTabsNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+        header: (props) => <Header hideBack title={props.options.title} />,
       }}
       tabBar={(props) => <TabBar {...props} />}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="home" component={HomeScreen} />
+      <Tab.Screen name="programs" component={ProgramsScreen} />
+      <Tab.Screen name="workspaces" component={WorkspacesScreen} options={{ headerShown: true, title: "Workspaces" }} />
+      <Tab.Screen name="settings" component={SettingsScreen} options={{ headerShown: true, title: "Configuración" }} />
     </Tab.Navigator>
   );
 }
@@ -37,10 +40,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const { t } = useTranslation();
 
   return (
-    <View
-      style={{ paddingBottom: insets.bottom }}
-      className="bg-white border-t border-neutral-100"
-    >
+    <View style={{ paddingBottom: insets.bottom }} className="bg-white border-t border-neutral-100">
       <View className="flex-row items-center justify-around py-4">
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -66,8 +66,10 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
           };
 
           let iconName: any = "home-outline";
-          if (route.name === "exercises")
-            iconName = isFocused ? "fitness" : "fitness-outline";
+          if (route.name === "home") iconName = isFocused ? "calendar-outline" : "calendar-outline";
+          if (route.name === "programs") iconName = isFocused ? "newspaper-outline" : "newspaper-outline";
+          if (route.name === "workspaces") iconName = isFocused ? "folder-open-outline" : "folder-open-outline";
+          if (route.name === "settings") iconName = isFocused ? "options-outline" : "options-outline";
 
           return (
             <TouchableOpacity
@@ -78,17 +80,13 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
               activeOpacity={0.7}
             >
               <View className={`p-1 rounded-xl items-center justify-center`}>
-                <Ionicons
-                  name={iconName}
-                  size={24}
-                  className={isFocused ? "!text-red-400" : "!text-neutral-400"}
-                />
+                <Ionicons name={iconName} size={24} className={isFocused ? "!text-red-400" : "!text-neutral-400"} />
               </View>
               <Text
                 style={{ includeFontPadding: false }}
                 className={`text-[10px] mt-1 font-semibold ${isFocused ? "text-red-400" : "text-neutral-400"}`}
               >
-                {t(`screens.tabs.${route.name.toLowerCase()}`)}
+                {route.name === "home" ? "Mi Rutina" : capitalize(route.name)}
               </Text>
             </TouchableOpacity>
           );

@@ -1,10 +1,5 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text } from "react-native";
 
 export default function SettingsScreen() {
-  return (
-    <View>
-      <Text>Settings</Text>
-    </View>
-  )
+  return <View className="flex-1 bg-white"></View>;
 }

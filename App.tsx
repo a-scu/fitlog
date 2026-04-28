@@ -50,7 +50,8 @@ export default function App() {
 
   return (
     <>
-      <StatusBar style={isDark ? "light" : "dark"} />
+      {/* || isDark ? "light" : "dark" */}
+      <StatusBar style={"dark"} />
       <GestureHandlerRootView className="flex-1">
         <BottomSheetModalProvider>
           <NavigationContainer theme={navTheme}>

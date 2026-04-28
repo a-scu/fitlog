@@ -1,12 +1,11 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import React from "react";
 import DropSet from "./DropSet";
-import { useRoutinesStore } from "@/stores/RoutinesStore";
+import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
 
 export default function DropSets({ set }: any) {
-  const addDropSet = useRoutinesStore((s) => s.addDropSet);
+  const addDropSet = useWorkoutsStore((s) => s.addDropSet);
 
   return (
     <View className="gap-2 p-3 pt-2 rounded-md">

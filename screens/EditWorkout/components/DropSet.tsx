@@ -2,21 +2,21 @@ import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, View } from "react-native";
 
 import { useModalStore } from "@/stores/useModalStore";
-import { useRoutinesStore } from "@/stores/RoutinesStore";
+import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
 
 import MetricInput from "./MetricInput";
 import PartialReps from "./PartialReps";
 import PartialRepsModal from "../modals/PartialRepsModal";
 
-import { Set as SetType, DropSet as DropSetType } from "@/types/Routine";
+import { Set as SetType, DropSet as DropSetType } from "@/types/Workout";
 import colors from "tailwindcss/colors";
 
 export default function DropSet({ set, dropSet, index }: { set: SetType; dropSet: DropSetType; index: number }) {
-  const updateDropSetMetricField = useRoutinesStore((s) => s.updateDropSetMetricField);
-  const deleteDropSet = useRoutinesStore((s) => s.deleteDropSet);
-  const deletePartialReps = useRoutinesStore((s) => s.deletePartialReps);
-  const updateDropSetPartialRepsField = useRoutinesStore((s) => s.updateDropSetPartialRepsField);
+  const updateDropSetMetricField = useWorkoutsStore((s) => s.updateDropSetMetricField);
+  const deleteDropSet = useWorkoutsStore((s) => s.deleteDropSet);
+  const deletePartialReps = useWorkoutsStore((s) => s.deletePartialReps);
+  const updateDropSetPartialRepsField = useWorkoutsStore((s) => s.updateDropSetPartialRepsField);
   const showModal = useModalStore((s) => s.showModal);
 
   const openDropSetPartialRepsModal = () => {

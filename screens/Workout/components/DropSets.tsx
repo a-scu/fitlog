@@ -1,7 +1,6 @@
-import React from "react";
 import { View } from "react-native";
 
-import { DropSet as DropSetType } from "@/types/Routine";
+import { DropSet as DropSetType } from "@/types/Workout";
 
 import DropSet from "./DropSet";
 

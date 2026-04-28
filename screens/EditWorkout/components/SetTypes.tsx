@@ -1,11 +1,11 @@
 import { ScrollView, Text, TextInput, TouchableOpacity } from "react-native";
-import { Set } from "@/types/Routine";
-import { useRoutinesStore } from "@/stores/RoutinesStore";
+import { Set } from "@/types/Workout";
+import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { SET_TYPES } from "@/constants/SetTypes";
 import colors from "tailwindcss/colors";
 
 export default function SetTypes({ set }: { set: Set }) {
-  const updateSetField = useRoutinesStore((s) => s.updateSetField);
+  const updateSetField = useWorkoutsStore((s) => s.updateSetField);
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="ml-2" contentContainerClassName="">

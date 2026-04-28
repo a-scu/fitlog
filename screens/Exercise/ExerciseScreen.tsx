@@ -6,8 +6,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEffect } from "react";
 
 import Instructions from "./components/Instructions";
-import { ExerciseTranslations } from "@/types/Routine";
-import { useRoutinesStore } from "@/stores/RoutinesStore";
+import { ExerciseTranslations } from "@/types/Workout";
+import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import ExerciseGif from "@/components/ExerciseGif";
 
 interface ExerciseScreenProps {
@@ -21,7 +21,7 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
-  const addSet = useRoutinesStore((state) => state.addSet);
+  const addSet = useWorkoutsStore((state) => state.addSet);
 
   const addToRoutine = () => {
     addSet(exercise.exerciseId, {});

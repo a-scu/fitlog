@@ -4,7 +4,7 @@ import { View, Text } from "react-native";
 
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
 
-import { Routine, Step, Set } from "@/types/Routine";
+import { Workout, Step, Set } from "@/types/Workout";
 
 import Rest from "./Rest";
 import PartialReps from "./PartialReps";
@@ -26,12 +26,12 @@ function formatMetric(metric: { value: string; min: string; max: string; isRange
   return metric.value ? `${metric.value}${suffix}` : "-";
 }
 
-export default function RoutineSteps({ routine }: { routine: Routine }) {
+export default function WorkoutSteps({ workout }: { workout: Workout }) {
   const weightUnit = useGlobalSettingsStore((state) => state.weightUnit);
 
   return (
     <View>
-      {routine.steps.map((step: Step, index: number) => {
+      {workout.steps.map((step: Step, index: number) => {
         if (step.type === "rest") {
           return <Rest key={step.id} data={step} />;
         }

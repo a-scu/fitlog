@@ -5,7 +5,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import Slider from "rn-range-slider";
 
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
-import { PartialReps } from "@/types/Routine";
+import { PartialReps } from "@/types/Workout";
 
 // Updates partial repsfor set or drop set
 

@@ -11,13 +11,7 @@ interface HeaderProps {
   onBack?: () => void;
 }
 
-const Header = ({
-  title,
-  children,
-  rightElement,
-  hideBack,
-  onBack,
-}: HeaderProps) => {
+const Header = ({ title, children, rightElement, hideBack, onBack }: HeaderProps) => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -30,26 +24,18 @@ const Header = ({
   };
 
   return (
-    <View
-      style={{ paddingTop: insets.top }}
-      className="bg-white border-b border-neutral-100"
-    >
+    <View style={{ paddingTop: insets.top }} className="bg-white border-b border-neutral-100">
       <View className="p-3 h-14 flex-row items-center justify-between">
         <View className="flex-row items-center flex-1">
           {!hideBack && (
-            <TouchableOpacity
-              onPress={handleBack}
-              className="pr-4 pl-2 items-center justify-center"
-            >
-              <Ionicons
-                name="arrow-back"
-                className="!text-xl !text-neutral-800"
-              />
+            <TouchableOpacity onPress={handleBack} className="pr-4 pl-2 items-center justify-center">
+              <Ionicons name="arrow-back" className="!text-xl !text-neutral-800" />
             </TouchableOpacity>
           )}
           <Text
             numberOfLines={1}
             className="text-xl font-medium text-neutral-800 flex-1"
+            style={{ marginLeft: hideBack ? 8 : 0 }}
           >
             {title || children}
           </Text>

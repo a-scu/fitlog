@@ -1,10 +1,10 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import { Set as SetType } from "@/types/Routine";
+import { Set as SetType } from "@/types/Workout";
 
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
-import { useRoutinesStore } from "@/stores/RoutinesStore";
+import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { useModalStore } from "@/stores/useModalStore";
 
 import PartialReps from "./PartialReps";
@@ -16,14 +16,14 @@ import PartialRepsModal from "../modals/PartialRepsModal";
 import colors from "tailwindcss/colors";
 
 export default function Set({ set, index }: { set: SetType; index: number }) {
-  const updateMetricField = useRoutinesStore((s) => s.updateMetricField);
-  const deleteStep = useRoutinesStore((s) => s.deleteStep);
-  const addSet = useRoutinesStore((s) => s.addSet);
-  const toggleDropSets = useRoutinesStore((s) => s.toggleDropSets);
-  const toggleNotes = useRoutinesStore((s) => s.toggleNotes);
-  const updateNotes = useRoutinesStore((s) => s.updateNotes);
-  const deletePartialReps = useRoutinesStore((s) => s.deletePartialReps);
-  const updatePartialRepsField = useRoutinesStore((s) => s.updatePartialRepsField);
+  const updateMetricField = useWorkoutsStore((s) => s.updateMetricField);
+  const deleteStep = useWorkoutsStore((s) => s.deleteStep);
+  const duplicateStep = useWorkoutsStore((s) => s.duplicateStep);
+  const toggleDropSets = useWorkoutsStore((s) => s.toggleDropSets);
+  const toggleNotes = useWorkoutsStore((s) => s.toggleNotes);
+  const updateNotes = useWorkoutsStore((s) => s.updateNotes);
+  const deletePartialReps = useWorkoutsStore((s) => s.deletePartialReps);
+  const updatePartialRepsField = useWorkoutsStore((s) => s.updatePartialRepsField);
   const showModal = useModalStore((s) => s.showModal);
 
   const openPartialRepsModal = (step: any) => {
@@ -146,13 +146,7 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() =>
-                addSet(set.exerciseId, {
-                  weight: set.weight.value,
-                  reps: set.reps.value,
-                  rir: set.rir.value,
-                })
-              }
+              onPress={() => duplicateStep(set.id)}
               className="gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center border-neutral-200"
             >
               <Ionicons
