@@ -15,6 +15,8 @@ import SetTypes from "./SetTypes";
 import PartialRepsModal from "../modals/PartialRepsModal";
 import colors from "tailwindcss/colors";
 
+import EXERCISES from "@/assets/data/exercises.json";
+
 export default function Set({ set, index }: { set: SetType; index: number }) {
   const updateMetricField = useWorkoutsStore((s) => s.updateMetricField);
   const deleteStep = useWorkoutsStore((s) => s.deleteStep);
@@ -25,6 +27,7 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
   const deletePartialReps = useWorkoutsStore((s) => s.deletePartialReps);
   const updatePartialRepsField = useWorkoutsStore((s) => s.updatePartialRepsField);
   const showModal = useModalStore((s) => s.showModal);
+  const changeStepOrder = useWorkoutsStore((s) => s.changeStepOrder);
 
   const openPartialRepsModal = (step: any) => {
     showModal({
@@ -35,11 +38,27 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
   const weightUnit = useGlobalSettingsStore((state) => state.weightUnit);
   const advancedMode = useGlobalSettingsStore((state) => state.advancedMode);
 
+  const exercise = EXERCISES.find((e) => e.exerciseId === set.exerciseId);
+
   const hasPartialReps = set.partialReps.isRange ? set.partialReps.min && set.partialReps.max : set.partialReps.value;
+
+  if (!exercise) return <Text>No se encontro el ejercicio</Text>;
 
   return (
     <View className="border border-neutral-200 rounded-md p-3">
       {/* Header */}
+      <View className="flex-row items-center gap-3">
+        <Text>{exercise.name}</Text>
+
+        <TouchableOpacity onPress={() => changeStepOrder(set.id, index - 1)} className="p-3">
+          <Ionicons name="arrow-up-outline" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => changeStepOrder(set.id, index + 1)} className="p-3">
+          <Ionicons name="arrow-down-outline" />
+        </TouchableOpacity>
+      </View>
+
       <View className="flex-row items-center mb-2">
         <Text className="font-medium text-lg">Serie {index + 1}</Text>
         <SetTypes set={set} />
@@ -133,14 +152,14 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
           <View className="flex-row gap-1.5">
             <TouchableOpacity
               onPress={() => toggleNotes(set.id)}
-              className={`gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center ${set.notes.enabled ? "bg-neutral-100 border-neutral-300" : "border-neutral-200"}`}
+              className={`gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center ${set?.notes?.enabled ? "bg-neutral-100 border-neutral-300" : "border-neutral-200"}`}
             >
               <Ionicons
                 name="chatbox-ellipses-outline"
                 className="text-sm"
-                color={set.notes.enabled ? colors.neutral[500] : colors.neutral[400]}
+                color={set?.notes?.enabled ? colors.neutral[500] : colors.neutral[400]}
               />
-              <Text className={`text-sm text-medium ${set.notes.enabled ? "text-neutral-500" : "text-neutral-400"}`}>
+              <Text className={`text-sm text-medium ${set?.notes?.enabled ? "text-neutral-500" : "text-neutral-400"}`}>
                 Notas
               </Text>
             </TouchableOpacity>
@@ -152,7 +171,7 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
               <Ionicons
                 name="duplicate-outline"
                 className="text-sm"
-                color={set.notes.enabled ? colors.neutral[500] : colors.neutral[400]}
+                color={set?.notes?.enabled ? colors.neutral[500] : colors.neutral[400]}
               />
               <Text className="text-sm text-medium text-neutral-400">Duplicar</Text>
             </TouchableOpacity>
@@ -164,16 +183,16 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
               <Ionicons
                 name="trash-bin-outline"
                 className="text-sm"
-                color={set.notes.enabled ? colors.neutral[500] : colors.neutral[400]}
+                color={set?.notes?.enabled ? colors.neutral[500] : colors.neutral[400]}
               />
               <Text className="text-sm text-medium text-neutral-400">Eliminar</Text>
             </TouchableOpacity>
           </View>
 
           {/* Notes input */}
-          {set.notes.enabled && (
+          {set?.notes?.enabled && (
             <TextInput
-              value={set.notes.text}
+              value={set?.notes?.text}
               className="border border-neutral-400 rounded-md h-24 text-sm p-3"
               multiline
               // numberOfLines={20}

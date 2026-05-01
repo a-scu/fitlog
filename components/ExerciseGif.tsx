@@ -6,12 +6,22 @@ import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanima
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 
-const ExerciseGif = ({ exerciseId, className, style, ...rest }: { exerciseId: string; className?: string; style?: StyleProp<ViewStyle>; rest?: ImageProps }) => {
+const ExerciseGif = ({
+  exerciseId,
+  className,
+  style,
+  ...rest
+}: {
+  exerciseId: string;
+  className?: string;
+  style?: StyleProp<ViewStyle>;
+  rest?: ImageProps;
+}) => {
   const opacity = useSharedValue(1);
   const animatedImageStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   return (
-    <View className={`overflow-hidden items-center justify-center bg-neutral-50 rounded-md ${className}`} style={style}>
+    <View className={`overflow-hidden items-center justify-center ${className}`} style={style}>
       <Ionicons name="image-outline" size={32} className="!text-neutral-200 absolute" />
 
       <AnimatedImage

@@ -11,7 +11,9 @@ export type RootStackParamList = {
   createWorkout: undefined;
   editWorkout: { workoutId: string };
   workout: { workoutId: string };
-  activeWorkout: { workoutId: string };
+  workoutSession: { date?: string | Date };
+  workoutSessionSummary: { workoutSessionDate: string | Date };
+  addNote: { date: Date };
 
   createWorkspace: undefined;
   workspace: { workspaceId: string; initialTab?: "overview" | "routine" };

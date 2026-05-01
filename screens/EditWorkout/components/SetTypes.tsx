@@ -3,13 +3,17 @@ import { Set } from "@/types/Workout";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { SET_TYPES } from "@/constants/SetTypes";
 import colors from "tailwindcss/colors";
+import { LoggedSet } from "@/types/History";
 
-export default function SetTypes({ set }: { set: Set }) {
+export default function SetTypes({ set, hideCustom }: { set: any; hideCustom?: boolean }) {
   const updateSetField = useWorkoutsStore((s) => s.updateSetField);
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="ml-2" contentContainerClassName="">
       {SET_TYPES.map((setType) => {
+        if (setType.id === "custom") {
+          return null;
+        }
         const isSelected = set.type === setType.id;
 
         // if (setType.id === "custom")

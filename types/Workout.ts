@@ -32,7 +32,7 @@ export interface Set {
   customTypeName?: string;
   dropSets: DropSet[];
   partialReps: PartialReps;
-  notes: Notes;
+  notes?: Notes;
 }
 
 export interface Notes {

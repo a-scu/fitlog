@@ -19,8 +19,8 @@ export default function RoutineQuickView({ routine }: { routine: Routine }) {
         <Text className="text-neutral-500 text-sm">Rutina</Text>
 
         <View className="justify-end flex-row gap-1 flex-1">
-          <Text className="text-neutral-400 text-end text-sm">Editar rutina</Text>
-          <Ionicons name="create-outline" className="!text-sm !leading-none" color={colors.neutral[400]} />
+          <Text className="text-neutral-400 text-end text-sm">Ver rutina</Text>
+          <Ionicons name="enter-outline" className="!text-sm !leading-none" color={colors.neutral[400]} />
         </View>
       </View>
 

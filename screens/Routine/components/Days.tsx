@@ -106,6 +106,8 @@ export default function Days({ routineId, days }: { routineId: string; days: Rou
         ref={flatListRef}
         horizontal
         pagingEnabled
+        decelerationRate="fast"
+        disableIntervalMomentum
         nestedScrollEnabled
         showsHorizontalScrollIndicator={false}
         onScroll={scrollHandler}

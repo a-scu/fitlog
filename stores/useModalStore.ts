@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import React from "react";
 
 interface ModalOptions {
   content: React.ReactNode;
-  snapPoints?: string[];
+  snapPoints?: string[] | number[];
+  withBottomSheetView?: boolean;
 }
 
 interface ModalStore {
@@ -16,6 +16,7 @@ interface ModalStore {
 export const useModalStore = create<ModalStore>((set) => ({
   config: null,
   isOpen: false,
+
   showModal: (config) => set({ config, isOpen: true }),
   hideModal: () => set({ isOpen: false, config: null }),
 }));

@@ -5,17 +5,30 @@ import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { useRoutinesStore } from "@/stores/RoutinesStore";
 
 import { Ionicons } from "@expo/vector-icons";
-import { dayNames } from "@/constants/DayNames";
+
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
-import { getRoutineMuscles } from "@/utils/routineMuscles";
-import { Set, Step, Workout } from "@/types/Workout";
+
 import colors from "tailwindcss/colors";
-import { useNavigation } from "@react-navigation/native";
-import { RoutineDay } from "@/types/Routine";
-import RoutineQuickView from "@/components/RoutineQuickView";
+
 import WorkoutQuickView from "@/components/WorkoutQuickView";
-import { adjustedDay, monthDay } from "@/constants/Time";
-import { Image } from "expo-image";
+
+import { format, addDays, isSameDay, startOfDay } from "date-fns";
+import { es } from "date-fns/locale";
+
+import { useState, useRef, memo, useCallback } from "react";
+import RoutineQuickView from "@/components/RoutineQuickView";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import Animated, { useAnimatedScrollHandler, runOnJS } from "react-native-reanimated";
+import { useWindowDimensions } from "react-native";
+import { SWIPER_CONFIG } from "@/constants/SwiperConfig";
+import RestQuickView from "@/components/RestQuickView";
+import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
+import WorkoutSessionView from "../EditWorkout/components/WorkoutSessionView";
+import { useWorkoutsHistoryStore } from "@/stores/WorkoutsHistoryStore";
+
+const TOTAL_PAGES = 1000;
+const INITIAL_PAGE = 500;
+const DATES_DATA = Array.from({ length: TOTAL_PAGES }, (_, index) => index);
 
 export default function DashboardScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
@@ -24,22 +37,71 @@ export default function DashboardScreen({ navigation }: any) {
   const personalWorkspace = getPersonalWorkspace();
 
   const routines = useRoutinesStore((state) => state.routines);
-  const workouts = useWorkoutsStore((s) => s.workouts);
 
-  if (!personalWorkspace) return;
+  const [baseDate, setBaseDate] = useState(startOfDay(new Date()));
+  const [currentPage, setCurrentPage] = useState(INITIAL_PAGE);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const flatListRef = useRef<Animated.FlatList<any>>(null);
+
+  const selectedDate = addDays(baseDate, currentPage - INITIAL_PAGE);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (e) => {
+      const offset = e.contentOffset.x;
+      const index = Math.round(offset / SCREEN_WIDTH);
+      if (index !== currentPage) {
+        runOnJS(setCurrentPage)(index);
+      }
+    },
+  });
+
+  const handleDatePicked = (event: any, date?: Date) => {
+    setShowDatePicker(false);
+    if (date) {
+      const selected = startOfDay(date);
+      setBaseDate(selected);
+      setCurrentPage(INITIAL_PAGE);
+      flatListRef.current?.scrollToIndex({ index: INITIAL_PAGE, animated: false });
+    }
+  };
+
+  const jumpToNext = () => {
+    flatListRef.current?.scrollToIndex({ index: currentPage + 1, animated: true });
+  };
+
+  const jumpToPrev = () => {
+    flatListRef.current?.scrollToIndex({ index: currentPage - 1, animated: true });
+  };
+
+  // const jumpToToday = () => {
+  //   const today = startOfDay(new Date());
+  //   setBaseDate(today);
+  //   setCurrentPage(INITIAL_PAGE);
+  //   flatListRef.current?.scrollToIndex({ index: INITIAL_PAGE, animated: false });
+  // };
+
+  if (!personalWorkspace) return null;
 
   const { routineId } = personalWorkspace;
+
   const routine = routines.find((r) => r.id === routineId);
 
-  console.log("Personal routine:", routine);
+  const renderItem = useCallback(
+    ({ item: index }: { item: number }) => {
+      const date = addDays(baseDate, index - INITIAL_PAGE);
+      return <DayContent date={date} routine={routine} navigation={navigation} />;
+    },
+    [baseDate, routine, navigation, SCREEN_WIDTH],
+  );
 
   if (!routineId || !routine) {
     const handleCreateRoutine = () => {
-      navigation.navigate("createRoutine", { workspaceId: personalWorkspace.id });
+      navigation.navigate("createRoutine");
     };
 
     return (
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
         <ScrollView className="flex-1" contentContainerClassName="p-3">
           <TouchableOpacity onPress={handleCreateRoutine} className="p-6 border rounded-md">
             <Text>Crear rutina</Text>
@@ -51,70 +113,101 @@ export default function DashboardScreen({ navigation }: any) {
     );
   }
 
-  const today = routine.days.find((d) => d.dayIndex === adjustedDay);
-  const todaysWorkout = workouts.find((w) => w.id === today?.workoutId);
+  const today = new Date();
+  const isToday = isSameDay(selectedDate, today);
+  const isYesterday = isSameDay(selectedDate, addDays(today, -1));
+  const isTomorrow = isSameDay(selectedDate, addDays(today, 1));
 
-  if (!today) return <Text>No se encontro un entreno para hoy</Text>;
-
-  console.log("Today's Workout", today);
+  const getHeaderText = () => {
+    const dateFormatted = format(selectedDate, "EEE d 'de' MMM", { locale: es });
+    if (isToday) return `hoy - ${dateFormatted}`;
+    if (isYesterday) return `ayer - ${dateFormatted}`;
+    if (isTomorrow) return `mañana - ${dateFormatted}`;
+    return dateFormatted;
+  };
 
   return (
     <View className="flex-1 bg-white">
-      <ScrollView className="flex-1" contentContainerClassName="p-3 gap-3">
-        {/* Routine View */}
+      {/* Top Header */}
+      <View className="flex-row items-center justify-between h-14 border-b border-neutral-100">
+        <TouchableOpacity onPress={jumpToPrev} className="h-14 px-4 justify-center items-center">
+          <Ionicons name="chevron-back-outline" size={18} color={colors.neutral[800]} />
+        </TouchableOpacity>
 
-        <RoutineQuickView routine={routine} />
+        <TouchableOpacity
+          onPress={() => setShowDatePicker(true)}
+          className="flex-row items-center gap-1 h-14 justify-center"
+        >
+          <Text className="text-xl font-medium text-neutral-800 text-center">{getHeaderText()}</Text>
+        </TouchableOpacity>
 
-        {!todaysWorkout || today?.isRestDay ? (
-          <RestQuickView routineId={routineId} />
-        ) : (
-          <WorkoutQuickView workout={todaysWorkout} />
-        )}
-      </ScrollView>
+        <TouchableOpacity onPress={jumpToNext} className="h-14 px-4 justify-center items-center">
+          <Ionicons name="chevron-forward-outline" size={18} color={colors.neutral[800]} />
+        </TouchableOpacity>
+      </View>
+
+      {showDatePicker && (
+        <DateTimePicker value={selectedDate} mode="date" display="default" onChange={handleDatePicked} />
+      )}
+
+      {/* Infinite FlatList Swiper */}
+      <Animated.FlatList
+        ref={flatListRef}
+        horizontal
+        decelerationRate="fast"
+        initialScrollIndex={INITIAL_PAGE}
+        onScroll={scrollHandler}
+        data={DATES_DATA}
+        keyExtractor={(item) => item.toString()}
+        getItemLayout={(_, index) => ({
+          length: SCREEN_WIDTH,
+          offset: SCREEN_WIDTH * index,
+          index,
+        })}
+        disableIntervalMomentum
+        nestedScrollEnabled
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        scrollEventThrottle={16}
+        windowSize={5}
+        initialNumToRender={3}
+        maxToRenderPerBatch={3}
+        removeClippedSubviews={false} // Disable to avoid disappearing content bugs
+        renderItem={renderItem}
+      />
     </View>
   );
 }
 
-const RestQuickView = ({ routineId }: { routineId: string }) => {
-  const navigation = useNavigation();
+const DayContent = memo(({ date, routine, navigation }: { date: Date; routine: any; navigation: any }) => {
+  const workouts = useWorkoutsStore((s) => s.workouts);
+
+  const isToday = isSameDay(date, new Date());
+
+  const adjustedDayIndex = (date.getDay() + 6) % 7; // 0=Mon, 6=Sun
+  const plannedDay = routine.days.find((d: any) => d.dayIndex === adjustedDayIndex);
+  const plannedWorkout = workouts.find((w) => w.id === plannedDay?.workoutId);
+
+  const workoutSessions = useWorkoutsHistoryStore((s) => s.workoutSessions);
+  const workoutSession = workoutSessions.find((w) => isSameDay(w.date, date));
 
   return (
-    <TouchableOpacity
-      onPress={() => navigation.navigate("routine", { routineId })}
-      className="border border-neutral-200 p-5 rounded-xl"
-    >
-      {/*  */}
-      <View className="flex-row items-start justify-between flex-1">
-        <Text className="text-neutral-500 text-sm">Hoy</Text>
+    <View style={{ width: SCREEN_WIDTH }} className="flex-1">
+      <ScrollView className="flex-1" contentContainerClassName="p-4 gap-4 grow">
+        {isToday && <RoutineQuickView routine={routine} />}
 
-        <View className="justify-end items-center flex-row gap-1">
-          <Text className="text-neutral-400 text-end text-sm">Ver detalle</Text>
-          <Ionicons name="enter-outline" className="!text-sm !leading-none" color={colors.neutral[400]} />
-        </View>
-      </View>
+        {isToday &&
+          (!plannedWorkout || plannedDay?.isRestDay ? (
+            <RestQuickView routineId={routine.id} date={date} />
+          ) : (
+            <WorkoutQuickView routine={routine} workout={plannedWorkout} />
+          ))}
 
-      <Text className="font-bold text-xl">
-        Descanso
-        <Text className="text-neutral-500 text-base font-medium">
-          {" - "}
-          {dayNames[adjustedDay]} {monthDay}
-        </Text>
-      </Text>
-
-      <View className="size-48 self-center">
-        <Image
-          source={
-            "https://png.pngtree.com/png-clipart/20231222/original/pngtree-blissful-rest-cartoon-bear-relishing-lazy-hammock-afternoon-png-image_13912197.png"
-          }
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-        />
-      </View>
-    </TouchableOpacity>
+        {(!isToday || workoutSession?.status === "completed") && <WorkoutSessionView date={date} />}
+      </ScrollView>
+    </View>
   );
-};
+});
 
 // OSITO AMENAZANTE
 

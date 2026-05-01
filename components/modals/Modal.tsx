@@ -1,14 +1,12 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import { BackHandler } from "react-native";
+import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView, SCREEN_HEIGHT } from "@gorhom/bottom-sheet";
+import { useCallback, useEffect, useRef } from "react";
+import { BackHandler, View } from "react-native";
+
 import { useModalStore } from "@/stores/useModalStore";
 
 const Modal = () => {
   const { config, isOpen, hideModal } = useModalStore();
+
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   useEffect(() => {
@@ -28,23 +26,13 @@ const Modal = () => {
       return false;
     };
 
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction,
-    );
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
 
     return () => backHandler.remove();
   }, [isOpen, hideModal]);
 
   const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        pressBehavior="close"
-      />
-    ),
+    (props: any) => <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} pressBehavior="close" />,
     [],
   );
 
@@ -52,14 +40,17 @@ const Modal = () => {
     <BottomSheetModal
       ref={bottomSheetModalRef}
       index={0}
-      snapPoints={config?.snapPoints || []}
+      snapPoints={config?.snapPoints || [SCREEN_HEIGHT - 100]}
+      maxDynamicContentSize={SCREEN_HEIGHT - 100}
       onDismiss={hideModal}
       backdropComponent={renderBackdrop}
       enablePanDownToClose
     >
-      <BottomSheetView className="flex-1 p-6">
-        {config?.content}
-      </BottomSheetView>
+      {config?.withBottomSheetView === false ? (
+        <View className="flex-1 ">{config?.content}</View>
+      ) : (
+        <BottomSheetView className="flex-1 p-6">{config?.content}</BottomSheetView>
+      )}
     </BottomSheetModal>
   );
 };

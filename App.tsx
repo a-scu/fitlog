@@ -17,6 +17,8 @@ import { useThemeStore } from "@/stores/ThemeStore";
 import Modal from "@/components/modals/Modal";
 
 import RootStack from "./navigation/RootStack";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useActiveWorkoutStore } from "@/stores/ActiveWorkoutStore";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -50,15 +52,29 @@ export default function App() {
 
   return (
     <>
-      {/* || isDark ? "light" : "dark" */}
-      <StatusBar style={"dark"} />
       <GestureHandlerRootView className="flex-1">
-        <BottomSheetModalProvider>
-          <NavigationContainer theme={navTheme}>
-            <RootStack />
+        <SafeAreaProvider>
+          {/* || isDark ? "light" : "dark" */}
+          <StatusBar style={"dark"} />
+          <NavigationContainer
+            theme={navTheme}
+            onStateChange={(state) => {
+              if (state) {
+                const route = state.routes[state.index];
+                useActiveWorkoutStore.getState().setCurrentRoute(route.name);
+              }
+            }}
+            onReady={() => {
+              // Initial state update
+              // We could potentially get the initial route here if needed
+            }}
+          >
+            <BottomSheetModalProvider>
+              <RootStack />
+              <Modal />
+            </BottomSheetModalProvider>
           </NavigationContainer>
-          <Modal />
-        </BottomSheetModalProvider>
+        </SafeAreaProvider>
       </GestureHandlerRootView>
     </>
   );

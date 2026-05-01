@@ -22,6 +22,16 @@ const defaultPartialReps = (): PartialReps => ({
   customRom: "",
 });
 
+const moveItem = (array: any[], id: string, newIndex: number) => {
+  const oldIndex = array.findIndex((item) => item.id === id);
+  if (oldIndex === -1 || newIndex < 0 || newIndex >= array.length) return array;
+
+  const newArray = [...array];
+  const [movedItem] = newArray.splice(oldIndex, 1);
+  newArray.splice(newIndex, 0, movedItem);
+  return newArray;
+};
+
 // ── Store interface ───────────────────────────────────────────────────────────
 
 interface WorkoutsStore {
@@ -62,6 +72,8 @@ interface WorkoutsStore {
     field: keyof Metric,
     value: any,
   ) => void;
+
+  changeStepOrder: (stepId: string, newOrder: number) => void;
 
   // Acciones de PartialReps
   updatePartialRepsField: (setId: string, field: keyof PartialReps, value: any) => void;
@@ -248,6 +260,18 @@ export const useWorkoutsStore = create<WorkoutsStore>()(
               ? {
                   ...r,
                   steps: r.steps.filter((s) => s.id !== stepId),
+                }
+              : r,
+          ),
+        })),
+
+      changeStepOrder: (stepId, newOrder) =>
+        set((state) => ({
+          workouts: state.workouts.map((r) =>
+            r.id === state.editingWorkoutId
+              ? {
+                  ...r,
+                  steps: moveItem(r.steps, stepId, newOrder),
                 }
               : r,
           ),
