@@ -53,8 +53,8 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
   }
 
   return (
-    <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
-      <TouchableOpacity onPress={addToRoutine} className="bg-red-400 m-3 p-3 rounded-lg">
+    <ScrollView className="flex-1 bg-white dark:bg-neutral-900" contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
+      <TouchableOpacity onPress={addToRoutine} className="bg-red-400 dark:bg-red-500 m-3 p-3 rounded-lg">
         <Text className="text-white text-center font-bold">Agregar a la rutina</Text>
       </TouchableOpacity>
 
@@ -65,13 +65,13 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
 
         <View className="flex-row gap-4 flex-1">
           <View className="flex-[1.25]">
-            <Text className="mb-0.5 text-sm font-semibold text-neutral-600">Musculos afectados</Text>
+            <Text className="mb-0.5 text-sm font-semibold text-neutral-600 dark:text-neutral-400">Musculos afectados</Text>
 
             <Text>
               {/* Target Muscle */}
-              <Text className="text-xs font-medium text-red-400">{capitalize(targetMuscle)},</Text>
+              <Text className="text-xs font-medium text-red-400 dark:text-red-500">{capitalize(targetMuscle)},</Text>
               {/* Secondary Muscles */}
-              <Text className="text-neutral-400 text-xs">
+              <Text className="text-neutral-400 dark:text-neutral-500 text-xs">
                 {exercise.secondaryMuscles &&
                   exercise.secondaryMuscles.length > 0 &&
                   " " + exercise.secondaryMuscles.map((muscle: string) => capitalize(muscle)).join(", ")}
@@ -81,8 +81,8 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
 
           {/* Equipment */}
           <View className="flex-1">
-            <Text className="mb-0.5 text-sm font-semibold text-neutral-600">{t("screens.exercise.equipment")}</Text>
-            <Text className="text-xs text-neutral-400">
+            <Text className="mb-0.5 text-sm font-semibold text-neutral-600 dark:text-neutral-400">{t("screens.exercise.equipment")}</Text>
+            <Text className="text-xs text-neutral-400 dark:text-neutral-500">
               {exercise.equipments && exercise.equipments.length > 0
                 ? capitalize(exercise.equipments.join(", "))
                 : t("screens.exercise.none")}

@@ -13,10 +13,16 @@ export default function AddNoteScreen({ route }: any) {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
-  const updateWorkoutSession = useWorkoutsHistoryStore((s) => s.updateWorkoutSession);
-  const workoutSession = useWorkoutsHistoryStore((s) => s.workoutSessions.find((sess) => isSameDay(date, sess.date)));
+  const updateWorkoutSession = useWorkoutsHistoryStore(
+    (s) => s.updateWorkoutSession,
+  );
+  const workoutSession = useWorkoutsHistoryStore((s) =>
+    s.workoutSessions.find((sess) => isSameDay(date, sess.date)),
+  );
 
-  const dateFormatted = format(new Date(date), "EEE d 'de' MMM", { locale: es });
+  const dateFormatted = format(new Date(date), "EEE d 'de' MMM", {
+    locale: es,
+  });
 
   useEffect(() => {
     navigation.setOptions({
@@ -29,11 +35,12 @@ export default function AddNoteScreen({ route }: any) {
   };
 
   return (
-    <View className="flex-1 bg-white" style={{ paddingBottom: insets.bottom }}>
+    <View className="flex-1 bg-white dark:bg-neutral-900" style={{ paddingBottom: insets.bottom }}>
       <TextInput
+        autoFocus
         placeholder="Notas del entreno..."
-        placeholderTextColor={colors.neutral[400]}
-        className="w-full flex-1 p-8 text-xl tracking-wider"
+        placeholderTextColor={colors.neutral[500]}
+        className="w-full flex-1 p-8 text-xl tracking-wider text-neutral-900 dark:text-white"
         multiline
         style={{ textAlignVertical: "top" }}
         defaultValue={workoutSession?.notes || ""}

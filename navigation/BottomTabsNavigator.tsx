@@ -40,7 +40,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const { t } = useTranslation();
 
   return (
-    <View style={{ paddingBottom: insets.bottom }} className="bg-white border-t border-neutral-100">
+    <View style={{ paddingBottom: insets.bottom }} className="bg-white dark:bg-neutral-900 border-t border-neutral-100 dark:border-neutral-800">
       <View className="flex-row items-center justify-around py-4">
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];

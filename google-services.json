@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "490750038028",
+    "project_id": "fitlog-4c7db",
+    "storage_bucket": "fitlog-4c7db.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490750038028:android:3c882f42a6e13f902c9e29",
+        "android_client_info": {
+          "package_name": "scu.fitlog"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "490750038028-c6tbrqpc1ik0h9lrfvfingunem2p7aj9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "scu.fitlog",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "490750038028-p1p3q6a8ijv4u6r82cq651pmkcvm034g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "scu.fitlog",
+            "certificate_hash": "a306856f9a7cb3a1d751adfe4da9a5174039a6d2"
+          }
+        },
+        {
+          "client_id": "490750038028-j2998chpfpmdond14q9o7ut1v0m6limk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8RqyGlIgj3sTA1qogawZ7F5sTaBaINxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "490750038028-j2998chpfpmdond14q9o7ut1v0m6limk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "490750038028-o9ti6gonmphlg6ut24bqsi6g0d4su1qr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fitlog"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

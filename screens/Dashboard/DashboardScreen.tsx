@@ -19,8 +19,7 @@ import { useState, useRef, memo, useCallback } from "react";
 import RoutineQuickView from "@/components/RoutineQuickView";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Animated, { useAnimatedScrollHandler, runOnJS } from "react-native-reanimated";
-import { useWindowDimensions } from "react-native";
-import { SWIPER_CONFIG } from "@/constants/SwiperConfig";
+
 import RestQuickView from "@/components/RestQuickView";
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import WorkoutSessionView from "../EditWorkout/components/WorkoutSessionView";
@@ -95,23 +94,7 @@ export default function DashboardScreen({ navigation }: any) {
     [baseDate, routine, navigation, SCREEN_WIDTH],
   );
 
-  if (!routineId || !routine) {
-    const handleCreateRoutine = () => {
-      navigation.navigate("createRoutine");
-    };
 
-    return (
-      <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
-        <ScrollView className="flex-1" contentContainerClassName="p-3">
-          <TouchableOpacity onPress={handleCreateRoutine} className="p-6 border rounded-md">
-            <Text>Crear rutina</Text>
-          </TouchableOpacity>
-
-          <Text>Aun no creaste ninguna rutina</Text>
-        </ScrollView>
-      </View>
-    );
-  }
 
   const today = new Date();
   const isToday = isSameDay(selectedDate, today);
@@ -127,22 +110,22 @@ export default function DashboardScreen({ navigation }: any) {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white dark:bg-neutral-900">
       {/* Top Header */}
-      <View className="flex-row items-center justify-between h-14 border-b border-neutral-100">
+      <View className="flex-row items-center justify-between h-14 border-b border-neutral-100 dark:border-neutral-800">
         <TouchableOpacity onPress={jumpToPrev} className="h-14 px-4 justify-center items-center">
-          <Ionicons name="chevron-back-outline" size={18} color={colors.neutral[800]} />
+          <Ionicons name="chevron-back-outline" size={18} className="!text-neutral-800 dark:!text-white" />
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => setShowDatePicker(true)}
           className="flex-row items-center gap-1 h-14 justify-center"
         >
-          <Text className="text-xl font-medium text-neutral-800 text-center">{getHeaderText()}</Text>
+          <Text className="text-xl font-medium text-neutral-800 dark:text-white text-center">{getHeaderText()}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={jumpToNext} className="h-14 px-4 justify-center items-center">
-          <Ionicons name="chevron-forward-outline" size={18} color={colors.neutral[800]} />
+          <Ionicons name="chevron-forward-outline" size={18} className="!text-neutral-800 dark:!text-white" />
         </TouchableOpacity>
       </View>
 
@@ -185,7 +168,7 @@ const DayContent = memo(({ date, routine, navigation }: { date: Date; routine: a
   const isToday = isSameDay(date, new Date());
 
   const adjustedDayIndex = (date.getDay() + 6) % 7; // 0=Mon, 6=Sun
-  const plannedDay = routine.days.find((d: any) => d.dayIndex === adjustedDayIndex);
+  const plannedDay = routine?.days?.find((d: any) => d.dayIndex === adjustedDayIndex);
   const plannedWorkout = workouts.find((w) => w.id === plannedDay?.workoutId);
 
   const workoutSessions = useWorkoutsHistoryStore((s) => s.workoutSessions);
@@ -194,9 +177,17 @@ const DayContent = memo(({ date, routine, navigation }: { date: Date; routine: a
   return (
     <View style={{ width: SCREEN_WIDTH }} className="flex-1">
       <ScrollView className="flex-1" contentContainerClassName="p-4 gap-4 grow">
-        {isToday && <RoutineQuickView routine={routine} />}
+        {isToday && routine && <RoutineQuickView routine={routine} />}
+        {isToday && !routine && (
+          <View className="bg-neutral-100 dark:bg-neutral-800 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-700 items-center justify-center gap-4">
+            <Text className="text-neutral-500 dark:text-neutral-400 text-center text-lg font-medium">No tienes ninguna rutina creada.</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("createRoutine")} className="bg-emerald-500 py-3 px-6 rounded-xl">
+              <Text className="text-white font-bold text-base">Crear mi primera rutina</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-        {isToday &&
+        {isToday && routine &&
           (!plannedWorkout || plannedDay?.isRestDay ? (
             <RestQuickView routineId={routine.id} date={date} />
           ) : (

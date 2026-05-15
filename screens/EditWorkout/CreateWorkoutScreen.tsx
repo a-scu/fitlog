@@ -39,24 +39,25 @@ export default function CreateWorkoutScreen({ navigation, route }: any) {
   };
 
   return (
-    <View className="bg-white flex-1" style={{ paddingBottom: insets.bottom }}>
+    <View className="bg-white dark:bg-neutral-900 flex-1" style={{ paddingBottom: insets.bottom }}>
       <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} contentContainerClassName="py-3 gap-6">
         <View className="gap-1 px-3">
-          <Text className="text-neutral-500 font-medium mb-1">Nombre del entrenamiento</Text>
+          <Text className="text-neutral-500 dark:text-neutral-400 font-medium mb-1">Nombre del entrenamiento</Text>
           <TextInput
             value={workout.name}
             onChangeText={(value) => setWorkout({ name: value })}
-            className="border border-neutral-200 rounded-2xl p-4 text-lg"
+            className="border border-neutral-200 dark:border-neutral-700 dark:text-white rounded-2xl p-4 text-lg"
             placeholder="Ej: Pecho y Tríceps"
+            placeholderTextColor="#9ca3af"
           />
         </View>
       </ScrollView>
 
       <TouchableOpacity
         onPress={handleCreateWorkout}
-        className="bg-black items-center justify-center p-8 mx-3 mb-3 rounded-xl"
+        className="bg-black dark:bg-white items-center justify-center p-8 mx-3 mb-3 rounded-xl"
       >
-        <Text className="text-center text-lg font-semibold text-white">Crear entrenamiento</Text>
+        <Text className="text-center text-lg font-semibold text-white dark:text-black">Crear entrenamiento</Text>
       </TouchableOpacity>
     </View>
   );

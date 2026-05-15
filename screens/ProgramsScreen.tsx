@@ -13,7 +13,7 @@ export default function ProgramsScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white dark:bg-neutral-900" style={{ paddingTop: insets.top }}>
       <Tab.Navigator
         tabBar={(props) => <CustomTopTabBar {...props} />}
         screenOptions={{

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 
 interface ConfirmationModalProps {
   title: string;

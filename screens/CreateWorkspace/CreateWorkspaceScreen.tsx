@@ -45,25 +45,26 @@ export default function CreateWorkspaceScreen({ navigation, route }: any) {
   };
 
   return (
-    <View className="bg-white flex-1" style={{ paddingBottom: insets.bottom }}>
+    <View className="bg-white dark:bg-neutral-900 flex-1" style={{ paddingBottom: insets.bottom }}>
       <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} contentContainerClassName="py-3 gap-6">
         {/* Workspace Name */}
         <View className="gap-1 px-3">
-          <Text className="text-neutral-500 font-medium mb-1">Nombre del workspace</Text>
+          <Text className="text-neutral-500 dark:text-neutral-400 font-medium mb-1">Nombre del workspace</Text>
           <TextInput
             value={workspace.name}
             onChangeText={(value) => updateWorkspace("name", value)}
-            className="border border-neutral-200 rounded-2xl p-4 text-lg"
+            className="border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-2xl p-4 text-lg text-neutral-900 dark:text-white"
             placeholder="Nombre del atleta o cliente"
+            placeholderTextColor="#9ca3af"
           />
         </View>
       </ScrollView>
 
       <TouchableOpacity
         onPress={handleCreateWorkspace}
-        className="bg-black items-center justify-center p-8 mx-3 mb-3 rounded-xl"
+        className="bg-black dark:bg-white items-center justify-center p-5 mx-3 mb-3 rounded-2xl"
       >
-        <Text className="text-center text-lg font-semibold text-white">Crear workspace</Text>
+        <Text className="text-center text-lg font-bold text-white dark:text-black">Crear workspace</Text>
       </TouchableOpacity>
     </View>
   );

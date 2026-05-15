@@ -1,8 +1,10 @@
-import { View, Text } from "react-native";
-import { useEffect } from "react";
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Share } from "react-native";
+import { useEffect, useState } from "react";
+import { onSnapshot, doc, getFirestore } from "@react-native-firebase/firestore";
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { Ionicons } from "@expo/vector-icons";
 
 import OverviewTab from "./components/OverviewTab";
 import NotesTab from "./components/NotesTab";
@@ -27,7 +29,7 @@ export default function WorkspaceScreen({ navigation, route }: any) {
   if (!workspace) return <Text>Hubo un problema, no se encontró el workspace</Text>;
 
   return (
-    <View className="flex-1 bg-white" style={{ paddingBottom: insets.bottom }}>
+    <View className="flex-1 bg-white dark:bg-neutral-900" style={{ paddingBottom: insets.bottom }}>
       <Tab.Navigator
         initialRouteName={initialTab}
         tabBar={(props) => <CustomTopTabBar {...props} />}

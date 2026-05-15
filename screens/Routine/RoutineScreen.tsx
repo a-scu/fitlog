@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEffect } from "react";
 
 import { useRoutinesStore } from "@/stores/RoutinesStore";
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { SelectRoutineModal } from "@/components/modals/SelectRoutineModal";
 import { Ionicons } from "@expo/vector-icons";
@@ -85,18 +85,18 @@ export default function RoutineScreen({ navigation, route }: any) {
 
   if (!routine) {
     return (
-      <View className="flex-1 bg-white items-center justify-center">
-        <Text className="text-neutral-400 font-medium">Cargando rutina...</Text>
+      <View className="flex-1 bg-white dark:bg-neutral-900 items-center justify-center">
+        <Text className="text-neutral-400 dark:text-neutral-500 font-medium">Cargando rutina...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-white" style={{ paddingBottom: insets.bottom }}>
+    <View className="flex-1 bg-white dark:bg-neutral-900" style={{ paddingBottom: insets.bottom }}>
       <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} contentContainerClassName="py-3 gap-6">
         {isUsedInMultipleWorkspaces && (
-          <View className="bg-yellow-100 p-4 border-b border-yellow-200 -mt-3">
-            <Text className="text-yellow-800 font-medium">
+          <View className="bg-yellow-100 dark:bg-yellow-900/30 p-4 border-b border-yellow-200 dark:border-yellow-800 -mt-3">
+            <Text className="text-yellow-800 dark:text-yellow-500 font-medium">
               Esta rutina está siendo usada en otros workspaces. Si la modificas, se modificará en todos. Ten cuidado.
             </Text>
           </View>
@@ -104,14 +104,15 @@ export default function RoutineScreen({ navigation, route }: any) {
         {/* Routine Name */}
         <View className="gap-3 px-3">
           <View>
-            <Text className="text-neutral-500 font-medium mb-1">Nombre de la rutina</Text>
+            <Text className="text-neutral-500 dark:text-neutral-400 font-medium mb-1">Nombre de la rutina</Text>
             <TextInput
               value={routine.name}
               onChangeText={(value) => updateRoutine(routineId, "name", value)}
-              className="border border-neutral-200 rounded-2xl p-4 text-lg"
+              className="border border-neutral-200 dark:border-neutral-700 dark:text-white rounded-2xl p-4 text-lg"
               placeholder="Ej: Mi rutina semanal"
+              placeholderTextColor="#9ca3af"
             />
-            <Text className="text-neutral-400 text-xs mt-2">
+            <Text className="text-neutral-400 dark:text-neutral-500 text-xs mt-2">
               {workspacesUsingRoutine.length > 0
                 ? `Esta rutina se usa en: ${workspacesUsingRoutine.map((w) => w.name || "Sin nombre").join(", ")}`
                 : "Esta rutina no está asignada a ningún workspace"}
@@ -119,10 +120,10 @@ export default function RoutineScreen({ navigation, route }: any) {
           </View>
           <TouchableOpacity
             onPress={handleImportRoutine}
-            className="flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl border border-neutral-200 bg-neutral-50"
+            className="flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800"
           >
-            <Ionicons name="download-outline" size={20} color={colors.neutral[500]} />
-            <Text className="text-neutral-500 font-medium">Importar rutina como plantilla</Text>
+            <Ionicons name="download-outline" size={20} className="!text-neutral-500 dark:!text-neutral-400" />
+            <Text className="text-neutral-500 dark:text-neutral-400 font-medium">Importar rutina como plantilla</Text>
           </TouchableOpacity>
         </View>
 
@@ -131,10 +132,10 @@ export default function RoutineScreen({ navigation, route }: any) {
 
         <TouchableOpacity
           onPress={handleDeleteRoutine}
-          className="p-5 border-red-500 border rounded-xl flex-row gap-3 items-center justify-center mx-3"
+          className="p-5 border-red-500 dark:border-red-900/30 dark:bg-red-900/10 border rounded-xl flex-row gap-3 items-center justify-center mx-3"
         >
-          <Ionicons name="trash-bin-outline" className="!text-lg" color={colors.red[500]} />
-          <Text className="text-red-500 text-center text-lg">Eliminar rutina</Text>
+          <Ionicons name="trash-bin-outline" className="!text-lg !text-red-500 dark:!text-red-400" />
+          <Text className="text-red-500 dark:text-red-400 text-center text-lg">Eliminar rutina</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

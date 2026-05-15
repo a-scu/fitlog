@@ -17,6 +17,8 @@ export type RootStackParamList = {
 
   createWorkspace: undefined;
   workspace: { workspaceId: string; initialTab?: "overview" | "routine" };
+  workspaceSettings: { workspaceId: string };
+  invite: { id: string };
 };
 
 export type BottomTabParamList = {

@@ -53,17 +53,17 @@ export default function ExercisesScreen({ navigation, route }: any) {
   const search = useFilters((state) => state.search);
 
   return (
-    <View className="bg-white mt-24 flex-1 rounded-3xl">
+    <View className="bg-white dark:bg-neutral-900 mt-24 flex-1 rounded-3xl">
       {/* Grabber */}
       <View className="w-full pt-4 items-center justify-center">
-        <View className="h-1 w-8 rounded-full bg-neutral-300" />
+        <View className="h-1 w-8 rounded-full bg-neutral-300 dark:bg-neutral-700" />
       </View>
 
       <View className="h-14 pb-3 flex-row items-center">
         <TouchableOpacity onPress={() => navigation.goBack()} className="px-4 items-center justify-center">
-          <Ionicons name="arrow-back" className="!text-xl left-px !text-neutral-800" />
+          <Ionicons name="arrow-back" className="!text-xl left-px !text-neutral-800 dark:!text-white" />
         </TouchableOpacity>
-        <Text className="text-xl font-medium text-neutral-800">Agregar ejercicios</Text>
+        <Text className="text-xl font-medium text-neutral-800 dark:text-white">Agregar ejercicios</Text>
       </View>
 
       <ExerciseList
@@ -75,8 +75,8 @@ export default function ExercisesScreen({ navigation, route }: any) {
 
       {selectedIds.length > 0 && (
         <View className="absolute bottom-4 w-full px-4">
-          <TouchableOpacity onPress={addSelectedToRoutine} className="bg-black p-5 rounded-lg shadow-lg">
-            <Text className="text-white text-center font-medium text-lg">Agregar {selectedIds.length} ejercicios</Text>
+          <TouchableOpacity onPress={addSelectedToRoutine} className="bg-black dark:bg-white p-5 rounded-lg shadow-lg">
+            <Text className="text-white dark:text-black text-center font-medium text-lg">Agregar {selectedIds.length} ejercicios</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -174,12 +174,12 @@ const ExerciseList = ({ workoutSessionDate, search, selectedIds, setSelectedIds 
         ListHeaderComponent={
           <View>
             <View className="flex-row pb-2">
-              <View className="flex-row items-center flex-1 gap-2 border border-neutral-200 rounded-md">
+              <View className="flex-row items-center flex-1 gap-2 border border-neutral-200 dark:border-neutral-800 rounded-md">
                 <TextInput
                   ref={inputRef}
                   style={{ includeFontPadding: false }}
                   placeholder={t("screens.exercises.search") + " " + t("screens.tabs.exercises").toLowerCase()}
-                  className="flex-1 p-4 text-base text-neutral-800 placeholder:text-neutral-400"
+                  className="flex-1 p-4 text-base text-neutral-800 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                   value={search}
                   onChangeText={(text) => setField("search", text)}
                   cursorColor={"#a3a3a380"}
@@ -187,7 +187,7 @@ const ExerciseList = ({ workoutSessionDate, search, selectedIds, setSelectedIds 
                   selectionHandleColor={"#a3a3a380"}
                   selectTextOnFocus
                 />
-                <Ionicons pointerEvents="none" name="search-outline" className="!text-xl !text-neutral-400 right-3" />
+                <Ionicons pointerEvents="none" name="search-outline" className="!text-xl !text-neutral-400 dark:!text-neutral-500 right-3" />
               </View>
 
               {/* <TouchableOpacity
@@ -211,7 +211,7 @@ const ExerciseList = ({ workoutSessionDate, search, selectedIds, setSelectedIds 
         initialNumToRender={15}
         ListEmptyComponent={() => (
           <View className="items-center py-12">
-            <Text className="text-center max-w-xs text-neutral-400">{t("screens.exercises.noExercisesFound")}</Text>
+            <Text className="text-center max-w-xs text-neutral-400 dark:text-neutral-500">{t("screens.exercises.noExercisesFound")}</Text>
           </View>
         )}
       />

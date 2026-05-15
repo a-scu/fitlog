@@ -2,7 +2,7 @@ import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView, SCREEN_HEIGHT }
 import { useCallback, useEffect, useRef } from "react";
 import { BackHandler, View } from "react-native";
 
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 
 const Modal = () => {
   const { config, isOpen, hideModal } = useModalStore();

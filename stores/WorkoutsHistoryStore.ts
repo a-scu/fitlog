@@ -20,9 +20,17 @@ interface WorkoutsHistoryStore {
   getWorkoutSessionsByDate: (date: string) => WorkoutSession[];
 
   addSet: (date: string | Date, exerciseId: string) => void;
-  updateSetField: (date: string | Date, setId: string, exerciseId: string, field: keyof LoggedSet, value: string | number | boolean) => void;
+  updateSetField: (
+    date: string | Date,
+    setId: string,
+    exerciseId: string,
+    field: keyof LoggedSet,
+    value: string | number | boolean,
+  ) => void;
   toggleSetCompleted: (date: string | Date, setId: string, exerciseId: string) => void;
   removeSet: (date: string | Date, setId: string) => void;
+
+  deleteAllHistory: () => void;
 
   addDropSet: (date: string | Date, setId: string) => void;
   updateDropSetField: (
@@ -139,10 +147,7 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
                   } else {
                     return {
                       ...s,
-                      sets: [
-                        ...s.sets,
-                        { id: setId, exerciseId, completed: false, dropSets: [], [field]: value },
-                      ],
+                      sets: [...s.sets, { id: setId, exerciseId, completed: false, dropSets: [], [field]: value }],
                     };
                   }
                 }
@@ -150,8 +155,8 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
               }),
             };
           } else {
-             // Create the session if it doesn't exist
-             const newSession: WorkoutSession = {
+            // Create the session if it doesn't exist
+            const newSession: WorkoutSession = {
               id: randomId(),
               name: "Entrenamiento",
               date: typeof date === "string" ? date : date.toISOString(),
@@ -180,7 +185,10 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
                       return { ...s, sets: s.sets.filter((set) => set.id !== setId) };
                     } else {
                       // If it wasn't completed (shouldn't happen with current logic), we mark as true
-                      return { ...s, sets: s.sets.map((set) => (set.id === setId ? { ...set, completed: true } : set)) };
+                      return {
+                        ...s,
+                        sets: s.sets.map((set) => (set.id === setId ? { ...set, completed: true } : set)),
+                      };
                     }
                   } else {
                     return {
@@ -193,7 +201,7 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
               }),
             };
           } else {
-             const newSession: WorkoutSession = {
+            const newSession: WorkoutSession = {
               id: randomId(),
               name: "Entrenamiento",
               date: typeof date === "string" ? date : date.toISOString(),
@@ -297,6 +305,8 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
           return state;
         });
       },
+
+      deleteAllHistory: () => set({ workoutSessions: [] }),
     }),
     {
       name: "history-storage",

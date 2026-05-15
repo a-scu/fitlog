@@ -109,7 +109,7 @@ export default function WorkoutQuickView({ workout, routine, canEdit = true, can
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate("workout", { workoutId: workout.id })}
-      className="p-5 rounded-xl border border-neutral-200"
+      className="p-5 rounded-xl border border-neutral-200 dark:border-neutral-800"
     >
       <View className="items-start justify-between flex-row">
         <Text className="text-neutral-500 text-sm">Entreno de hoy</Text>
@@ -121,7 +121,7 @@ export default function WorkoutQuickView({ workout, routine, canEdit = true, can
 
       <View className="flex-1 flex-row gap-2.5">
         <View className="flex-1">
-          <Text className="font-bold text-xl">{workout?.name}</Text>
+          <Text className="font-bold text-xl text-neutral-900 dark:text-white">{workout?.name}</Text>
 
           <View className="flex-row flex-wrap gap-2 my-3 items-center">
             {getSortedMusclesWithImages(target).map((muscleData) => {
@@ -145,7 +145,7 @@ export default function WorkoutQuickView({ workout, routine, canEdit = true, can
             {showFreeWorkoutButton && (
               <TouchableOpacity
                 onPress={handleFreeWorkout}
-                className="border flex-row p-3 flex-1 border-neutral-200 rounded-lg justify-center gap-1.5"
+                className="border flex-row p-3 flex-1 border-neutral-200 dark:border-neutral-700 rounded-lg justify-center gap-1.5"
               >
                 <Text className="text-neutral-500 text-end text-sm">Realizar entreno libre</Text>
                 <Ionicons name="fitness-outline" className="!text-sm !leading-none" color={colors.neutral[500]} />
@@ -157,26 +157,26 @@ export default function WorkoutQuickView({ workout, routine, canEdit = true, can
         {isCurrentActive ? (
           <TouchableOpacity
             onPress={() => navigation.navigate("workoutSession", { date: today })}
-            className="mt-4 p-4 bg-blue-50 border-blue-200 border-2 rounded-xl items-center justify-center"
+            className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 border-2 rounded-xl items-center justify-center"
           >
-            <Text className="text-blue-600 font-bold text-xs">REANUDAR</Text>
+            <Text className="text-blue-600 dark:text-blue-400 font-bold text-xs">REANUDAR</Text>
           </TouchableOpacity>
         ) : isAnotherActive ? (
           <TouchableOpacity
             onPress={() => navigation.navigate("workoutSession", { date: today })}
-            className="mt-4 p-4 bg-neutral-50 border-neutral-200 border-2 rounded-xl items-center justify-center"
+            className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 border-2 rounded-xl items-center justify-center"
           >
-            <Text className="text-neutral-400 font-bold text-xs text-center">OTRO EN CURSO</Text>
+            <Text className="text-neutral-400 dark:text-neutral-500 font-bold text-xs text-center">OTRO EN CURSO</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             onPress={handleStartWorkout}
-            className="mt-4 p-3 pl-4 aspect-square bg-green-50 border-green-200 border-2 rounded-xl items-center justify-center"
+            className="mt-4 p-3 pl-4 aspect-square bg-green-50 dark:bg-emerald-900/30 border-green-200 dark:border-emerald-800 border-2 rounded-xl items-center justify-center"
           >
             <Ionicons
               name={workoutSession?.status === "completed" ? "reload-outline" : "play-outline"}
               size={24}
-              color={colors.green[500]}
+              className="!text-green-500 dark:!text-emerald-400"
             />
           </TouchableOpacity>
         )}

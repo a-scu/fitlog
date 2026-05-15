@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 import { useRoutinesStore } from "@/stores/RoutinesStore";
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { Routine } from "@/types/Routine";

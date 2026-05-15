@@ -6,7 +6,7 @@ import { Workout } from "@/types/Workout";
 
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { useRoutinesStore } from "@/stores/RoutinesStore";
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 import { randomId } from "@/utils/random";
 
@@ -38,23 +38,35 @@ export default function WorkoutsScreen({ navigation }: any) {
   };
 
   return (
-    <View className="flex-1 bg-white">
-      <ScrollView contentContainerClassName="p-3 gap-3">
-        <TouchableOpacity onPress={handleCreatWorkout} className="p-6 border rounded-md">
-          <Text>Crear entreno</Text>
+    <View className="flex-1 bg-neutral-50 dark:bg-neutral-900">
+      <ScrollView contentContainerClassName="p-4 gap-4 flex-1">
+        <TouchableOpacity 
+          onPress={handleCreatWorkout} 
+          className="p-6 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-2xl items-center justify-center flex-row gap-2"
+        >
+          <Ionicons name="add-circle-outline" size={24} color="#10b981" />
+          <Text className="text-neutral-900 dark:text-white font-bold text-lg">Crear Entreno</Text>
         </TouchableOpacity>
 
         {workouts.length > 0 ? (
-          <TouchableOpacity onPress={handleDeleteAll} className="border p-3 rounded-lg">
-            <Text className="text-center">Eliminar todas las entrenos</Text>
+          <TouchableOpacity 
+            onPress={handleDeleteAll} 
+            className="border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 p-3 rounded-xl flex-row items-center justify-center gap-2"
+          >
+            <Ionicons name="trash-bin-outline" size={18} color="#ef4444" />
+            <Text className="text-red-600 dark:text-red-500 font-medium">Eliminar todos los entrenos</Text>
           </TouchableOpacity>
         ) : (
-          <Text>No hay entrenos</Text>
+          <View className="items-center py-6">
+            <Text className="text-neutral-400 dark:text-neutral-500">No hay entrenos guardados</Text>
+          </View>
         )}
 
-        {Array.from(new Map(workouts.map((r) => [r.id, r])).values()).map((workout, index) => (
-          <WorkoutItem key={workout.id} index={index} workout={workout} />
-        ))}
+        <View className="gap-3">
+          {Array.from(new Map(workouts.map((r) => [r.id, r])).values()).map((workout, index) => (
+            <WorkoutItem key={workout.id} index={index} workout={workout} />
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
@@ -94,21 +106,34 @@ const WorkoutItem = ({ workout, index }: { workout: Workout; index: number }) =>
 
   return (
     <View className="flex-row items-center gap-2">
-      <TouchableOpacity onPress={handleNavigate} className="p-3 border rounded-md flex-1">
-        <Text className="font-bold">{workout.name || `Entreno ${index + 1}`}</Text>
-        <Text className="text-neutral-500 text-xs">{workout.steps.length} ejercicios/series</Text>
-        <Text className="text-neutral-400 text-[10px] mt-1" numberOfLines={1}>
-          {routines.filter((r) => r.days.some((d) => d.workoutId === workout.id)).length > 0
-            ? `En uso en: ${routines
-                .filter((r) => r.days.some((d) => d.workoutId === workout.id))
-                .map((r) => r.name || "Sin nombre")
-                .join(", ")}`
-            : "No se está usando en ninguna rutina"}
-        </Text>
+      <TouchableOpacity 
+        onPress={handleNavigate} 
+        className="p-4 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-2xl flex-1 flex-row items-center justify-between shadow-sm"
+      >
+        <View className="flex-1">
+          <Text className="font-bold text-neutral-900 dark:text-white text-base mb-1">
+            {workout.name || `Entreno ${index + 1}`}
+          </Text>
+          <Text className="text-neutral-500 dark:text-neutral-400 text-xs font-medium">
+            {workout.steps.length} ejercicios/series
+          </Text>
+          <Text className="text-neutral-400 dark:text-neutral-500 text-[10px] mt-2" numberOfLines={1}>
+            {routines.filter((r) => r.days.some((d) => d.workoutId === workout.id)).length > 0
+              ? `En uso en: ${routines
+                  .filter((r) => r.days.some((d) => d.workoutId === workout.id))
+                  .map((r) => r.name || "Sin nombre")
+                  .join(", ")}`
+              : "No se está usando en ninguna rutina"}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={handleDelete} className="p-3 border border-red-200 rounded-md">
-        <Ionicons name="trash-outline" size={20} color="red" />
+      <TouchableOpacity 
+        onPress={handleDelete} 
+        className="p-4 border border-red-200 dark:border-red-900/30 bg-white dark:bg-neutral-800 rounded-2xl items-center justify-center shadow-sm"
+      >
+        <Ionicons name="trash-outline" size={24} color="#ef4444" />
       </TouchableOpacity>
     </View>
   );

@@ -44,7 +44,7 @@ export default function WorkoutSteps({ workout }: { workout: Workout }) {
           : step.partialReps.value;
 
         return (
-          <View key={step.id} className="bg-neutral-200 rounded p-3 mb-2">
+          <View key={step.id} className="bg-neutral-200 dark:bg-neutral-800 rounded-xl p-3 mb-2">
             {/* Set Header */}
             <View className="flex-row gap-2 mb-2">
               {/* Gif */}
@@ -56,7 +56,7 @@ export default function WorkoutSteps({ workout }: { workout: Workout }) {
               <View className="justify-center">
                 <View className="flex-row gap-2 items-center">
                   {/* Serie Number */}
-                  <Text className="font-medium text-neutral-600">Serie {index + 1}</Text>
+                  <Text className="font-medium text-neutral-600 dark:text-neutral-400">Serie {index + 1}</Text>
                   {/* Set Type */}
                   <Text className={`py-px text-xs px-1.5 self-start rounded ${setType?.selectedColor}`}>
                     {setType?.label}
@@ -64,27 +64,27 @@ export default function WorkoutSteps({ workout }: { workout: Workout }) {
                 </View>
 
                 {/* Exercise Name */}
-                <Text className="text-lg font-semibold">{capitalize(exercise?.name)}</Text>
+                <Text className="text-lg font-semibold dark:text-white">{capitalize(exercise?.name)}</Text>
               </View>
             </View>
 
             {/* Main Metrics */}
-            <View className="flex-row gap-1 w-full mb-2">
+            <View className="flex-row gap-2 w-full mb-2">
               {/* Weight */}
-              <View className="bg-neutral-400 rounded p-2 flex-1">
-                <Text className="text-center text-sm font-medium">
+              <View className="bg-white/50 dark:bg-neutral-700 rounded-lg p-2 flex-1">
+                <Text className="text-center text-sm font-medium dark:text-white">
                   {formatMetric(step.weight)} {weightUnit}
                 </Text>
               </View>
 
               {/* Reps */}
-              <View className="bg-neutral-400 rounded p-2 flex-1">
-                <Text className="text-center text-sm font-medium">{formatMetric(step.reps, " Reps")}</Text>
+              <View className="bg-white/50 dark:bg-neutral-700 rounded-lg p-2 flex-1">
+                <Text className="text-center text-sm font-medium dark:text-white">{formatMetric(step.reps, " Reps")}</Text>
               </View>
 
               {/* RIR */}
-              <View className="bg-neutral-400 rounded p-2 flex-1">
-                <Text className="text-center text-sm font-medium">RIR {formatMetric(step.rir)}</Text>
+              <View className="bg-white/50 dark:bg-neutral-700 rounded-lg p-2 flex-1">
+                <Text className="text-center text-sm font-medium dark:text-white">RIR {formatMetric(step.rir)}</Text>
               </View>
             </View>
 

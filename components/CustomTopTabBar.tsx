@@ -18,7 +18,7 @@ export default function CustomTopTabBar({ state, descriptors, navigation, positi
   };
 
   return (
-    <View className="border-b border-neutral-100 bg-white">
+    <View className="border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900">
       <View className="flex-row h-14 items-center">
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -56,7 +56,7 @@ export default function CustomTopTabBar({ state, descriptors, navigation, positi
               style={{ width: TAB_WIDTH }}
               className="items-center py-3"
             >
-              <Animated.Text style={{ opacity }} className="text-lg font-medium text-neutral-800">
+              <Animated.Text style={{ opacity }} className="text-lg font-medium text-neutral-800 dark:text-white">
                 {label as string}
               </Animated.Text>
             </TouchableOpacity>
@@ -65,7 +65,7 @@ export default function CustomTopTabBar({ state, descriptors, navigation, positi
       </View>
 
       {/* Indicator */}
-      <Animated.View style={[{ width: TAB_WIDTH }, indicatorStyle]} className="h-px absolute -bottom-px bg-black" />
+      <Animated.View style={[{ width: TAB_WIDTH }, indicatorStyle]} className="h-px absolute -bottom-px bg-black dark:bg-white" />
     </View>
   );
 }

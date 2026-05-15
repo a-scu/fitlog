@@ -32,33 +32,33 @@ export default function ActiveWorkoutBubble() {
   };
 
   return (
-    <View style={{ bottom: insets.bottom + 65, zIndex: 9999, elevation: 10 }} className="absolute self-center left-4 right-4 bg-white border border-neutral-300 shadow-sm rounded-2xl p-4">
+    <View style={{ bottom: insets.bottom + 65, zIndex: 9999, elevation: 10 }} className="absolute self-center left-4 right-4 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 shadow-sm rounded-2xl p-4">
       <TouchableOpacity onPress={handleMaximize} className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center gap-3">
-          <View className="bg-black p-2 rounded-full">
-            <Ionicons name="barbell" size={20} color="white" />
+          <View className="bg-black dark:bg-white p-2 rounded-full">
+            <Ionicons name="barbell" size={20} className="!text-white dark:!text-black" />
           </View>
           <View>
-            <Text className="font-bold text-base">{workoutName}</Text>
-            <Text className="text-xs text-neutral-500">{isPaused ? "Pausado" : "En progreso..."}</Text>
+            <Text className="font-bold text-base text-neutral-900 dark:text-white">{workoutName}</Text>
+            <Text className="text-xs text-neutral-500 dark:text-neutral-400">{isPaused ? "Pausado" : "En progreso..."}</Text>
           </View>
         </View>
-        <Ionicons name="expand" size={20} color="black" />
+        <Ionicons name="expand" size={20} className="!text-black dark:!text-white" />
       </TouchableOpacity>
       
-      <View className="flex-row justify-around border-t border-neutral-100 pt-3">
+      <View className="flex-row justify-around border-t border-neutral-100 dark:border-neutral-800 pt-3">
         <TouchableOpacity onPress={togglePause} className="items-center">
-          <Ionicons name={isPaused ? "play" : "pause"} size={22} color="black" />
-          <Text className="text-xs text-neutral-600 mt-1">{isPaused ? "Reanudar" : "Pausar"}</Text>
+          <Ionicons name={isPaused ? "play" : "pause"} size={22} className="!text-black dark:!text-white" />
+          <Text className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">{isPaused ? "Reanudar" : "Pausar"}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity className="items-center opacity-50">
-          <Ionicons name="play-skip-forward" size={22} color="black" />
-          <Text className="text-xs text-neutral-600 mt-1">Saltar</Text>
+          <Ionicons name="play-skip-forward" size={22} className="!text-black dark:!text-white" />
+          <Text className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Saltar</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleFinish} className="items-center">
-          <Ionicons name="stop" size={22} color="red" />
+          <Ionicons name="stop" size={22} className="!text-red-500" />
           <Text className="text-xs text-red-500 mt-1">Finalizar</Text>
         </TouchableOpacity>
       </View>

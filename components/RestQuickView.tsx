@@ -24,7 +24,7 @@ export default function RestQuickView({ routineId, date }: { routineId: string; 
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate("routine", { routineId })}
-      className="border border-neutral-200 p-5 rounded-xl"
+      className="border border-neutral-200 dark:border-neutral-800 p-5 rounded-xl"
     >
       {/*  */}
       <View className="flex-row items-start justify-between flex-1">
@@ -36,9 +36,9 @@ export default function RestQuickView({ routineId, date }: { routineId: string; 
         </View>
       </View>
 
-      <Text className="text-neutral-500 text-xl">
+      <Text className="text-neutral-500 dark:text-neutral-400 text-xl">
         Descanso
-        <Text className="text-neutral-500 text-base font-medium">
+        <Text className="text-neutral-500 dark:text-neutral-400 text-base font-medium">
           {" - "}
           {format(date, "d 'de' MMMM", { locale: es })}
         </Text>
@@ -58,7 +58,7 @@ export default function RestQuickView({ routineId, date }: { routineId: string; 
 
       <TouchableOpacity
         onPress={handleFreeWorkout}
-        className="flex-row items-center border rounded-xl border-neutral-200 p-3 gap-1 justify-center"
+        className="flex-row items-center border rounded-xl border-neutral-200 dark:border-neutral-800 p-3 gap-1 justify-center"
       >
         <Text className="text-neutral-400">Realizar entreno libre</Text>
         <Ionicons name="barbell-outline" className="!text-sm !leading-none" color={colors.neutral[400]} />

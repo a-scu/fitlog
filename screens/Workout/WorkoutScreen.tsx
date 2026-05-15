@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { useRoutinesStore } from "@/stores/RoutinesStore";
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 import WorkoutSteps from "./components/WorkoutSteps";
 
@@ -53,8 +53,8 @@ export default function WorkoutScreen({ navigation, route }: any) {
   if (!workout) return null;
 
   return (
-    <View className="flex-1 flex-grow bg-white" style={{ paddingBottom: insets.bottom }}>
-      <Text>{workout.type}</Text>
+    <View className="flex-1 flex-grow bg-white dark:bg-neutral-900" style={{ paddingBottom: insets.bottom }}>
+      <Text className="dark:text-white">{workout.type}</Text>
 
       <ScrollView className="flex-1 p-3">
         <WorkoutSteps workout={workout} />
@@ -64,18 +64,18 @@ export default function WorkoutScreen({ navigation, route }: any) {
       <View className="flex-row items-center gap-2 px-3 mb-3">
         <TouchableOpacity
           onPress={() => navigation.navigate("editWorkout", { workoutId })}
-          className="flex-1 p-3 bg-neutral-800 rounded-lg"
+          className="flex-1 p-3 bg-neutral-800 dark:bg-white rounded-lg"
         >
-          <Text className="text-center text-white font-medium">Editar rutina</Text>
+          <Text className="text-center text-white dark:text-black font-medium">Editar rutina</Text>
         </TouchableOpacity>
       </View>
 
       <View className="flex-row items-center gap-2 px-3 mb-3">
-        <TouchableOpacity onPress={handleDeleteWorkout} className="flex-1 p-3 border-red-400 border rounded-lg">
-          <Text className="text-center text-red-500 font-medium">Eliminar</Text>
+        <TouchableOpacity onPress={handleDeleteWorkout} className="flex-1 p-3 border-red-400 dark:border-red-800 border rounded-lg">
+          <Text className="text-center text-red-500 dark:text-red-400 font-medium">Eliminar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="flex-1 p-3 bg-red-400 rounded-lg">
+        <TouchableOpacity className="flex-1 p-3 bg-red-400 dark:bg-red-500 rounded-lg">
           <Text className="text-center text-white font-bold">Iniciar</Text>
         </TouchableOpacity>
       </View>

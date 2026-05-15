@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, View } from "react-native";
 
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
 

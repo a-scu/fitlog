@@ -29,7 +29,7 @@ import ExerciseGif from "@/components/ExerciseGif";
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
 import { dayNames } from "@/constants/DayNames";
 import { SelectWorkoutModal } from "@/components/modals/SelectWorkoutModal";
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 
 export default function Days({ routineId, days }: { routineId: string; days: RoutineDay[] }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
@@ -86,7 +86,7 @@ export default function Days({ routineId, days }: { routineId: string; days: Rou
 
   return (
     <View className="flex-1 gap-4">
-      <Text className="text-neutral-500 font-medium ml-3">Días de entrenamiento</Text>
+      <Text className="text-neutral-500 dark:text-neutral-400 font-medium ml-3">Días de entrenamiento</Text>
 
       {/* Days indicator */}
       <View className="flex-row items-center justify-center gap-2 px-3">
@@ -142,7 +142,7 @@ const DaySlide = memo(
   }) => {
     return (
       <View style={{ width: screenWidth }} className="px-3">
-        <View className="flex-1 rounded-3xl p-5 border border-neutral-200">
+        <View className="flex-1 rounded-3xl p-5 border border-neutral-200 dark:border-neutral-800">
           <DayHeader routineId={routineId} day={day} workout={workout} />
 
           {day.isRestDay ? (
@@ -253,8 +253,8 @@ const DayHeader = memo(({ routineId, day, workout }: { routineId: string; day: R
   return (
     <View className="flex-row items-start justify-between mb-5">
       <View>
-        <Text className="text-neutral-400 font-medium text-sm uppercase tracking-wider">{dayNames[day.dayIndex]}</Text>
-        <Text className="font-bold text-2xl">{day.isRestDay ? "Descanso" : workout?.name || "Entrenamiento"}</Text>
+        <Text className="text-neutral-400 dark:text-neutral-500 font-medium text-sm uppercase tracking-wider">{dayNames[day.dayIndex]}</Text>
+        <Text className="font-bold text-2xl text-neutral-900 dark:text-white">{day.isRestDay ? "Descanso" : workout?.name || "Entrenamiento"}</Text>
       </View>
 
       {/* Toggle */}
@@ -370,18 +370,18 @@ const EmptyWorkoutView = memo(({ routineId, day }: { routineId: string; day: Rou
     <View className="w-full justify-center items-center flex-1 gap-3">
       <TouchableOpacity
         onPress={handleCreateWorkout}
-        className="p-3 rounded-2xl w-full border-1.5 border-neutral-200 border-dashed flex-1 h-full items-center justify-center gap-2.5"
+        className="p-3 rounded-2xl w-full border-1.5 border-neutral-200 dark:border-neutral-700 border-dashed flex-1 h-full items-center justify-center gap-2.5"
       >
         <Ionicons name="add-outline" size={29} color={colors.neutral[400]} />
-        <Text className="text-neutral-400 font-semibold text-lg">Crear entrenamiento</Text>
+        <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-lg">Crear entrenamiento</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        className="border-1.5 border-neutral-200 w-full border-dashed p-8 rounded-2xl items-center justify-center gap-3"
+        className="border-1.5 border-neutral-200 dark:border-neutral-700 w-full border-dashed p-8 rounded-2xl items-center justify-center gap-3"
         onPress={handleImportWorkout}
       >
         <Ionicons name="download-outline" size={28} color={colors.neutral[400]} />
-        <Text className="text-neutral-400 font-semibold text-lg">Usar existente</Text>
+        <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-lg">Usar existente</Text>
       </TouchableOpacity>
     </View>
   );
@@ -411,29 +411,29 @@ const WorkoutView = memo(
                 <Step key={step.id} step={step} />
               ))}
               {workout.steps.length > 6 && (
-                <Text className="text-neutral-400 text-xs mt-1 ml-5">+ {workout.steps.length - 6} más...</Text>
+                <Text className="text-neutral-400 dark:text-neutral-500 text-xs mt-1 ml-5">+ {workout.steps.length - 6} más...</Text>
               )}
             </View>
           </Pressable>
         ) : (
           <TouchableOpacity onPress={onNavigate} className="flex-1">
-            <View className="flex-1 items-center gap-2 justify-center border-1.5 border-dashed border-neutral-200 rounded-3xl p-8">
+            <View className="flex-1 items-center gap-2 justify-center border-1.5 border-dashed border-neutral-200 dark:border-neutral-700 rounded-3xl p-8">
               <View className="justify-center items-center gap-3">
                 <Ionicons name="create-outline" size={28} color={colors.neutral[400]} />
-                <Text className="text-neutral-400 font-semibold text-lg">Editar rutina</Text>
+                <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-lg">Editar rutina</Text>
               </View>
 
-              <Text className="text-neutral-400 text-sm text-center">Tu rutina todavia no tiene ejercicios</Text>
+              <Text className="text-neutral-400 dark:text-neutral-500 text-sm text-center">Tu rutina todavia no tiene ejercicios</Text>
             </View>
           </TouchableOpacity>
         )}
 
         <TouchableOpacity
           onPress={handleRemoveWorkout}
-          className="border border-neutral-200 rounded-xl p-3 justify-center items-center gap-1 flex-row"
+          className="border border-neutral-200 dark:border-neutral-800 rounded-xl p-3 justify-center items-center gap-1 flex-row"
         >
           <Ionicons name="close-circle-outline" className="!text-base !leading-none" color={colors.neutral[400]} />
-          <Text className="text-neutral-400 font-medium text-center">Quitar entreno</Text>
+          <Text className="text-neutral-400 dark:text-neutral-500 font-medium text-center">Quitar entreno</Text>
         </TouchableOpacity>
       </View>
     );
@@ -443,8 +443,8 @@ const WorkoutView = memo(
 const Rest = memo(({ step }: { step: any }) => {
   return (
     <View className="flex-row items-center gap-3 rounded-2xl px-3 py-2">
-      <Ionicons name="time-outline" size={14} color={colors.neutral[600]} />
-      <Text className="text-neutral-600 font-medium" numberOfLines={1}>
+      <Ionicons name="time-outline" size={14} color={colors.neutral[500]} />
+      <Text className="text-neutral-600 dark:text-neutral-400 font-medium" numberOfLines={1}>
         Descanso {step?.duration}s
       </Text>
     </View>
@@ -469,7 +469,7 @@ const Step = memo(({ step }: { step: any }) => {
   const validRir = (rir.isRange && rir.min && rir.max) || rir.value;
 
   return (
-    <View className="rounded-xl p-4 border border-neutral-100">
+    <View className="rounded-xl p-4 border border-neutral-100 dark:border-neutral-800">
       <Text
         className="font-medium text-sm"
         style={{
@@ -479,18 +479,18 @@ const Step = memo(({ step }: { step: any }) => {
         {setType.label}
       </Text>
 
-      <Text className="text-neutral-800 font-medium" numberOfLines={1}>
+      <Text className="text-neutral-800 dark:text-white font-medium" numberOfLines={1}>
         {capitalize(exercise.name) || "Ejercicio"}
       </Text>
 
       <View className="flex-row gap-3">
         {validWeight && (
-          <Text>
+          <Text className="text-neutral-600 dark:text-neutral-400">
             {weight.isRange ? `${weight.min} - ${weight.max}` : weight.value} {weightUnit}
           </Text>
         )}
-        {validReps && <Text>x{reps.isRange ? `${reps.min} - ${reps.max}` : reps.value} reps</Text>}
-        {validRir && <Text>rir {rir.isRange ? `${rir.min} - ${rir.max}` : rir.value}</Text>}
+        {validReps && <Text className="text-neutral-600 dark:text-neutral-400">x{reps.isRange ? `${reps.min} - ${reps.max}` : reps.value} reps</Text>}
+        {validRir && <Text className="text-neutral-600 dark:text-neutral-400">rir {rir.isRange ? `${rir.min} - ${rir.max}` : rir.value}</Text>}
       </View>
     </View>
   );

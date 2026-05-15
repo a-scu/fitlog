@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { useRoutinesStore } from "@/stores/RoutinesStore";
 import { Workout } from "@/types/Workout";
@@ -26,7 +26,7 @@ export function SelectWorkoutModal({
   return (
     <View className="flex-1 bg-white rounded-t-3xl p-5 gap-4">
       <Text className="text-xl font-bold">Seleccionar Entrenamiento</Text>
-      
+
       {filteredWorkouts.length === 0 ? (
         <Text className="text-neutral-500">No hay otros entrenamientos creados o disponibles para elegir.</Text>
       ) : (
@@ -45,7 +45,7 @@ export function SelectWorkoutModal({
                     : "Sin uso"}
                 </Text>
               </View>
-              
+
               {!templateOnly && (
                 <TouchableOpacity
                   onPress={() => {
@@ -57,7 +57,7 @@ export function SelectWorkoutModal({
                   <Text className="font-medium text-neutral-800">Usar</Text>
                 </TouchableOpacity>
               )}
-              
+
               {!hideTemplate && (
                 <TouchableOpacity
                   onPress={() => {

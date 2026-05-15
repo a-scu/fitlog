@@ -12,28 +12,28 @@ export default function Rest({ rest, index }: { rest: RestType; index: number })
   const changeStepOrder = useWorkoutsStore((s) => s.changeStepOrder);
 
   return (
-    <View className="flex-row items-center justify-between p-3 bg-neutral-100 rounded mb-2">
+    <View className="flex-row items-center justify-between p-3 bg-neutral-100 dark:bg-neutral-800 rounded mb-2">
       <View className="flex-row items-center gap-2">
         <Ionicons name="time-outline" size={20} className="!text-neutral-500" />
-        <Text className="text-neutral-600 font-medium">Descanso</Text>
+        <Text className="text-neutral-600 dark:text-neutral-400 font-medium">Descanso</Text>
 
         <View className="flex-row items-center gap-1 ml-2">
           <TouchableOpacity onPress={() => changeStepOrder(rest.id, index - 1)} className={`p-1 rounded-full`}>
-            <Ionicons name="chevron-up" size={16} color={colors.neutral[600]} />
+            <Ionicons name="chevron-up" size={16} className="text-neutral-600 dark:text-neutral-400" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => changeStepOrder(rest.id, index + 1)} className={`p-1 rounded-full `}>
-            <Ionicons name="chevron-down" size={16} color={colors.neutral[600]} />
+            <Ionicons name="chevron-down" size={16} className="text-neutral-600 dark:text-neutral-400" />
           </TouchableOpacity>
         </View>
       </View>
       <View className="flex-row items-center gap-2">
         <TextInput
-          className="bg-white px-3 py-1 rounded-md w-16 text-center font-bold"
+          className="bg-white dark:bg-neutral-700 dark:text-white px-3 py-1 rounded-md w-16 text-center font-bold"
           keyboardType="numeric"
           value={rest.duration?.toString()}
           onChangeText={(text) => updateRestDuration(rest.id, parseInt(text) || 0)}
         />
-        <Text className="text-neutral-500 text-sm">s</Text>
+        <Text className="text-neutral-500 dark:text-neutral-400 text-sm">s</Text>
         <TouchableOpacity onPress={() => deleteStep(rest.id)} className="ml-2">
           <Ionicons name="trash-outline" size={20} className="!text-red-400" />
         </TouchableOpacity>

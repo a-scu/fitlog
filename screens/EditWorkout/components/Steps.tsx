@@ -8,8 +8,8 @@ import Set from "./Set";
 export default function Steps({ steps }: { steps: Step[] }) {
   if (!steps.length)
     return (
-      <View className="p-8 border border-neutral-200 rounded-xl items-center justify-center">
-        <Text className="text-neutral-400 text-sm">No hay ejercicios</Text>
+      <View className="p-8 border border-neutral-200 dark:border-neutral-800 rounded-xl items-center justify-center">
+        <Text className="text-neutral-400 dark:text-neutral-500 text-sm">No hay ejercicios</Text>
       </View>
     );
 

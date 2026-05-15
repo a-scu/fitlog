@@ -6,13 +6,13 @@ export default function WorkoutSessionSummaryScreen({ route }: any) {
   const { workoutSessionDate } = route.params || {};
 
   return (
-    <View className="flex-1 bg-white p-4" style={{ paddingTop: insets.top }}>
-      <Text className="text-2xl font-bold mb-4 text-center">Resumen del Entreno</Text>
+    <View className="flex-1 bg-white dark:bg-neutral-900 p-4" style={{ paddingTop: insets.top }}>
+      <Text className="text-2xl font-bold mb-4 text-center dark:text-white">Resumen del Entreno</Text>
       <View className="flex-1 items-center justify-center">
-        <Text className="text-neutral-500 italic text-center">
+        <Text className="text-neutral-500 dark:text-neutral-400 italic text-center">
           ¡Entrenamiento finalizado con éxito!
         </Text>
-        <Text className="text-neutral-400 mt-2">
+        <Text className="text-neutral-400 dark:text-neutral-500 mt-2">
           Fecha: {workoutSessionDate}
         </Text>
       </View>

@@ -5,7 +5,7 @@ import { Set as SetType } from "@/types/Workout";
 
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 
 import PartialReps from "./PartialReps";
 import MetricInput from "./MetricInput";
@@ -45,22 +45,22 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
   if (!exercise) return <Text>No se encontro el ejercicio</Text>;
 
   return (
-    <View className="border border-neutral-200 rounded-md p-3">
+    <View className="border border-neutral-200 dark:border-neutral-800 rounded-md p-3">
       {/* Header */}
       <View className="flex-row items-center gap-3">
-        <Text>{exercise.name}</Text>
+        <Text className="dark:text-white flex-1">{exercise.name}</Text>
 
         <TouchableOpacity onPress={() => changeStepOrder(set.id, index - 1)} className="p-3">
-          <Ionicons name="arrow-up-outline" />
+          <Ionicons name="arrow-up-outline" className="dark:text-white" />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => changeStepOrder(set.id, index + 1)} className="p-3">
-          <Ionicons name="arrow-down-outline" />
+          <Ionicons name="arrow-down-outline" className="dark:text-white" />
         </TouchableOpacity>
       </View>
 
       <View className="flex-row items-center mb-2">
-        <Text className="font-medium text-lg">Serie {index + 1}</Text>
+        <Text className="font-medium text-lg dark:text-white">Serie {index + 1}</Text>
         <SetTypes set={set} />
       </View>
 
@@ -105,7 +105,7 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
           <View className="flex-row gap-1.5 w-full">
             <TouchableOpacity
               onPress={() => toggleDropSets(set.id)}
-              className={`gap-1 flex-1 rounded-md flex-row p-3 border items-center justify-center ${set.dropSets.length > 0 ? "bg-neutral-100 border-neutral-300" : "border-neutral-200"}`}
+              className={`gap-1 flex-1 rounded-md flex-row p-3 border items-center justify-center ${set.dropSets.length > 0 ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600" : "border-neutral-200 dark:border-neutral-800"}`}
             >
               <Ionicons
                 name="return-down-forward-outline"
@@ -113,7 +113,7 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
                 color={set.dropSets.length > 0 ? colors.neutral[500] : colors.neutral[400]}
               />
               <Text
-                className={`text-sm text-medium ${set.dropSets.length > 0 ? "text-neutral-500" : "text-neutral-400"}`}
+                className={`text-sm text-medium ${set.dropSets.length > 0 ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-400 dark:text-neutral-500"}`}
               >
                 Drop Sets
               </Text>
@@ -122,7 +122,7 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
             {/* Partial Reps */}
             <TouchableOpacity
               onPress={() => openPartialRepsModal(set)}
-              className={`gap-1 flex-1 rounded-md flex-row p-3 border items-center justify-center ${hasPartialReps ? "bg-neutral-100 border-neutral-300" : "border-neutral-200"}`}
+              className={`gap-1 flex-1 rounded-md flex-row p-3 border items-center justify-center ${hasPartialReps ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600" : "border-neutral-200 dark:border-neutral-800"}`}
             >
               {hasPartialReps && (
                 <TouchableOpacity onPress={() => deletePartialReps(set.id)}>
@@ -138,7 +138,7 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
               {hasPartialReps ? (
                 <PartialReps set={set} />
               ) : (
-                <Text className={`text-sm text-medium ${hasPartialReps ? "text-neutral-500" : "text-neutral-400"}`}>
+                <Text className={`text-sm text-medium ${hasPartialReps ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-400 dark:text-neutral-500"}`}>
                   Parciales
                 </Text>
               )}
@@ -152,40 +152,40 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
           <View className="flex-row gap-1.5">
             <TouchableOpacity
               onPress={() => toggleNotes(set.id)}
-              className={`gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center ${set?.notes?.enabled ? "bg-neutral-100 border-neutral-300" : "border-neutral-200"}`}
+              className={`gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center ${set?.notes?.enabled ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600" : "border-neutral-200 dark:border-neutral-800"}`}
             >
               <Ionicons
                 name="chatbox-ellipses-outline"
                 className="text-sm"
                 color={set?.notes?.enabled ? colors.neutral[500] : colors.neutral[400]}
               />
-              <Text className={`text-sm text-medium ${set?.notes?.enabled ? "text-neutral-500" : "text-neutral-400"}`}>
+              <Text className={`text-sm text-medium ${set?.notes?.enabled ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-400 dark:text-neutral-500"}`}>
                 Notas
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => duplicateStep(set.id)}
-              className="gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center border-neutral-200"
+              className="gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center border-neutral-200 dark:border-neutral-800"
             >
               <Ionicons
                 name="duplicate-outline"
                 className="text-sm"
                 color={set?.notes?.enabled ? colors.neutral[500] : colors.neutral[400]}
               />
-              <Text className="text-sm text-medium text-neutral-400">Duplicar</Text>
+              <Text className="text-sm text-medium text-neutral-400 dark:text-neutral-500">Duplicar</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => deleteStep(set.id)}
-              className="gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center border-neutral-200"
+              className="gap-1 rounded-md flex-row h-7 px-2 border items-center justify-center border-neutral-200 dark:border-neutral-800"
             >
               <Ionicons
                 name="trash-bin-outline"
                 className="text-sm"
                 color={set?.notes?.enabled ? colors.neutral[500] : colors.neutral[400]}
               />
-              <Text className="text-sm text-medium text-neutral-400">Eliminar</Text>
+              <Text className="text-sm text-medium text-neutral-400 dark:text-neutral-500">Eliminar</Text>
             </TouchableOpacity>
           </View>
 
@@ -193,10 +193,11 @@ export default function Set({ set, index }: { set: SetType; index: number }) {
           {set?.notes?.enabled && (
             <TextInput
               value={set?.notes?.text}
-              className="border border-neutral-400 rounded-md h-24 text-sm p-3"
+              className="border border-neutral-400 dark:border-neutral-600 rounded-md h-24 text-sm p-3 dark:text-white"
               multiline
               // numberOfLines={20}
               placeholder="Nota para esta serie..."
+              placeholderTextColor="#9ca3af"
               style={{ textAlignVertical: "top" }}
               selectTextOnFocus
               onChangeText={(text) => updateNotes(set.id, text)}

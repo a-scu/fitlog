@@ -10,10 +10,11 @@ import EXERCISES from "@/assets/data/exercises.json";
 
 import { capitalize } from "@/lib/utils";
 import RegisterSetModal from "@/components/modals/RegisterSetModal";
-import { useModalStore } from "@/stores/useModalStore";
+import { useModalStore } from "@/stores/ModalStore";
 import { isSameDay, startOfDay } from "date-fns";
 import { useWorkoutsHistoryStore } from "@/stores/WorkoutsHistoryStore";
 import { useActiveWorkoutStore } from "@/stores/ActiveWorkoutStore";
+import { useEffect } from "react";
 
 const today = startOfDay(new Date()).toISOString();
 
@@ -28,6 +29,7 @@ export default function WorkoutSessionScreen({ route, navigation }: any) {
     resumeWorkout,
     isPaused,
     finishWorkout: storeFinishWorkout,
+    updateInteractionTime,
   } = useActiveWorkoutStore((s) => s);
 
   const showModal = useModalStore((s) => s.showModal);
@@ -40,6 +42,12 @@ export default function WorkoutSessionScreen({ route, navigation }: any) {
   const removeSet = useWorkoutsHistoryStore((s) => s.removeSet);
 
   const isActive = activeWorkoutId !== null && isSameDay(date, today);
+
+  useEffect(() => {
+    if (isActive) {
+      updateInteractionTime();
+    }
+  }, [isActive]);
 
   const openRegisterModal = (setId: string, exerciseId: string, plannedSet?: any) => {
     showModal({
@@ -70,16 +78,16 @@ export default function WorkoutSessionScreen({ route, navigation }: any) {
   if (isActive && !workout) return <Text>Hubo un error con el entreno activo</Text>;
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1 bg-white">
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1 bg-white dark:bg-neutral-900">
       <ScrollView contentContainerClassName="gap-4 p-4 grow" contentContainerStyle={{ paddingBottom: insets.bottom }}>
         {!isActive && (
           <View className="flex-row gap-2 mb-2">
-            <TouchableOpacity onPress={handleSelectExercises} className="flex-1 p-5 bg-black rounded-lg items-center">
-              <Text className="text-white font-medium">Agregar ejercicio</Text>
+            <TouchableOpacity onPress={handleSelectExercises} className="flex-1 p-5 bg-black dark:bg-white rounded-lg items-center">
+              <Text className="text-white dark:text-black font-medium">Agregar ejercicio</Text>
             </TouchableOpacity>
             {workoutSession?.status === "completed" && (
               <TouchableOpacity
-                className="p-5 bg-red-100 border border-red-500 rounded-lg items-center justify-center"
+                className="p-5 bg-red-100 dark:bg-red-900/30 border border-red-500 dark:border-red-800 rounded-lg items-center justify-center"
                 onPress={() => {
                   Alert.alert(
                     "Reiniciar Entreno",
@@ -109,17 +117,17 @@ export default function WorkoutSessionScreen({ route, navigation }: any) {
           <View className="flex-row gap-2 mb-2">
             <TouchableOpacity
               onPress={handleMinimize}
-              className="flex-1 p-3 bg-neutral-100 rounded-lg items-center flex-row justify-center gap-2"
+              className="flex-1 p-3 bg-neutral-100 dark:bg-neutral-800 rounded-lg items-center flex-row justify-center gap-2"
             >
-              <Ionicons name="chevron-down" size={20} color="black" />
-              <Text className="font-medium">Minimizar</Text>
+              <Ionicons name="chevron-down" size={20} className="!text-black dark:!text-white" />
+              <Text className="font-medium dark:text-white">Minimizar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handlePause}
-              className="flex-1 p-3 bg-neutral-100 rounded-lg items-center flex-row justify-center gap-2"
+              className="flex-1 p-3 bg-neutral-100 dark:bg-neutral-800 rounded-lg items-center flex-row justify-center gap-2"
             >
-              <Ionicons name={isPaused ? "play" : "pause"} size={20} color="black" />
-              <Text className="font-medium">{isPaused ? "Reanudar" : "Pausar"}</Text>
+              <Ionicons name={isPaused ? "play" : "pause"} size={20} className="!text-black dark:!text-white" />
+              <Text className="font-medium dark:text-white">{isPaused ? "Reanudar" : "Pausar"}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -131,9 +139,9 @@ export default function WorkoutSessionScreen({ route, navigation }: any) {
                 return (
                   <View
                     key={step.id}
-                    className="bg-neutral-50 border border-neutral-500 p-4 rounded-xl flex-row justify-between items-center"
+                    className="bg-neutral-50 dark:bg-neutral-800 border border-neutral-500 dark:border-neutral-600 p-4 rounded-xl flex-row justify-between items-center"
                   >
-                    <Text className="text-neutral-500 font-medium">Descanso: {step.duration}s</Text>
+                    <Text className="text-neutral-500 dark:text-neutral-400 font-medium">Descanso: {step.duration}s</Text>
                   </View>
                 );
               }
@@ -150,14 +158,15 @@ export default function WorkoutSessionScreen({ route, navigation }: any) {
                 <TouchableOpacity
                   key={set.id}
                   onPress={() => openRegisterModal(set.id, set.exerciseId, set)}
-                  className={`p-3 border rounded-xl ${loggedSet?.completed ? "border-green-500 bg-green-50" : ""}`}
+                  className={`p-3 border border-neutral-200 dark:border-neutral-800 rounded-xl ${loggedSet?.completed ? "border-green-500 dark:border-emerald-600 bg-green-50 dark:bg-emerald-900/30" : ""}`}
                 >
                   <View className="flex-row justify-between items-center">
-                    <Text>Set {index + 1}</Text>
+                    <Text className="dark:text-white">Set {index + 1}</Text>
                     <TouchableOpacity
-                      onPress={() =>
-                        useWorkoutsHistoryStore.getState().toggleSetCompleted(today, set.id, set.exerciseId)
-                      }
+                      onPress={() => {
+                        useWorkoutsHistoryStore.getState().toggleSetCompleted(today, set.id, set.exerciseId);
+                        updateInteractionTime();
+                      }}
                       className={`p-2 rounded-full ${loggedSet?.completed ? "bg-green-500" : "bg-neutral-200"}`}
                     >
                       <Ionicons name={loggedSet?.completed ? "checkmark" : "ellipse-outline"} size={20} color="white" />
@@ -165,33 +174,33 @@ export default function WorkoutSessionScreen({ route, navigation }: any) {
                   </View>
 
                   <View className="flex-row items-center mt-1">
-                    <Text className="text-lg font-bold">{capitalize(exercise.name)}</Text>
+                    <Text className="text-lg font-bold dark:text-white">{capitalize(exercise.name)}</Text>
                   </View>
 
                   <View className="mt-2 mb-3 px-1 gap-1">
                     {set.weight?.value ? (
-                      <Text className="text-sm text-neutral-600">
+                      <Text className="text-sm text-neutral-600 dark:text-neutral-400">
                         Peso: {set.weight.value} (planeado)
                         {loggedSet?.weight ? (
-                          <Text className="text-blue-600 font-bold"> | {loggedSet.weight} (registrado)</Text>
+                          <Text className="text-blue-600 dark:text-blue-400 font-bold"> | {loggedSet.weight} (registrado)</Text>
                         ) : null}
                       </Text>
                     ) : null}
 
                     {set.reps?.value ? (
-                      <Text className="text-sm text-neutral-600">
+                      <Text className="text-sm text-neutral-600 dark:text-neutral-400">
                         Reps: {set.reps.value} (planeado)
                         {loggedSet?.reps ? (
-                          <Text className="text-blue-600 font-bold"> | {loggedSet.reps} (registrado)</Text>
+                          <Text className="text-blue-600 dark:text-blue-400 font-bold"> | {loggedSet.reps} (registrado)</Text>
                         ) : null}
                       </Text>
                     ) : null}
 
                     {set.rir?.value ? (
-                      <Text className="text-sm text-neutral-600">
+                      <Text className="text-sm text-neutral-600 dark:text-neutral-400">
                         RIR: {set.rir.value} (planeado)
                         {loggedSet?.rir ? (
-                          <Text className="text-blue-600 font-bold"> | {loggedSet.rir} (registrado)</Text>
+                          <Text className="text-blue-600 dark:text-blue-400 font-bold"> | {loggedSet.rir} (registrado)</Text>
                         ) : null}
                       </Text>
                     ) : null}
@@ -227,31 +236,31 @@ export default function WorkoutSessionScreen({ route, navigation }: any) {
                 <TouchableOpacity
                   key={set.id}
                   onPress={() => openRegisterModal(set.id, set.exerciseId)}
-                  className="p-3 border rounded-xl"
+                  className="p-3 border border-neutral-200 dark:border-neutral-800 rounded-xl"
                 >
-                  <Text>Set {index + 1}</Text>
+                  <Text className="dark:text-white">Set {index + 1}</Text>
 
                   <View className="flex-row items-center">
                     <TouchableOpacity onPress={() => removeSet(date, set.id)} className="p-3">
                       <Ionicons name="close-circle-outline" className="!text-xl text-red-500" />
                     </TouchableOpacity>
-                    <Text className="text-lg">{capitalize(exercise.name)}</Text>
+                    <Text className="text-lg dark:text-white">{capitalize(exercise.name)}</Text>
                   </View>
 
                   <View className="flex-row gap-3 items-center justify-evenly mb-3">
-                    {weight !== undefined && weight !== null && <Text className="text-lg">weight: {weight}</Text>}
-                    {reps !== undefined && reps !== null && <Text className="text-lg">reps: {reps}</Text>}
-                    {rir !== undefined && rir !== null && <Text className="text-lg">rir: {rir}</Text>}
+                    {weight !== undefined && weight !== null && <Text className="text-lg dark:text-white">weight: {weight}</Text>}
+                    {reps !== undefined && reps !== null && <Text className="text-lg dark:text-white">reps: {reps}</Text>}
+                    {rir !== undefined && rir !== null && <Text className="text-lg dark:text-white">rir: {rir}</Text>}
                   </View>
 
                   {dropSets && dropSets.length > 0 && (
                     <View className="gap-1">
                       {dropSets.map((dropSet: any, dropIndex: number) => {
                         return (
-                          <View className="flex-row border rounded-xl p-3" key={dropSet.id}>
-                            <Text>Dropset {dropIndex + 1}</Text>
+                          <View className="flex-row border border-neutral-200 dark:border-neutral-800 rounded-xl p-3" key={dropSet.id}>
+                            <Text className="dark:text-white">Dropset {dropIndex + 1}</Text>
 
-                            <Text className="flex-1 text-center">
+                            <Text className="flex-1 text-center dark:text-white">
                               weight:{dropSet.weight} reps:{dropSet.reps}
                             </Text>
                           </View>
@@ -265,16 +274,16 @@ export default function WorkoutSessionScreen({ route, navigation }: any) {
 
         {isActive && (
           <>
-            <TouchableOpacity className="border-2 border-dashed border-neutral-300 p-4 rounded-2xl items-center justify-center flex-row gap-2 mt-4">
+            <TouchableOpacity className="border-2 border-dashed border-neutral-300 dark:border-neutral-700 p-4 rounded-2xl items-center justify-center flex-row gap-2 mt-4">
               <Ionicons name="add" size={24} color={colors.neutral[500]} />
               <Text className="text-neutral-500 font-bold">Añadir Ejercicio Libre</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={finishWorkout}
-              className="bg-black p-4 rounded-2xl items-center justify-center flex-row gap-2 mb-8 mt-2"
+              className="bg-black dark:bg-white p-4 rounded-2xl items-center justify-center flex-row gap-2 mb-8 mt-2"
             >
-              <Text className="text-white font-bold text-lg">Finalizar Entreno</Text>
+              <Text className="text-white dark:text-black font-bold text-lg">Finalizar Entreno</Text>
             </TouchableOpacity>
           </>
         )}

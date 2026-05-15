@@ -13,7 +13,7 @@ export default function RoutineQuickView({ routine }: { routine: Routine }) {
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate("routine", { routineId: routine.id })}
-      className="border border-neutral-200 rounded-xl p-5"
+      className="border border-neutral-200 dark:border-neutral-800 rounded-xl p-5"
     >
       <View className="flex-row items-start justify-between flex-1">
         <Text className="text-neutral-500 text-sm">Rutina</Text>
@@ -24,7 +24,7 @@ export default function RoutineQuickView({ routine }: { routine: Routine }) {
         </View>
       </View>
 
-      <Text className="font-bold text-xl mb-0.5">{routine.name || "Rutina sin nombre"}</Text>
+      <Text className="font-bold text-xl mb-0.5 text-neutral-900 dark:text-white">{routine.name || "Rutina sin nombre"}</Text>
 
       <View className="flex-row gap-3">
         {routine.days.map((day) => (

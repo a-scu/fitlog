@@ -24,17 +24,17 @@ const Header = ({ title, children, rightElement, hideBack, onBack }: HeaderProps
   };
 
   return (
-    <View style={{ paddingTop: insets.top }} className="bg-white border-b border-neutral-100">
+    <View style={{ paddingTop: insets.top }} className="bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
       <View className="p-3 h-14 flex-row items-center justify-between">
         <View className="flex-row items-center flex-1">
           {!hideBack && (
             <TouchableOpacity onPress={handleBack} className="pr-4 pl-2 items-center justify-center">
-              <Ionicons name="arrow-back" className="!text-xl !text-neutral-800" />
+              <Ionicons name="arrow-back" className="!text-xl !text-neutral-800 dark:!text-white" />
             </TouchableOpacity>
           )}
           <Text
             numberOfLines={1}
-            className="text-xl font-medium text-neutral-800 flex-1"
+            className="text-xl font-medium text-neutral-800 dark:text-white flex-1"
             style={{ marginLeft: hideBack ? 8 : 0 }}
           >
             {title || children}
