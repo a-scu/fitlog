@@ -7,7 +7,15 @@ import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { useThemeStore } from "@/stores/ThemeStore";
 import { Image } from "expo-image";
-import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function SettingsScreen() {
@@ -23,7 +31,9 @@ export default function SettingsScreen() {
   const deleteAllRoutines = useRoutinesStore((s) => s.deleteAllRoutines);
   const deleteAllHistory = useWorkoutsHistoryStore((s) => s.deleteAllHistory);
   const deleteAllWorkspaces = useWorkspacesStore((s) => s.deleteAllWorkspaces);
-  const setHasCompletedOnboarding = useGlobalSettingsStore((s) => s.setHasCompletedOnboarding);
+  const setHasCompletedOnboarding = useGlobalSettingsStore(
+    (s) => s.setHasCompletedOnboarding,
+  );
 
   const [displayName, setDisplayName] = useState(user?.displayName || "");
   const [nickname, setNickname] = useState(user?.nickname || "");
@@ -60,20 +70,24 @@ export default function SettingsScreen() {
   };
 
   const resetApp = () => {
-    Alert.alert("Resetear App", "¿Estás seguro? Se borrarán todos tus datos locales.", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Resetear",
-        style: "destructive",
-        onPress: () => {
-          deleteAllWorkouts();
-          deleteAllRoutines();
-          deleteAllHistory();
-          deleteAllWorkspaces();
-          setHasCompletedOnboarding(false);
+    Alert.alert(
+      "Resetear App",
+      "¿Estás seguro? Se borrarán todos tus datos locales.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Resetear",
+          style: "destructive",
+          onPress: () => {
+            deleteAllWorkouts();
+            deleteAllRoutines();
+            deleteAllHistory();
+            deleteAllWorkspaces();
+            setHasCompletedOnboarding(false);
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   const handleDeleteAccount = () => {
@@ -89,7 +103,10 @@ export default function SettingsScreen() {
             try {
               await useUserStore.getState().deleteAccount();
               setHasCompletedOnboarding(false);
-              Alert.alert("Cuenta eliminada", "Tu cuenta ha sido borrada correctamente.");
+              Alert.alert(
+                "Cuenta eliminada",
+                "Tu cuenta ha sido borrada correctamente.",
+              );
             } catch (error) {
               Alert.alert(
                 "Error",
@@ -103,34 +120,49 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-neutral-50 dark:bg-neutral-900" contentContainerClassName="p-4 grow">
-      <Text className="text-2xl font-black text-neutral-900 dark:text-white mb-6">Ajustes</Text>
-
+    <ScrollView
+      className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+      contentContainerClassName="p-4 grow"
+    >
       {/* Profile Section */}
       <View className="bg-white dark:bg-neutral-800 rounded-3xl p-5 shadow-sm border border-neutral-100 dark:border-neutral-700">
         <View className="flex-row items-center gap-4 mb-6">
           <View className="size-20 rounded-full bg-neutral-100 dark:bg-neutral-700 overflow-hidden border-2 border-emerald-500">
             <Image
-              source={user?.photoURL ? { uri: user?.photoURL } : require("@/assets/images/icon.png")}
+              source={
+                user?.photoURL
+                  ? { uri: user?.photoURL }
+                  : require("@/assets/images/icon.png")
+              }
               style={{ width: "100%", height: "100%" }}
             />
           </View>
           <View className="flex-1">
-            <Text className="text-xl font-bold text-neutral-900 dark:text-white">{user?.displayName || "Usuario"}</Text>
-            <Text className="text-neutral-500 dark:text-neutral-400">{user?.email}</Text>
+            <Text className="text-xl font-bold text-neutral-900 dark:text-white">
+              {user?.displayName || "Usuario"}
+            </Text>
+            <Text className="text-neutral-500 dark:text-neutral-400">
+              {user?.email}
+            </Text>
           </View>
           <TouchableOpacity
             onPress={() => setIsEditing(!isEditing)}
             className="p-2 bg-neutral-100 dark:bg-neutral-700 rounded-full"
           >
-            <Ionicons name={isEditing ? "close" : "pencil"} size={20} color={isEditing ? "#ef4444" : "#10b981"} />
+            <Ionicons
+              name={isEditing ? "close" : "pencil"}
+              size={20}
+              color={isEditing ? "#ef4444" : "#10b981"}
+            />
           </TouchableOpacity>
         </View>
 
         {isEditing ? (
           <View className="gap-4">
             <View>
-              <Text className="text-xs font-bold text-neutral-400 uppercase mb-1 ml-1">Nombre</Text>
+              <Text className="text-xs font-bold text-neutral-400 uppercase mb-1 ml-1">
+                Nombre
+              </Text>
               <TextInput
                 value={displayName}
                 onChangeText={setDisplayName}
@@ -141,7 +173,9 @@ export default function SettingsScreen() {
             </View>
 
             <View>
-              <Text className="text-xs font-bold text-neutral-400 uppercase mb-1 ml-1">Nickname</Text>
+              <Text className="text-xs font-bold text-neutral-400 uppercase mb-1 ml-1">
+                Nickname
+              </Text>
               <TextInput
                 value={nickname}
                 onChangeText={setNickname}
@@ -152,7 +186,9 @@ export default function SettingsScreen() {
             </View>
 
             <View>
-              <Text className="text-xs font-bold text-neutral-400 uppercase mb-1 ml-1">Username</Text>
+              <Text className="text-xs font-bold text-neutral-400 uppercase mb-1 ml-1">
+                Username
+              </Text>
               <TextInput
                 value={username}
                 onChangeText={setUsername}
@@ -173,7 +209,9 @@ export default function SettingsScreen() {
               ) : (
                 <>
                   <Ionicons name="checkmark-circle" size={20} color="white" />
-                  <Text className="text-white font-bold text-lg">Guardar Cambios</Text>
+                  <Text className="text-white font-bold text-lg">
+                    Guardar Cambios
+                  </Text>
                 </>
               )}
             </TouchableOpacity>
@@ -181,12 +219,20 @@ export default function SettingsScreen() {
         ) : (
           <View className="gap-3">
             <View className="flex-row justify-between items-center py-2 border-b border-neutral-50 dark:border-neutral-700">
-              <Text className="text-neutral-500 dark:text-neutral-400">Nickname</Text>
-              <Text className="font-semibold text-neutral-900 dark:text-white">{user?.nickname || "-"}</Text>
+              <Text className="text-neutral-500 dark:text-neutral-400">
+                Nickname
+              </Text>
+              <Text className="font-semibold text-neutral-900 dark:text-white">
+                {user?.nickname || "-"}
+              </Text>
             </View>
             <View className="flex-row justify-between items-center py-2">
-              <Text className="text-neutral-500 dark:text-neutral-400">Username</Text>
-              <Text className="font-semibold text-neutral-900 dark:text-white">@{user?.username || "sin_usuario"}</Text>
+              <Text className="text-neutral-500 dark:text-neutral-400">
+                Username
+              </Text>
+              <Text className="font-semibold text-neutral-900 dark:text-white">
+                @{user?.username || "sin_usuario"}
+              </Text>
             </View>
           </View>
         )}
@@ -194,7 +240,9 @@ export default function SettingsScreen() {
 
       {/* Theme Section */}
       <View className="mt-8">
-        <Text className="text-sm font-bold text-neutral-400 uppercase mb-3 ml-1">Apariencia</Text>
+        <Text className="text-sm font-bold text-neutral-400 uppercase mb-3 ml-1">
+          Apariencia
+        </Text>
         <View className="bg-white dark:bg-neutral-800 rounded-3xl p-2 shadow-sm border border-neutral-100 dark:border-neutral-700 flex-row">
           <TouchableOpacity
             onPress={() => setThemeMode("light")}
@@ -202,8 +250,14 @@ export default function SettingsScreen() {
               themeMode === "light" ? "bg-neutral-100 dark:bg-neutral-700" : ""
             }`}
           >
-            <Ionicons name="sunny" size={20} color={themeMode === "light" ? "#f59e0b" : "#9ca3af"} />
-            <Text className={`font-semibold ${themeMode === "light" ? "text-neutral-900 dark:text-white" : "text-neutral-500 dark:text-neutral-400"}`}>
+            <Ionicons
+              name="sunny"
+              size={20}
+              color={themeMode === "light" ? "#f59e0b" : "#9ca3af"}
+            />
+            <Text
+              className={`font-semibold ${themeMode === "light" ? "text-neutral-900 dark:text-white" : "text-neutral-500 dark:text-neutral-400"}`}
+            >
               Claro
             </Text>
           </TouchableOpacity>
@@ -213,8 +267,14 @@ export default function SettingsScreen() {
               themeMode === "dark" ? "bg-neutral-100 dark:bg-neutral-700" : ""
             }`}
           >
-            <Ionicons name="moon" size={20} color={themeMode === "dark" ? "#6366f1" : "#9ca3af"} />
-            <Text className={`font-semibold ${themeMode === "dark" ? "text-neutral-900 dark:text-white" : "text-neutral-500 dark:text-neutral-400"}`}>
+            <Ionicons
+              name="moon"
+              size={20}
+              color={themeMode === "dark" ? "#6366f1" : "#9ca3af"}
+            />
+            <Text
+              className={`font-semibold ${themeMode === "dark" ? "text-neutral-900 dark:text-white" : "text-neutral-500 dark:text-neutral-400"}`}
+            >
               Oscuro
             </Text>
           </TouchableOpacity>
@@ -224,8 +284,14 @@ export default function SettingsScreen() {
               themeMode === "system" ? "bg-neutral-100 dark:bg-neutral-700" : ""
             }`}
           >
-            <Ionicons name="phone-portrait" size={20} color={themeMode === "system" ? "#10b981" : "#9ca3af"} />
-            <Text className={`font-semibold ${themeMode === "system" ? "text-neutral-900 dark:text-white" : "text-neutral-500 dark:text-neutral-400"}`}>
+            <Ionicons
+              name="phone-portrait"
+              size={20}
+              color={themeMode === "system" ? "#10b981" : "#9ca3af"}
+            />
+            <Text
+              className={`font-semibold ${themeMode === "system" ? "text-neutral-900 dark:text-white" : "text-neutral-500 dark:text-neutral-400"}`}
+            >
               Sistema
             </Text>
           </TouchableOpacity>
@@ -242,7 +308,9 @@ export default function SettingsScreen() {
             <View className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
               <Ionicons name="log-out" size={20} color="#ef4444" />
             </View>
-            <Text className="text-red-500 font-bold text-lg">Cerrar Sesión</Text>
+            <Text className="text-red-500 font-bold text-lg">
+              Cerrar Sesión
+            </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
         </TouchableOpacity>
@@ -255,7 +323,9 @@ export default function SettingsScreen() {
             <View className="p-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg">
               <Ionicons name="refresh" size={20} color="#6b7280" />
             </View>
-            <Text className="text-neutral-600 dark:text-neutral-400 font-bold text-lg">Resetear App</Text>
+            <Text className="text-neutral-600 dark:text-neutral-400 font-bold text-lg">
+              Resetear App
+            </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
         </TouchableOpacity>
@@ -268,9 +338,16 @@ export default function SettingsScreen() {
             <View className="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
               <Ionicons name="trash" size={20} color="#ef4444" />
             </View>
-            <Text className="text-red-600 dark:text-red-500 font-bold text-lg">Eliminar Cuenta</Text>
+            <Text className="text-red-600 dark:text-red-500 font-bold text-lg">
+              Eliminar Cuenta
+            </Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#ef4444" opacity={0.5} />
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            color="#ef4444"
+            opacity={0.5}
+          />
         </TouchableOpacity>
       </View>
 

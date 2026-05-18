@@ -9,7 +9,10 @@ import { DropSet } from "@/types/Workout";
 interface WorkoutsHistoryStore {
   workoutSessions: WorkoutSession[];
   addWorkoutSession: (workoutSession: WorkoutSession) => void;
-  updateWorkoutSession: (date: string | Date, workoutSession: Partial<WorkoutSession>) => void;
+  updateWorkoutSession: (
+    date: string | Date,
+    workoutSession: Partial<WorkoutSession>,
+  ) => void;
   updateWorkoutSessionField: (
     date: string | Date,
     field: keyof WorkoutSession,
@@ -19,6 +22,8 @@ interface WorkoutsHistoryStore {
 
   getWorkoutSessionsByDate: (date: string) => WorkoutSession[];
 
+  getWorkoutSession: (date: string | Date) => WorkoutSession | undefined;
+
   addSet: (date: string | Date, exerciseId: string) => void;
   updateSetField: (
     date: string | Date,
@@ -27,7 +32,11 @@ interface WorkoutsHistoryStore {
     field: keyof LoggedSet,
     value: string | number | boolean,
   ) => void;
-  toggleSetCompleted: (date: string | Date, setId: string, exerciseId: string) => void;
+  toggleSetCompleted: (
+    date: string | Date,
+    setId: string,
+    exerciseId: string,
+  ) => void;
   removeSet: (date: string | Date, setId: string) => void;
 
   deleteAllHistory: () => void;
@@ -40,7 +49,11 @@ interface WorkoutsHistoryStore {
     field: keyof DropSet,
     value: string | number,
   ) => void;
-  removeDropSet: (date: string | Date, setId: string, dropSetId: string) => void;
+  removeDropSet: (
+    date: string | Date,
+    setId: string,
+    dropSetId: string,
+  ) => void;
 }
 
 export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
@@ -48,12 +61,23 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
     (set, get) => ({
       workoutSessions: [],
 
+      getWorkoutSession: (date) => {
+        const workoutSession = get().workoutSessions.find((s) =>
+          isSameDay(s.date, date),
+        );
+        return workoutSession;
+      },
+
       addWorkoutSession: (workoutSession) =>
-        set((state) => ({ workoutSessions: [workoutSession, ...state.workoutSessions] })),
+        set((state) => ({
+          workoutSessions: [workoutSession, ...state.workoutSessions],
+        })),
 
       updateWorkoutSession: (date, workoutSessionUpdate) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) => isSameDay(s.date, date));
+          const sessionIndex = state.workoutSessions.findIndex((s) =>
+            isSameDay(s.date, date),
+          );
 
           if (sessionIndex !== -1) {
             return {
@@ -78,11 +102,15 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
 
       updateWorkoutSessionField: (date, field, value) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) => isSameDay(s.date, date));
+          const sessionIndex = state.workoutSessions.findIndex((s) =>
+            isSameDay(s.date, date),
+          );
 
           if (sessionIndex !== -1) {
             return {
-              workoutSessions: state.workoutSessions.map((s, i) => (i === sessionIndex ? { ...s, [field]: value } : s)),
+              workoutSessions: state.workoutSessions.map((s, i) =>
+                i === sessionIndex ? { ...s, [field]: value } : s,
+              ),
             };
           } else {
             const newSession: WorkoutSession = {
@@ -106,7 +134,9 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
 
       addSet: (date, exerciseId) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) => isSameDay(s.date, date));
+          const sessionIndex = state.workoutSessions.findIndex((s) =>
+            isSameDay(s.date, date),
+          );
 
           if (sessionIndex !== -1) {
             return {
@@ -116,7 +146,14 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
                       ...s,
                       sets: [
                         ...s.sets,
-                        { id: randomId(), exerciseId: exerciseId, weight: 0, reps: 0, rir: 0, dropSets: [] },
+                        {
+                          id: randomId(),
+                          exerciseId: exerciseId,
+                          weight: 0,
+                          reps: 0,
+                          rir: 0,
+                          dropSets: [],
+                        },
                       ],
                     }
                   : s,
@@ -135,7 +172,9 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
 
       updateSetField: (date, setId, exerciseId, field, value) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) => isSameDay(s.date, date));
+          const sessionIndex = state.workoutSessions.findIndex((s) =>
+            isSameDay(s.date, date),
+          );
 
           if (sessionIndex !== -1) {
             return {
@@ -143,11 +182,25 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
                 if (i === sessionIndex) {
                   const setExists = s.sets.some((set) => set.id === setId);
                   if (setExists) {
-                    return { ...s, sets: s.sets.map((set) => (set.id === setId ? { ...set, [field]: value } : set)) };
+                    return {
+                      ...s,
+                      sets: s.sets.map((set) =>
+                        set.id === setId ? { ...set, [field]: value } : set,
+                      ),
+                    };
                   } else {
                     return {
                       ...s,
-                      sets: [...s.sets, { id: setId, exerciseId, completed: false, dropSets: [], [field]: value }],
+                      sets: [
+                        ...s.sets,
+                        {
+                          id: setId,
+                          exerciseId,
+                          completed: false,
+                          dropSets: [],
+                          [field]: value,
+                        },
+                      ],
                     };
                   }
                 }
@@ -162,7 +215,15 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
               date: typeof date === "string" ? date : date.toISOString(),
               duration: 0,
               notes: "",
-              sets: [{ id: setId, exerciseId, completed: false, dropSets: [], [field]: value }],
+              sets: [
+                {
+                  id: setId,
+                  exerciseId,
+                  completed: false,
+                  dropSets: [],
+                  [field]: value,
+                },
+              ],
             };
             return { workoutSessions: [newSession, ...state.workoutSessions] };
           }
@@ -171,7 +232,9 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
 
       toggleSetCompleted: (date, setId, exerciseId) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) => isSameDay(s.date, date));
+          const sessionIndex = state.workoutSessions.findIndex((s) =>
+            isSameDay(s.date, date),
+          );
 
           if (sessionIndex !== -1) {
             return {
@@ -182,18 +245,31 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
                     const currentSet = s.sets.find((set) => set.id === setId);
                     if (currentSet?.completed) {
                       // If it was completed, and we toggle, we remove it
-                      return { ...s, sets: s.sets.filter((set) => set.id !== setId) };
+                      return {
+                        ...s,
+                        sets: s.sets.filter((set) => set.id !== setId),
+                      };
                     } else {
                       // If it wasn't completed (shouldn't happen with current logic), we mark as true
                       return {
                         ...s,
-                        sets: s.sets.map((set) => (set.id === setId ? { ...set, completed: true } : set)),
+                        sets: s.sets.map((set) =>
+                          set.id === setId ? { ...set, completed: true } : set,
+                        ),
                       };
                     }
                   } else {
                     return {
                       ...s,
-                      sets: [...s.sets, { id: setId, exerciseId, completed: true, dropSets: [] }],
+                      sets: [
+                        ...s.sets,
+                        {
+                          id: setId,
+                          exerciseId,
+                          completed: true,
+                          dropSets: [],
+                        },
+                      ],
                     };
                   }
                 }
@@ -216,12 +292,16 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
 
       removeSet: (date, setId) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) => isSameDay(s.date, date));
+          const sessionIndex = state.workoutSessions.findIndex((s) =>
+            isSameDay(s.date, date),
+          );
 
           if (sessionIndex !== -1) {
             return {
               workoutSessions: state.workoutSessions.map((s, i) =>
-                i === sessionIndex ? { ...s, sets: s.sets.filter((s) => s.id !== setId) } : s,
+                i === sessionIndex
+                  ? { ...s, sets: s.sets.filter((s) => s.id !== setId) }
+                  : s,
               ),
             };
           }
@@ -232,7 +312,9 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
 
       addDropSet: (date, setId) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) => isSameDay(s.date, date));
+          const sessionIndex = state.workoutSessions.findIndex((s) =>
+            isSameDay(s.date, date),
+          );
 
           if (sessionIndex !== -1) {
             return {
@@ -242,7 +324,13 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
                       ...s,
                       sets: s.sets.map((set) =>
                         set.id === setId
-                          ? { ...set, dropSets: [...(set.dropSets || []), { id: randomId(), weight: 0, reps: 0 }] }
+                          ? {
+                              ...set,
+                              dropSets: [
+                                ...(set.dropSets || []),
+                                { id: randomId(), weight: 0, reps: 0 },
+                              ],
+                            }
                           : set,
                       ),
                     }
@@ -257,7 +345,9 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
 
       updateDropSetField: (date, setId, dropSetId, field, value) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) => isSameDay(s.date, date));
+          const sessionIndex = state.workoutSessions.findIndex((s) =>
+            isSameDay(s.date, date),
+          );
 
           if (sessionIndex !== -1) {
             return {
@@ -269,7 +359,11 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
                         s.id === setId
                           ? {
                               ...s,
-                              dropSets: s.dropSets.map((ds) => (ds.id === dropSetId ? { ...ds, [field]: value } : ds)),
+                              dropSets: s.dropSets.map((ds) =>
+                                ds.id === dropSetId
+                                  ? { ...ds, [field]: value }
+                                  : ds,
+                              ),
                             }
                           : s,
                       ),
@@ -285,7 +379,9 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
 
       removeDropSet: (date, setId, dropSetId) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) => isSameDay(s.date, date));
+          const sessionIndex = state.workoutSessions.findIndex((s) =>
+            isSameDay(s.date, date),
+          );
 
           if (sessionIndex !== -1) {
             return {
@@ -294,7 +390,14 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
                   ? {
                       ...s,
                       sets: s.sets.map((s) =>
-                        s.id === setId ? { ...s, dropSets: s.dropSets.filter((ds) => ds.id !== dropSetId) } : s,
+                        s.id === setId
+                          ? {
+                              ...s,
+                              dropSets: s.dropSets.filter(
+                                (ds) => ds.id !== dropSetId,
+                              ),
+                            }
+                          : s,
                       ),
                     }
                   : s,

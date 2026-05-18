@@ -1,30 +1,30 @@
 import { create } from "zustand";
 import auth, {
   signOut,
+  GoogleAuthProvider,
+  getAuth,
+  signInWithCredential,
   onAuthStateChanged,
   updateProfile as updateFirebaseAuthProfile,
 } from "@react-native-firebase/auth";
 import firestore, {
   getFirestore,
-  collection,
   doc,
   setDoc,
   getDoc,
-  updateDoc,
-  onSnapshot,
 } from "@react-native-firebase/firestore";
-import { UserProfile } from "../types/User";
+import { User } from "../types/User";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 interface UserState {
-  user: UserProfile | null;
+  user: User | null;
   loading: boolean;
-  setUser: (user: UserProfile | null) => void;
+  setUser: (user: User | null) => void;
   signInWithGoogle: () => Promise<{ isNewUser: boolean }>;
   signInWithApple: () => Promise<{ isNewUser: boolean }>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
-  updateProfile: (data: Partial<UserProfile>) => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
   initialize: () => () => void;
 }
 
@@ -32,16 +32,15 @@ export const useUserStore = create<UserState>((set, get) => ({
   user: null,
   loading: false,
 
-  setUser: (user) => {
-    console.log("[UserStore] setUser called with:", user);
-    set({ user });
-  },
+  setUser: (user) => set({ user }),
 
   signInWithGoogle: async () => {
     try {
       set({ loading: true });
       // Check if your device supports Google Play
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
       // Get the users ID token
       const signInResult = await GoogleSignin.signIn();
 
@@ -57,10 +56,13 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
 
       // Create a Google credential with the token
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      const googleCredential = GoogleAuthProvider.credential(idToken);
 
       // Sign-in the user with the credential
-      const userCredential = await auth().signInWithCredential(googleCredential);
+      const userCredential = await signInWithCredential(
+        getAuth(),
+        googleCredential,
+      );
 
       const firebaseUser = userCredential.user;
 
@@ -68,19 +70,21 @@ export const useUserStore = create<UserState>((set, get) => ({
       const userRef = doc(db, "users", firebaseUser.uid);
       const userSnap = await getDoc(userRef);
       const userData = userSnap.data();
-      const hasUsername = userData?.username && userData.username.trim().length > 0;
+
+      const hasUsername =
+        userData?.username && userData.username.trim().length > 0;
       const isNewUser = !userSnap.exists() || !hasUsername;
 
-      console.log("[UserStore] signInWithGoogle debug:", { 
-        uid: firebaseUser.uid, 
-        exists: userSnap.exists(), 
-        hasUsername, 
+      console.log("[UserStore] signInWithGoogle debug:", {
+        uid: firebaseUser.uid,
+        exists: userSnap.exists(),
+        hasUsername,
         isNewUser,
-        username: userData?.username 
+        username: userData?.username,
       });
 
-      const profile: UserProfile = userSnap.exists() 
-        ? userData as UserProfile 
+      const user: User = userSnap.exists()
+        ? (userData as User)
         : {
             uid: firebaseUser.uid,
             email: firebaseUser.email,
@@ -90,13 +94,11 @@ export const useUserStore = create<UserState>((set, get) => ({
             createdAt: Date.now(),
           };
 
-      if (!userSnap.exists()) {
-        // Ensure user document exists in Firestore for new users
-        await setDoc(userRef, profile);
+      if (isNewUser) {
+        await setDoc(userRef, user);
       }
 
-      console.log("[UserStore] setting user to:", profile);
-      set({ user: profile });
+      set({ user });
       return { isNewUser };
     } catch (error) {
       console.error("Google Sign-In Error:", error);
@@ -122,7 +124,10 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       // Create a Firebase credential from the response
       const { identityToken, nonce } = appleAuthRequestResponse;
-      const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
+      const appleCredential = auth.AppleAuthProvider.credential(
+        identityToken,
+        nonce,
+      );
 
       // Sign the user in with the credential
       const userCredential = await auth().signInWithCredential(appleCredential);
@@ -133,19 +138,20 @@ export const useUserStore = create<UserState>((set, get) => ({
       const userRef = doc(db, "users", firebaseUser.uid);
       const userSnap = await getDoc(userRef);
       const userData = userSnap.data();
-      const hasUsername = userData?.username && userData.username.trim().length > 0;
+      const hasUsername =
+        userData?.username && userData.username.trim().length > 0;
       const isNewUser = !userSnap.exists() || !hasUsername;
 
-      console.log("[UserStore] signInWithApple debug:", { 
-        uid: firebaseUser.uid, 
-        exists: userSnap.exists(), 
-        hasUsername, 
+      console.log("[UserStore] signInWithApple debug:", {
+        uid: firebaseUser.uid,
+        exists: userSnap.exists(),
+        hasUsername,
         isNewUser,
-        username: userData?.username 
+        username: userData?.username,
       });
 
-      const profile: UserProfile = userSnap.exists() 
-        ? userData as UserProfile 
+      const profile: User = userSnap.exists()
+        ? (userData as User)
         : {
             uid: firebaseUser.uid,
             email: firebaseUser.email,
@@ -220,7 +226,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
   },
 
-  updateProfile: async (data: Partial<UserProfile>) => {
+  updateProfile: async (data: Partial<User>) => {
     const currentUser = get().user;
     if (!currentUser) return;
 
@@ -228,16 +234,21 @@ export const useUserStore = create<UserState>((set, get) => ({
     try {
       // Filter out undefined values to avoid Firestore errors
       const sanitizedData = Object.fromEntries(
-        Object.entries(data).filter(([_, value]) => value !== undefined)
+        Object.entries(data).filter(([_, value]) => value !== undefined),
       );
 
       // 1. Update Firestore (Use set with merge to avoid 'not-found' errors)
       const db = getFirestore();
-      await setDoc(doc(db, "users", currentUser.uid), sanitizedData, { merge: true });
+      await setDoc(doc(db, "users", currentUser.uid), sanitizedData, {
+        merge: true,
+      });
 
       // 2. Update Firebase Auth if displayName or photoURL changed
       const firebaseUser = auth().currentUser;
-      if (firebaseUser && (data.displayName !== undefined || data.photoURL !== undefined)) {
+      if (
+        firebaseUser &&
+        (data.displayName !== undefined || data.photoURL !== undefined)
+      ) {
         await updateFirebaseAuthProfile(firebaseUser, {
           displayName: data.displayName ?? firebaseUser.displayName,
           photoURL: data.photoURL ?? firebaseUser.photoURL,
@@ -267,11 +278,14 @@ export const useUserStore = create<UserState>((set, get) => ({
           const userData = userSnap.data();
 
           if (userSnap.exists() && userData) {
-            console.log("[UserStore] initialize: found Firestore data:", userData);
-            set({ user: userData as UserProfile });
+            console.log(
+              "[UserStore] initialize: found Firestore data:",
+              userData,
+            );
+            set({ user: userData as User });
           } else {
             // Fallback to auth data if Firestore doc doesn't exist
-            const fallbackUser: UserProfile = {
+            const fallbackUser: User = {
               uid: firebaseUser.uid,
               email: firebaseUser.email,
               displayName: firebaseUser.displayName,
@@ -279,7 +293,10 @@ export const useUserStore = create<UserState>((set, get) => ({
               role: "athlete",
               createdAt: Date.now(),
             };
-            console.log("[UserStore] initialize: using fallback data:", fallbackUser);
+            console.log(
+              "[UserStore] initialize: using fallback data:",
+              fallbackUser,
+            );
             set({ user: fallbackUser });
           }
         } catch (error) {
@@ -297,7 +314,9 @@ export const useUserStore = create<UserState>((set, get) => ({
           });
         }
       } else {
-        console.log("[UserStore] initialize: no firebaseUser, setting user to null");
+        console.log(
+          "[UserStore] initialize: no firebaseUser, setting user to null",
+        );
         set({ user: null });
       }
     });

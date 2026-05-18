@@ -5,7 +5,7 @@ import { Set as SetType } from "@/types/Workout";
 
 const EXERCISES = EXERCISES_DATA as Exercise[];
 
-export const getRoutineMuscles = (sets: SetType[]) => {
+export const getWorkoutMuscles = (sets: SetType[]) => {
   const targetMuscles = new Set<string>();
   const secondaryMuscles = new Set<string>();
 
@@ -19,7 +19,9 @@ export const getRoutineMuscles = (sets: SetType[]) => {
   });
 
   // Remove muscles that are already in target from secondary
-  const filteredSecondary = Array.from(secondaryMuscles).filter((m) => !targetMuscles.has(m));
+  const filteredSecondary = Array.from(secondaryMuscles).filter(
+    (m) => !targetMuscles.has(m),
+  );
 
   return {
     target: Array.from(targetMuscles),

@@ -4,6 +4,13 @@ export interface WorkspaceNotes {
   createdAt: string;
 }
 
+export interface PersonalWorkspace {
+  id: string;
+  name: string;
+  routineId: string | null;
+  createdAt: string;
+}
+
 export interface Workspace {
   id: string;
   name: string;
@@ -12,9 +19,7 @@ export interface Workspace {
   isShared: boolean;
   createdAt: string;
   coachId: string | null;
-  coachName?: string | null;
   athleteId: string | null;
-  athleteName?: string | null;
 }
 
 export interface Invitation {
@@ -25,4 +30,3 @@ export interface Invitation {
   status: "pending" | "accepted" | "rejected";
   createdAt: number;
 }
-

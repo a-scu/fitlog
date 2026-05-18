@@ -62,12 +62,26 @@ const MUSCLE_PRIORITY_MAP: Record<string, number> = {
   obliques: 1,
 };
 
-export const getSortedMusclesWithImages = (muscleNames: string[]): MuscleDisplayData[] => {
+export const getMuscleImage = (muscleName: string) => {
+  const canonicalKey =
+    MUSCLE_ALIAS_MAP[muscleName] ||
+    (Object.keys(MUSCLES).find(
+      (key) => MUSCLES[key as keyof typeof MUSCLES] === muscleName,
+    ) as keyof typeof MUSCLE_IMAGES);
+
+  return MUSCLE_IMAGES[canonicalKey];
+};
+
+export const getSortedMusclesWithImages = (
+  muscleNames: string[],
+): MuscleDisplayData[] => {
   const displayData = muscleNames.map((name) => {
     // Find canonical key
     const canonicalKey =
       MUSCLE_ALIAS_MAP[name] ||
-      (Object.keys(MUSCLES).find((key) => MUSCLES[key as keyof typeof MUSCLES] === name) as keyof typeof MUSCLE_IMAGES);
+      (Object.keys(MUSCLES).find(
+        (key) => MUSCLES[key as keyof typeof MUSCLES] === name,
+      ) as keyof typeof MUSCLE_IMAGES);
 
     const image = MUSCLE_IMAGES[canonicalKey];
     const priority = MUSCLE_PRIORITY_MAP[name] || 0;

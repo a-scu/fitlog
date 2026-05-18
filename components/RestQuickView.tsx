@@ -1,24 +1,45 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { format } from "date-fns";
-import { Image } from "expo-image";
-import { Text, TouchableOpacity, View } from "react-native";
-
-import { es } from "date-fns/locale";
-
+import { Ionicons } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
+import { es } from "date-fns/locale";
+import { Image } from "expo-image";
+import { format } from "date-fns";
 
+import { useWorkoutsHistoryStore } from "@/stores/WorkoutsHistoryStore";
 import { useActiveWorkoutStore } from "@/stores/ActiveWorkoutStore";
 
-export default function RestQuickView({ routineId, date }: { routineId: string; date: Date }) {
+export default function RestQuickView({
+  routineId,
+  date,
+}: {
+  routineId: string;
+  date: Date;
+}) {
   const navigation = useNavigation();
   const startWorkout = useActiveWorkoutStore((s) => s.startWorkout);
 
+  const workoutSession = useWorkoutsHistoryStore((s) =>
+    s.getWorkoutSession(date),
+  );
+
   const handleFreeWorkout = () => {
-    startWorkout("free", routineId);
-    navigation.navigate("workoutSession", {
-      date: new Date().toISOString(),
-    });
+    Alert.alert(
+      "¿Estás seguro que deseas realizar un entreno libre?",
+      "Hoy te toca descanso :(",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Sí",
+          onPress: () => {
+            startWorkout("free", routineId);
+            navigation.navigate("workoutSession", {
+              date: new Date().toISOString(),
+            });
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -32,7 +53,11 @@ export default function RestQuickView({ routineId, date }: { routineId: string; 
 
         <View className="justify-end items-center flex-row gap-1">
           <Text className="text-neutral-400 text-end text-sm">Ver detalle</Text>
-          <Ionicons name="enter-outline" className="!text-sm !leading-none" color={colors.neutral[400]} />
+          <Ionicons
+            name="enter-outline"
+            className="!text-sm !leading-none"
+            color={colors.neutral[400]}
+          />
         </View>
       </View>
 
@@ -56,13 +81,19 @@ export default function RestQuickView({ routineId, date }: { routineId: string; 
         />
       </View>
 
-      <TouchableOpacity
-        onPress={handleFreeWorkout}
-        className="flex-row items-center border rounded-xl border-neutral-200 dark:border-neutral-800 p-3 gap-1 justify-center"
-      >
-        <Text className="text-neutral-400">Realizar entreno libre</Text>
-        <Ionicons name="barbell-outline" className="!text-sm !leading-none" color={colors.neutral[400]} />
-      </TouchableOpacity>
+      {workoutSession?.status !== "completed" && (
+        <TouchableOpacity
+          onPress={handleFreeWorkout}
+          className="flex-row items-center border rounded-xl border-neutral-200 dark:border-neutral-800 p-3 gap-1 justify-center"
+        >
+          <Text className="text-neutral-400">Realizar entreno libre</Text>
+          <Ionicons
+            name="barbell-outline"
+            className="!text-sm !leading-none"
+            color={colors.neutral[400]}
+          />
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 }

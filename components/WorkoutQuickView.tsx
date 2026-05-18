@@ -1,110 +1,79 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
+import { Alert } from "react-native";
+import { isSameDay } from "date-fns";
+import { Image } from "expo-image";
+
+import { useWorkoutsHistoryStore } from "@/stores/WorkoutsHistoryStore";
+import { useActiveWorkoutStore } from "@/stores/ActiveWorkoutStore";
 
 import { Step, Workout } from "@/types/Workout";
-
-import { dayNames } from "@/constants/DayNames";
-
-import { getRoutineMuscles } from "@/utils/routineMuscles";
-import { adjustedDay, monthDay } from "@/constants/Time";
 import { Routine } from "@/types/Routine";
-import { Image } from "expo-image";
+
+import { getWorkoutMuscles } from "@/utils/routineMuscles";
 import { getSortedMusclesWithImages } from "@/utils/muscleUtils";
+import EXERCISES from "@/constants/Exercises";
+import { WorkoutSession } from "@/types/History";
+import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 
 interface Props {
-  workout: Workout;
-  routine: Routine;
-  canEdit?: boolean;
-  canStart?: boolean;
+  date: Date;
+  workout: Workout | undefined;
+  isRestDay?: boolean;
 }
 
-import { useActiveWorkoutStore } from "@/stores/ActiveWorkoutStore";
-import { useWorkoutsHistoryStore } from "@/stores/WorkoutsHistoryStore";
-import { isSameDay, startOfDay } from "date-fns";
+export default function WorkoutQuickView({ date, workout, isRestDay }: Props) {
+  const activeWorkoutId = useActiveWorkoutStore((s) => s.activeWorkoutId);
 
-import { Alert } from "react-native";
+  // console.log(date, workout, isRestDay);
 
-export default function WorkoutQuickView({ workout, routine, canEdit = true, canStart = true }: Props) {
-  const navigation = useNavigation();
-  const { activeWorkoutId, startWorkout } = useActiveWorkoutStore((s) => s);
+  const isToday = isSameDay(date, new Date());
 
-  const today = startOfDay(new Date()).toISOString();
+  if (activeWorkoutId) return <ActiveView date={date} />;
 
-  const workoutSessions = useWorkoutsHistoryStore((s) => s.workoutSessions);
-  const workoutSession = workoutSessions.find((ws) => isSameDay(ws.date, today));
+  if (!workout && !isRestDay)
+    return <EmptyView date={date} isRestDay={isRestDay} />;
 
-  console.log("workoutSession", workoutSession);
+  if (!workout) return <EmptyView date={date} isRestDay={isRestDay} />;
+
+  return <RegularView date={date} workout={workout} isRestDay={isRestDay} />;
+}
+
+const RegularView = ({
+  date,
+  workout,
+  isRestDay,
+}: {
+  date: Date;
+  workout: Workout;
+  isRestDay: boolean;
+}) => {
+  const navigation = useNavigation<any>();
+
+  const startWorkout = useActiveWorkoutStore((s) => s.startWorkout);
+
+  const workoutSession = useWorkoutsHistoryStore((s) =>
+    s.getWorkoutSession(date),
+  );
 
   const sets = workout.steps.filter((s: Step) => s.type !== "rest");
+  const { target, secondary } = getWorkoutMuscles(sets);
 
-  console.log("Sets", sets);
-
-  const { target, secondary } = getRoutineMuscles(sets);
+  const handleStartFreeWorkout = () => {
+    startWorkout("free");
+    navigation.navigate("workoutSession", {
+      date: new Date(),
+    });
+  };
 
   const handleStartWorkout = () => {
-    if (workoutSession?.status === "completed") {
-      Alert.alert(
-        "Reiniciar Entreno",
-        "Si reinicias el entreno de hoy, todos tus registros se resetearán. ¿Estás seguro?",
-        [
-          { text: "Cancelar", style: "cancel" },
-          {
-            text: "Reiniciar",
-            style: "destructive",
-            onPress: () => {
-              useWorkoutsHistoryStore.getState().updateWorkoutSessionField(today, "status", "in_progress");
-              useWorkoutsHistoryStore.getState().updateWorkoutSessionField(today, "sets", []);
-              startWorkout(workout.id, routine.id);
-              navigation.navigate("workoutSession", {
-                date: new Date().toISOString(),
-              });
-            },
-          },
-        ]
-      );
-    } else {
-      startWorkout(workout.id, routine.id);
-      navigation.navigate("workoutSession", {
-        date: new Date().toISOString(),
-      });
-    }
+    startWorkout(workout.id);
+    navigation.navigate("workoutSession", {
+      date: new Date(),
+    });
   };
-
-  const handleFreeWorkout = () => {
-    if (workoutSession?.status === "completed") {
-      Alert.alert(
-        "Reiniciar Entreno",
-        "Si reinicias el entreno de hoy, todos tus registros se resetearán. ¿Estás seguro?",
-        [
-          { text: "Cancelar", style: "cancel" },
-          {
-            text: "Reiniciar",
-            style: "destructive",
-            onPress: () => {
-              useWorkoutsHistoryStore.getState().updateWorkoutSessionField(today, "status", "in_progress");
-              useWorkoutsHistoryStore.getState().updateWorkoutSessionField(today, "sets", []);
-              startWorkout("free", routine.id);
-              navigation.navigate("workoutSession", {
-                date: new Date().toISOString(),
-              });
-            },
-          },
-        ]
-      );
-    } else {
-      startWorkout("free", routine.id);
-      navigation.navigate("workoutSession", {
-        date: new Date().toISOString(),
-      });
-    }
-  };
-
-  const showFreeWorkoutButton = !workoutSession || workoutSession.status === "completed";
-
-  const isCurrentActive = activeWorkoutId === workout.id;
-  const isAnotherActive = activeWorkoutId !== null && activeWorkoutId !== workout.id;
 
   return (
     <TouchableOpacity
@@ -115,66 +84,73 @@ export default function WorkoutQuickView({ workout, routine, canEdit = true, can
         <Text className="text-neutral-500 text-sm">Entreno de hoy</Text>
         <View className="justify-end items-center flex-row gap-1">
           <Text className="text-neutral-400 text-end text-sm">Ver entreno</Text>
-          <Ionicons name="enter-outline" className="!text-sm !leading-none" color={colors.neutral[400]} />
+          <Ionicons
+            name="enter-outline"
+            className="!text-sm !leading-none"
+            color={colors.neutral[400]}
+          />
         </View>
       </View>
 
       <View className="flex-1 flex-row gap-2.5">
         <View className="flex-1">
-          <Text className="font-bold text-xl text-neutral-900 dark:text-white">{workout?.name}</Text>
+          <Text className="font-bold text-xl text-neutral-900 dark:text-white">
+            {workout?.name}
+          </Text>
 
           <View className="flex-row flex-wrap gap-2 my-3 items-center">
             {getSortedMusclesWithImages(target).map((muscleData) => {
               if (muscleData.image) {
                 return (
                   <View key={muscleData.name} className="size-8">
-                    <Image source={muscleData.image} style={{ width: "100%", height: "100%" }} contentFit="contain" />
+                    <Image
+                      source={muscleData.image}
+                      style={{ width: "100%", height: "100%" }}
+                      contentFit="contain"
+                    />
                   </View>
                 );
               }
 
               return (
-                <Text key={muscleData.name} className="text-neutral-500 text-sm">
+                <Text
+                  key={muscleData.name}
+                  className="text-neutral-500 text-sm"
+                >
                   {muscleData.name}
                 </Text>
               );
             })}
           </View>
 
-          <View className="flex-1 flex-row gap-1">
-            {showFreeWorkoutButton && (
-              <TouchableOpacity
-                onPress={handleFreeWorkout}
-                className="border flex-row p-3 flex-1 border-neutral-200 dark:border-neutral-700 rounded-lg justify-center gap-1.5"
-              >
-                <Text className="text-neutral-500 text-end text-sm">Realizar entreno libre</Text>
-                <Ionicons name="fitness-outline" className="!text-sm !leading-none" color={colors.neutral[500]} />
-              </TouchableOpacity>
-            )}
-          </View>
+          {workoutSession?.status !== "completed" && (
+            <View className="flex-1 flex-row gap-1">
+              {!isRestDay && (
+                <TouchableOpacity
+                  onPress={handleStartFreeWorkout}
+                  className="border flex-row p-3 flex-1 border-neutral-200 dark:border-neutral-700 rounded-lg justify-center gap-1.5"
+                >
+                  <Text className="text-neutral-500 text-end text-sm">
+                    Realizar entreno libre
+                  </Text>
+                  <Ionicons
+                    name="fitness-outline"
+                    className="!text-sm !leading-none"
+                    color={colors.neutral[500]}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
         </View>
 
-        {isCurrentActive ? (
-          <TouchableOpacity
-            onPress={() => navigation.navigate("workoutSession", { date: today })}
-            className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 border-2 rounded-xl items-center justify-center"
-          >
-            <Text className="text-blue-600 dark:text-blue-400 font-bold text-xs">REANUDAR</Text>
-          </TouchableOpacity>
-        ) : isAnotherActive ? (
-          <TouchableOpacity
-            onPress={() => navigation.navigate("workoutSession", { date: today })}
-            className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 border-2 rounded-xl items-center justify-center"
-          >
-            <Text className="text-neutral-400 dark:text-neutral-500 font-bold text-xs text-center">OTRO EN CURSO</Text>
-          </TouchableOpacity>
-        ) : (
+        {workoutSession?.status !== "completed" && (
           <TouchableOpacity
             onPress={handleStartWorkout}
             className="mt-4 p-3 pl-4 aspect-square bg-green-50 dark:bg-emerald-900/30 border-green-200 dark:border-emerald-800 border-2 rounded-xl items-center justify-center"
           >
             <Ionicons
-              name={workoutSession?.status === "completed" ? "reload-outline" : "play-outline"}
+              name={"play-outline"}
               size={24}
               className="!text-green-500 dark:!text-emerald-400"
             />
@@ -183,4 +159,95 @@ export default function WorkoutQuickView({ workout, routine, canEdit = true, can
       </View>
     </TouchableOpacity>
   );
-}
+};
+
+const EmptyView = ({ date, isRestDay }: { date: Date; isRestDay: boolean }) => {
+  const navigation = useNavigation<any>();
+
+  const activeWorkoutId = useActiveWorkoutStore((s) => s.activeWorkoutId);
+  const startWorkout = useActiveWorkoutStore((s) => s.startWorkout);
+
+  const personalWorkspace = useWorkspacesStore((s) => s.personalWorkspace);
+
+  const isToday = isSameDay(date, new Date());
+
+  const handleStartFreeWorkout = () => {
+    startWorkout("free");
+    navigation.navigate("workoutSession", {
+      date: new Date(),
+    });
+  };
+
+  const handleEditRoutine = () => {
+    navigation.navigate("routine", { routineId: personalWorkspace.routineId });
+  };
+
+  return (
+    <View className="gap-3 flex-1">
+      {isToday &&
+        (activeWorkoutId ? (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("workoutSession", { date })}
+            className="rounded-2xl border-1.5 border-neutral-200 dark:border-blue-900 border-solid bg-blue-950/25 h-44 items-center justify-center gap-2.5"
+          >
+            <Text className="text-blue-600 font-medium">Entreno en curso</Text>
+          </TouchableOpacity>
+        ) : (
+          !isRestDay && (
+            <View className="border-1.5 rounded-2xl border-green-600 p-5">
+              <Text className="text-white">Hoy toca entreno</Text>
+              <Text className="text-neutral-400 text-sm mb-3">
+                Aun no agregaste ejercicios a tu entreno de hoy
+              </Text>
+
+              <View className="flex-row gap-3">
+                <TouchableOpacity
+                  onPress={handleEditRoutine}
+                  className="rounded-2xl border-1.5 border-neutral-200 dark:border-white flex-1 items-center justify-center p-3 gap-1"
+                >
+                  <Ionicons
+                    name="create-outline"
+                    size={20}
+                    color={colors.white}
+                  />
+                  <Text className="text-white font-semibold">
+                    Editar rutina
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleStartFreeWorkout}
+                  className="rounded-2xl border-1.5 border-neutral-200 dark:border-neutral-700 flex-1 border-dashed items-center justify-center p-3 gap-1"
+                >
+                  <Ionicons
+                    name="barbell-outline"
+                    size={20}
+                    color={colors.neutral[400]}
+                  />
+                  <Text className="text-neutral-400 font-semibold">
+                    Realizar entreno libre
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )
+        ))}
+    </View>
+  );
+};
+
+const ActiveView = ({ date }: { date: Date }) => {
+  const navigation = useNavigation<any>();
+
+  return (
+    <TouchableOpacity
+      onPress={() => navigation.navigate("workoutSession", { date: date })}
+      className="p-5 rounded-xl border flex-1 border-neutral-200 dark:border-neutral-800"
+    >
+      <Text className="text-white">Entreno en curso</Text>
+      <Text className="text-blue-600 dark:text-blue-400 font-bold text-xs">
+        REANUDAR
+      </Text>
+    </TouchableOpacity>
+  );
+};

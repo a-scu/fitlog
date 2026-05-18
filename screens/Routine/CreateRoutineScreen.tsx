@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, TextInput, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+} from "react-native";
 import { useEffect, useState } from "react";
 import { useRoutinesStore } from "@/stores/RoutinesStore";
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
@@ -21,6 +27,7 @@ export default function CreateRoutineScreen({ navigation, route }: any) {
 
   const handleCreateRoutine = () => {
     const { workspaceId } = route.params || {};
+
     const newRoutineId = randomId();
     const newRoutine = {
       id: newRoutineId,
@@ -46,10 +53,19 @@ export default function CreateRoutineScreen({ navigation, route }: any) {
   };
 
   return (
-    <View className="bg-white dark:bg-neutral-900 flex-1" style={{ paddingBottom: insets.bottom }}>
-      <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} contentContainerClassName="py-3 gap-6">
+    <View
+      className="bg-white dark:bg-neutral-900 flex-1"
+      style={{ paddingBottom: insets.bottom }}
+    >
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerClassName="py-3 gap-6"
+      >
         <View className="gap-1 px-3">
-          <Text className="text-neutral-500 dark:text-neutral-400 font-medium mb-1">Nombre de la rutina</Text>
+          <Text className="text-neutral-500 dark:text-neutral-400 font-medium mb-1">
+            Nombre de la rutina
+          </Text>
           <TextInput
             value={routine.name}
             onChangeText={(value) => setRoutine({ name: value })}
@@ -64,7 +80,9 @@ export default function CreateRoutineScreen({ navigation, route }: any) {
         onPress={handleCreateRoutine}
         className="bg-black dark:bg-white items-center justify-center p-8 mx-3 mb-3 rounded-xl"
       >
-        <Text className="text-center text-lg font-semibold text-white dark:text-black">Crear rutina</Text>
+        <Text className="text-center text-lg font-semibold text-white dark:text-black">
+          Crear rutina
+        </Text>
       </TouchableOpacity>
     </View>
   );

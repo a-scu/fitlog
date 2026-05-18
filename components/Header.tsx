@@ -6,12 +6,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface HeaderProps {
   title?: string;
   children?: React.ReactNode;
-  rightElement?: React.ReactNode;
   hideBack?: boolean;
   onBack?: () => void;
+  options?: any;
+  headerRight?: any;
 }
 
-const Header = ({ title, children, rightElement, hideBack, onBack }: HeaderProps) => {
+const Header = ({
+  title,
+  children,
+  hideBack,
+  onBack,
+  options,
+  headerRight,
+}: HeaderProps) => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -23,13 +31,34 @@ const Header = ({ title, children, rightElement, hideBack, onBack }: HeaderProps
     }
   };
 
+  const resolvedHeaderRight = headerRight || options?.headerRight;
+  const renderHeaderRight = () => {
+    if (!resolvedHeaderRight) return null;
+    if (typeof resolvedHeaderRight === "function") {
+      return resolvedHeaderRight();
+    }
+    return resolvedHeaderRight;
+  };
+
+  const resolvedTitle =
+    title || options?.headerTitle || options?.title || children;
+
   return (
-    <View style={{ paddingTop: insets.top }} className="bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-      <View className="p-3 h-14 flex-row items-center justify-between">
+    <View
+      style={{ paddingTop: insets.top }}
+      className="bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800"
+    >
+      <View className="p-3 pr-0 h-14 flex-row items-center justify-between">
         <View className="flex-row items-center flex-1">
           {!hideBack && (
-            <TouchableOpacity onPress={handleBack} className="pr-4 pl-2 items-center justify-center">
-              <Ionicons name="arrow-back" className="!text-xl !text-neutral-800 dark:!text-white" />
+            <TouchableOpacity
+              onPress={handleBack}
+              className="pr-4 pl-2 items-center justify-center"
+            >
+              <Ionicons
+                name="arrow-back"
+                className="!text-xl !text-neutral-800 dark:!text-white"
+              />
             </TouchableOpacity>
           )}
           <Text
@@ -37,11 +66,11 @@ const Header = ({ title, children, rightElement, hideBack, onBack }: HeaderProps
             className="text-xl font-medium text-neutral-800 dark:text-white flex-1"
             style={{ marginLeft: hideBack ? 8 : 0 }}
           >
-            {title || children}
+            {resolvedTitle}
           </Text>
         </View>
 
-        {rightElement && <View className="pl-2">{rightElement}</View>}
+        {resolvedHeaderRight && <View>{renderHeaderRight()}</View>}
       </View>
     </View>
   );

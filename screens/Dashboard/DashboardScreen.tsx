@@ -1,39 +1,34 @@
+import Animated, { useAnimatedScrollHandler } from "react-native-reanimated";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import { useWorkspacesStore } from "@/stores/WorkspacesStore";
-import { useRoutinesStore } from "@/stores/RoutinesStore";
-
-import { Ionicons } from "@expo/vector-icons";
-
-import { useWorkoutsStore } from "@/stores/WorkoutsStore";
-
-import colors from "tailwindcss/colors";
-
-import WorkoutQuickView from "@/components/WorkoutQuickView";
-
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { format, addDays, isSameDay, startOfDay } from "date-fns";
+import { useState, useRef, memo, useCallback, useEffect } from "react";
+import { scheduleOnRN } from "react-native-worklets";
+import { Ionicons } from "@expo/vector-icons";
 import { es } from "date-fns/locale";
 
-import { useState, useRef, memo, useCallback } from "react";
-import RoutineQuickView from "@/components/RoutineQuickView";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import Animated, { useAnimatedScrollHandler, runOnJS } from "react-native-reanimated";
-
-import RestQuickView from "@/components/RestQuickView";
-import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
-import WorkoutSessionView from "../EditWorkout/components/WorkoutSessionView";
 import { useWorkoutsHistoryStore } from "@/stores/WorkoutsHistoryStore";
+import { useWorkspacesStore } from "@/stores/WorkspacesStore";
+import { useRoutinesStore } from "@/stores/RoutinesStore";
+import { useWorkoutsStore } from "@/stores/WorkoutsStore";
+
+import WorkoutQuickView from "@/components/WorkoutQuickView";
+import WorkoutRecords from "@/components/WorkoutRecords";
+import RoutineQuickView from "@/components/RoutineQuickView";
+import RestQuickView from "@/components/RestQuickView";
+
+import { SCREEN_WIDTH } from "@/constants/layout";
+import { useNavigation } from "@react-navigation/native";
+import colors from "tailwindcss/colors";
+import ThisWeek from "@/components/ThisWeek";
+import { getWeekId } from "@/screens/Weeks/WeeksScreen";
 
 const TOTAL_PAGES = 1000;
 const INITIAL_PAGE = 500;
-const DATES_DATA = Array.from({ length: TOTAL_PAGES }, (_, index) => index);
+const FLATLIST_DATA = Array.from({ length: TOTAL_PAGES }, (_, index) => index);
 
 export default function DashboardScreen({ navigation }: any) {
-  const insets = useSafeAreaInsets();
-
-  const getPersonalWorkspace = useWorkspacesStore((state) => state.getPersonalWorkspace);
-  const personalWorkspace = getPersonalWorkspace();
+  const personalWorkspace = useWorkspacesStore((s) => s.personalWorkspace);
 
   const routines = useRoutinesStore((state) => state.routines);
 
@@ -50,7 +45,7 @@ export default function DashboardScreen({ navigation }: any) {
       const offset = e.contentOffset.x;
       const index = Math.round(offset / SCREEN_WIDTH);
       if (index !== currentPage) {
-        runOnJS(setCurrentPage)(index);
+        scheduleOnRN(setCurrentPage, index);
       }
     },
   });
@@ -61,16 +56,25 @@ export default function DashboardScreen({ navigation }: any) {
       const selected = startOfDay(date);
       setBaseDate(selected);
       setCurrentPage(INITIAL_PAGE);
-      flatListRef.current?.scrollToIndex({ index: INITIAL_PAGE, animated: false });
+      flatListRef.current?.scrollToIndex({
+        index: INITIAL_PAGE,
+        animated: false,
+      });
     }
   };
 
   const jumpToNext = () => {
-    flatListRef.current?.scrollToIndex({ index: currentPage + 1, animated: true });
+    flatListRef.current?.scrollToIndex({
+      index: currentPage + 1,
+      animated: true,
+    });
   };
 
   const jumpToPrev = () => {
-    flatListRef.current?.scrollToIndex({ index: currentPage - 1, animated: true });
+    flatListRef.current?.scrollToIndex({
+      index: currentPage - 1,
+      animated: true,
+    });
   };
 
   // const jumpToToday = () => {
@@ -80,21 +84,20 @@ export default function DashboardScreen({ navigation }: any) {
   //   flatListRef.current?.scrollToIndex({ index: INITIAL_PAGE, animated: false });
   // };
 
-  if (!personalWorkspace) return null;
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: (
+        <TouchableOpacity
+          className="px-4"
+          onPress={() => navigation.navigate("personalWorkspaceSettings")}
+        >
+          <Ionicons name="settings-outline" color={colors.white} size={20} />
+        </TouchableOpacity>
+      ),
+    });
+  }, []);
 
-  const { routineId } = personalWorkspace;
-
-  const routine = routines.find((r) => r.id === routineId);
-
-  const renderItem = useCallback(
-    ({ item: index }: { item: number }) => {
-      const date = addDays(baseDate, index - INITIAL_PAGE);
-      return <DayContent date={date} routine={routine} navigation={navigation} />;
-    },
-    [baseDate, routine, navigation, SCREEN_WIDTH],
-  );
-
-
+  const routine = routines.find((r) => r.id === personalWorkspace.routineId);
 
   const today = new Date();
   const isToday = isSameDay(selectedDate, today);
@@ -102,35 +105,67 @@ export default function DashboardScreen({ navigation }: any) {
   const isTomorrow = isSameDay(selectedDate, addDays(today, 1));
 
   const getHeaderText = () => {
-    const dateFormatted = format(selectedDate, "EEE d 'de' MMM", { locale: es });
+    const dateFormatted = format(selectedDate, "EEE d 'de' MMM", {
+      locale: es,
+    });
     if (isToday) return `hoy - ${dateFormatted}`;
     if (isYesterday) return `ayer - ${dateFormatted}`;
     if (isTomorrow) return `mañana - ${dateFormatted}`;
     return dateFormatted;
   };
 
+  const renderItem = useCallback(
+    ({ item: index }: { item: number }) => {
+      const date = addDays(baseDate, index - INITIAL_PAGE);
+      return <DayContent date={date} routine={routine} />;
+    },
+    [baseDate, routine, SCREEN_WIDTH],
+  );
+
   return (
     <View className="flex-1 bg-white dark:bg-neutral-900">
       {/* Top Header */}
       <View className="flex-row items-center justify-between h-14 border-b border-neutral-100 dark:border-neutral-800">
-        <TouchableOpacity onPress={jumpToPrev} className="h-14 px-4 justify-center items-center">
-          <Ionicons name="chevron-back-outline" size={18} className="!text-neutral-800 dark:!text-white" />
+        <TouchableOpacity
+          onPress={jumpToPrev}
+          className="h-14 px-4 justify-center items-center"
+        >
+          <Ionicons
+            name="chevron-back-outline"
+            size={18}
+            className="!text-neutral-800 dark:!text-white"
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => setShowDatePicker(true)}
-          className="flex-row items-center gap-1 h-14 justify-center"
+          className="flex-row items-center gap-2.5 h-14 justify-center"
         >
-          <Text className="text-xl font-medium text-neutral-800 dark:text-white text-center">{getHeaderText()}</Text>
+          <Ionicons name="calendar-outline" size={16} color={colors.white} />
+          <Text className="text-xl font-medium text-neutral-800 dark:text-white text-center">
+            {getHeaderText()}
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={jumpToNext} className="h-14 px-4 justify-center items-center">
-          <Ionicons name="chevron-forward-outline" size={18} className="!text-neutral-800 dark:!text-white" />
+        <TouchableOpacity
+          onPress={jumpToNext}
+          className="h-14 px-4 justify-center items-center"
+        >
+          <Ionicons
+            name="chevron-forward-outline"
+            size={18}
+            className="!text-neutral-800 dark:!text-white"
+          />
         </TouchableOpacity>
       </View>
 
       {showDatePicker && (
-        <DateTimePicker value={selectedDate} mode="date" display="default" onChange={handleDatePicked} />
+        <DateTimePicker
+          value={selectedDate}
+          mode="date"
+          display="default"
+          onChange={handleDatePicked}
+        />
       )}
 
       {/* Infinite FlatList Swiper */}
@@ -140,13 +175,14 @@ export default function DashboardScreen({ navigation }: any) {
         decelerationRate="fast"
         initialScrollIndex={INITIAL_PAGE}
         onScroll={scrollHandler}
-        data={DATES_DATA}
+        data={FLATLIST_DATA}
         keyExtractor={(item) => item.toString()}
         getItemLayout={(_, index) => ({
           length: SCREEN_WIDTH,
           offset: SCREEN_WIDTH * index,
           index,
         })}
+        showsVerticalScrollIndicator={false}
         disableIntervalMomentum
         nestedScrollEnabled
         pagingEnabled
@@ -155,77 +191,103 @@ export default function DashboardScreen({ navigation }: any) {
         windowSize={5}
         initialNumToRender={3}
         maxToRenderPerBatch={3}
-        removeClippedSubviews={false} // Disable to avoid disappearing content bugs
+        removeClippedSubviews={false}
         renderItem={renderItem}
       />
     </View>
   );
 }
 
-const DayContent = memo(({ date, routine, navigation }: { date: Date; routine: any; navigation: any }) => {
+const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
   const workouts = useWorkoutsStore((s) => s.workouts);
+
+  const workoutSession = useWorkoutsHistoryStore((s) =>
+    s.getWorkoutSession(date.toISOString()),
+  );
 
   const isToday = isSameDay(date, new Date());
 
   const adjustedDayIndex = (date.getDay() + 6) % 7; // 0=Mon, 6=Sun
-  const plannedDay = routine?.days?.find((d: any) => d.dayIndex === adjustedDayIndex);
+  const weekId = getWeekId(date);
+  const currentDays = routine?.weekOverrides?.[weekId]?.days || routine?.days;
+
+  const plannedDay = currentDays?.[adjustedDayIndex];
   const plannedWorkout = workouts.find((w) => w.id === plannedDay?.workoutId);
 
-  const workoutSessions = useWorkoutsHistoryStore((s) => s.workoutSessions);
-  const workoutSession = workoutSessions.find((w) => isSameDay(w.date, date));
+  // console.log(plannedDay);
 
   return (
     <View style={{ width: SCREEN_WIDTH }} className="flex-1">
-      <ScrollView className="flex-1" contentContainerClassName="p-4 gap-4 grow">
-        {isToday && routine && <RoutineQuickView routine={routine} />}
-        {isToday && !routine && (
-          <View className="bg-neutral-100 dark:bg-neutral-800 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-700 items-center justify-center gap-4">
-            <Text className="text-neutral-500 dark:text-neutral-400 text-center text-lg font-medium">No tienes ninguna rutina creada.</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("createRoutine")} className="bg-emerald-500 py-3 px-6 rounded-xl">
-              <Text className="text-white font-bold text-base">Crear mi primera rutina</Text>
-            </TouchableOpacity>
-          </View>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="p-4 gap-4 grow"
+      >
+        {isToday && routine && <ThisWeek date={date} routine={routine} />}
+
+        {/* {isToday && <RoutineQuickView date={date} routine={routine} />} */}
+
+        {isToday && plannedDay?.isRestDay ? (
+          <RestQuickView routineId={routine.id} date={date} />
+        ) : (
+          isToday && (
+            <WorkoutQuickView
+              date={date}
+              workout={plannedWorkout}
+              isRestDay={plannedDay?.isRestDay}
+            />
+          )
         )}
 
-        {isToday && routine &&
-          (!plannedWorkout || plannedDay?.isRestDay ? (
-            <RestQuickView routineId={routine.id} date={date} />
-          ) : (
-            <WorkoutQuickView routine={routine} workout={plannedWorkout} />
-          ))}
+        <WorkoutRecords date={date} workout={plannedWorkout} />
 
-        {(!isToday || workoutSession?.status === "completed") && <WorkoutSessionView date={date} />}
+        <WorkoutNotes date={date} workoutSession={workoutSession} />
       </ScrollView>
     </View>
   );
 });
 
-// OSITO AMENAZANTE
+const WorkoutNotes = ({ date, workoutSession }: any) => {
+  const navigation = useNavigation();
 
-// <View className="justify-center items-center mt-0 pt-24 pb-8">
-//           <View className="ml-20">
-//             <Image source={threatning_bear} style={{ width: 128, height: 128 }} />
-//             <View className="items-center justify-center" style={{ position: "absolute", top: "-54%", left: "-30%" }}>
-//               <ImageBackground
-//                 source={thought_bubble}
-//                 style={{ width: 128, height: 128, justifyContent: "center", alignItems: "center" }}
-//               >
-//                 <Text className="font-extrabold text-cyan-600 text-lg leading-tight text-center bottom-2">
-//                   ¿fuiste a{"\n"}entrenar hoy?
-//                 </Text>
-//               </ImageBackground>
-//             </View>
-//           </View>
-//         </View>
+  const handleAddNotes = () => {
+    navigation.navigate("addNote", { date: date.toISOString() });
+  };
 
-//         <View className="flex-row gap-3 w-full">
-//           <TouchableOpacity className="border-4 border-green-600 rounded-xl p-4 items-center justify-center flex-row gap-3 flex-1">
-//             <Text className="text-green-600 font-black text-3xl ml-4">SI</Text>
-//             <Text className="text-3xl">😇</Text>
-//           </TouchableOpacity>
+  if (!workoutSession || !workoutSession.notes)
+    return (
+      <TouchableOpacity
+        className="rounded-2xl w-full border-1.5 border-neutral-200 dark:border-neutral-700 border-dashed h-44 items-center justify-center gap-2.5"
+        onPress={handleAddNotes}
+      >
+        <Ionicons name="text-outline" size={28} color={colors.neutral[400]} />
+        <Text className="text-neutral-400 font-semibold text-lg">
+          Agregar notas
+        </Text>
+      </TouchableOpacity>
+    );
 
-//           <TouchableOpacity className="border-4 border-red-600 rounded-xl p-4 items-center justify-center flex-row gap-3 flex-1">
-//             <Text className="text-red-600 font-black text-3xl ml-4">NO</Text>
-//             <Text className="text-3xl">🔪</Text>
-//           </TouchableOpacity>
-//         </View>
+  return (
+    <TouchableOpacity
+      onPress={handleAddNotes}
+      className="border-green-200 bg-green-950/25 dark:border-green-800 border border-solid rounded-2xl p-5 min-h-44"
+    >
+      <View className="flex-row items-center gap-1">
+        <Ionicons
+          name="document-text-outline"
+          color={colors.neutral[400]}
+          size={12}
+        />
+        <Text className="text-neutral-500 dark:text-neutral-400 font-medium">
+          Notas
+        </Text>
+      </View>
+
+      <View className="mt-4">
+        <Text className="text-neutral-800 dark:text-neutral-300">
+          {workoutSession.notes}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+};

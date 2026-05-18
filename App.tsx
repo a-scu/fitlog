@@ -104,42 +104,42 @@ export default function App() {
   }
 
   return (
-    <>
-      <GestureHandlerRootView className="flex-1">
-        <SafeAreaProvider>
-          <StatusBar style={isDark ? "light" : "dark"} />
-          <NavigationContainer
-            ref={navigationRef}
-            theme={navTheme}
-            linking={{
-              prefixes: [Linking.createURL("/"), "fitlog://"],
-              config: {
-                screens: {
-                  invite: "invite",
-                },
+
+    <GestureHandlerRootView className="flex-1">
+      <SafeAreaProvider>
+        <StatusBar style={isDark ? "light" : "dark"} />
+        <NavigationContainer
+          ref={navigationRef}
+          theme={navTheme}
+          linking={{
+            prefixes: [Linking.createURL("/"), "fitlog://"],
+            config: {
+              screens: {
+                invite: "invite",
               },
-            }}
-            onStateChange={(state) => {
-              if (state) {
-                const route = state.routes[state.index];
-                useActiveWorkoutStore.getState().setCurrentRoute(route.name);
-              }
-            }}
-            onReady={() => {
-              const route = navigationRef.current?.getCurrentRoute();
-              if (route) {
-                useActiveWorkoutStore.getState().setCurrentRoute(route.name);
-              }
-            }}
-          >
-            <BottomSheetModalProvider>
-              {!hasCompletedOnboarding ? <OnboardingStack /> : <RootStack />}
-              <Modal />
-              <AutoFinishNotification />
-            </BottomSheetModalProvider>
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </GestureHandlerRootView>
-    </>
+            },
+          }}
+          onStateChange={(state) => {
+            if (state) {
+              const route = state.routes[state.index];
+              useActiveWorkoutStore.getState().setCurrentRoute(route.name);
+            }
+          }}
+          onReady={() => {
+            const route = navigationRef.current?.getCurrentRoute();
+            if (route) {
+              useActiveWorkoutStore.getState().setCurrentRoute(route.name);
+            }
+          }}
+        >
+          <BottomSheetModalProvider>
+            {!hasCompletedOnboarding ? <OnboardingStack /> : <RootStack />}
+            <Modal />
+            <AutoFinishNotification />
+          </BottomSheetModalProvider>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+
   );
 }

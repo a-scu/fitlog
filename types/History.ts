@@ -8,8 +8,9 @@ export interface WorkoutSession {
   notes: string;
   status?: "in_progress" | "completed";
   sets: LoggedSet[];
-  templateWorkoutId?: string | null;
+  workoutId?: string | null;
   routineId?: string | null;
+  freeWorkout?: boolean;
 }
 
 export type LoggedSet = {
