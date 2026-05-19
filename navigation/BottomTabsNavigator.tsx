@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DashboardScreen from "@/screens/Dashboard/DashboardScreen";
-import { capitalize } from "@/lib/utils";
+import { capitalize } from "@/utils/text";
 import SettingsScreen from "@/screens/Settings/SettingsScreen";
 import Header from "@/components/Header";
 import ProgramsScreen from "@/screens/ProgramsScreen";

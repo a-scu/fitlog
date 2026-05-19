@@ -15,7 +15,7 @@ import colors from "tailwindcss/colors";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import EXERCISES from "@/assets/data/exercises.json";
 
-import { capitalize } from "@/lib/utils";
+import { capitalize } from "@/utils/text";
 import RegisterSetModal from "@/components/modals/RegisterSetModal";
 import { useModalStore } from "@/stores/ModalStore";
 import { isSameDay, startOfDay } from "date-fns";

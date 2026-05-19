@@ -12,9 +12,7 @@ import { useActiveWorkoutStore } from "@/stores/ActiveWorkoutStore";
 import { Step, Workout } from "@/types/Workout";
 import { Routine } from "@/types/Routine";
 
-import { getWorkoutMuscles } from "@/utils/routineMuscles";
-import { getSortedMusclesWithImages } from "@/utils/muscleUtils";
-import EXERCISES from "@/constants/Exercises";
+import { getWorkoutMuscles, getSortedMusclesWithImages } from "@/utils/muscles";
 import { WorkoutSession } from "@/types/History";
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 
@@ -48,7 +46,7 @@ const RegularView = ({
 }: {
   date: Date;
   workout: Workout;
-  isRestDay: boolean;
+  isRestDay: boolean | undefined;
 }) => {
   const navigation = useNavigation<any>();
 
@@ -161,7 +159,13 @@ const RegularView = ({
   );
 };
 
-const EmptyView = ({ date, isRestDay }: { date: Date; isRestDay: boolean }) => {
+const EmptyView = ({
+  date,
+  isRestDay,
+}: {
+  date: Date;
+  isRestDay: boolean | undefined;
+}) => {
   const navigation = useNavigation<any>();
 
   const activeWorkoutId = useActiveWorkoutStore((s) => s.activeWorkoutId);

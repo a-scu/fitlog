@@ -45,7 +45,7 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
-import { clamp, FAST_SPRING } from "@/lib/dragAndDropUtils";
+import { clamp, FAST_SPRING } from "@/utils/dragAndDrop";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -128,7 +128,8 @@ export function ReorderableList<T>({
     () =>
       items.map((item) => ({
         key: keyExtractor(item),
-        height: typeof itemHeight === "function" ? itemHeight(item) : itemHeight,
+        height:
+          typeof itemHeight === "function" ? itemHeight(item) : itemHeight,
         gap,
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -297,7 +298,8 @@ function ReorderableItem({
     })
     .onUpdate((e) => {
       const meta = metaShared.value;
-      const totalListHeight = meta.reduce((s, m) => s + m.height + m.gap, 0) - (meta[0]?.gap ?? 0);
+      const totalListHeight =
+        meta.reduce((s, m) => s + m.height + m.gap, 0) - (meta[0]?.gap ?? 0);
       const maxTop = totalListHeight - height;
 
       const newTop = clamp(dragStartY.value + e.translationY, 0, maxTop);
@@ -322,7 +324,11 @@ function ReorderableItem({
 
       const currentOffset = offsets.value[id];
       if (targetOffset !== currentOffset) {
-        offsets.value = swapByOffset(offsets.value, currentOffset, targetOffset);
+        offsets.value = swapByOffset(
+          offsets.value,
+          currentOffset,
+          targetOffset,
+        );
       }
     })
     .onEnd(() => {
@@ -342,7 +348,9 @@ function ReorderableItem({
     shadowRadius: 12,
     shadowColor: "#000",
     elevation: isDragging.value ? 8 : 0,
-    transform: [{ scale: withSpring(isDragging.value ? 1.025 : 1, FAST_SPRING) }],
+    transform: [
+      { scale: withSpring(isDragging.value ? 1.025 : 1, FAST_SPRING) },
+    ],
   }));
 
   return (

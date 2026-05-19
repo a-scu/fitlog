@@ -12,12 +12,15 @@ import PartialReps from "./PartialReps";
 import EXERCISES from "@/assets/data/exercises.json";
 import { SET_TYPES } from "@/constants/SetTypes";
 
-import { capitalize } from "@/lib/utils";
+import { capitalize } from "@/utils/text";
 import DropSets from "./DropSets";
 import Notes from "./Notes";
 
 /* Formats a Metric field for display */
-function formatMetric(metric: { value: string; min: string; max: string; isRange: boolean }, suffix = "") {
+function formatMetric(
+  metric: { value: string; min: string; max: string; isRange: boolean },
+  suffix = "",
+) {
   if (metric.isRange) {
     const minVal = metric.min || "-";
     const maxVal = metric.max || "-";
@@ -36,7 +39,9 @@ export default function WorkoutSteps({ workout }: { workout: Workout }) {
           return <Rest key={step.id} data={step} />;
         }
 
-        const exercise = EXERCISES.find((e) => e.exerciseId === step.exerciseId);
+        const exercise = EXERCISES.find(
+          (e) => e.exerciseId === step.exerciseId,
+        );
         const setType = SET_TYPES.find((st) => st.id === step.type);
 
         const hasPartialReps = step.partialReps.isRange
@@ -44,27 +49,39 @@ export default function WorkoutSteps({ workout }: { workout: Workout }) {
           : step.partialReps.value;
 
         return (
-          <View key={step.id} className="bg-neutral-200 dark:bg-neutral-800 rounded-xl p-3 mb-2">
+          <View
+            key={step.id}
+            className="bg-neutral-200 dark:bg-neutral-800 rounded-xl p-3 mb-2"
+          >
             {/* Set Header */}
             <View className="flex-row gap-2 mb-2">
               {/* Gif */}
               <View className="rounded-md size-12 items-center overflow-hidden">
-                <Image source={{ uri: exercise?.gifUrl }} style={{ width: "100%", height: "100%" }} />
+                <Image
+                  source={{ uri: exercise?.gifUrl }}
+                  style={{ width: "100%", height: "100%" }}
+                />
               </View>
 
               {/* Serie Number | Set Type | Exercise Name */}
               <View className="justify-center">
                 <View className="flex-row gap-2 items-center">
                   {/* Serie Number */}
-                  <Text className="font-medium text-neutral-600 dark:text-neutral-400">Serie {index + 1}</Text>
+                  <Text className="font-medium text-neutral-600 dark:text-neutral-400">
+                    Serie {index + 1}
+                  </Text>
                   {/* Set Type */}
-                  <Text className={`py-px text-xs px-1.5 self-start rounded ${setType?.selectedColor}`}>
+                  <Text
+                    className={`py-px text-xs px-1.5 self-start rounded ${setType?.selectedColor}`}
+                  >
                     {setType?.label}
                   </Text>
                 </View>
 
                 {/* Exercise Name */}
-                <Text className="text-lg font-semibold dark:text-white">{capitalize(exercise?.name)}</Text>
+                <Text className="text-lg font-semibold dark:text-white">
+                  {capitalize(exercise?.name)}
+                </Text>
               </View>
             </View>
 
@@ -79,12 +96,16 @@ export default function WorkoutSteps({ workout }: { workout: Workout }) {
 
               {/* Reps */}
               <View className="bg-white/50 dark:bg-neutral-700 rounded-lg p-2 flex-1">
-                <Text className="text-center text-sm font-medium dark:text-white">{formatMetric(step.reps, " Reps")}</Text>
+                <Text className="text-center text-sm font-medium dark:text-white">
+                  {formatMetric(step.reps, " Reps")}
+                </Text>
               </View>
 
               {/* RIR */}
               <View className="bg-white/50 dark:bg-neutral-700 rounded-lg p-2 flex-1">
-                <Text className="text-center text-sm font-medium dark:text-white">RIR {formatMetric(step.rir)}</Text>
+                <Text className="text-center text-sm font-medium dark:text-white">
+                  RIR {formatMetric(step.rir)}
+                </Text>
               </View>
             </View>
 

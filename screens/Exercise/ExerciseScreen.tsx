@@ -1,4 +1,4 @@
-import { capitalize } from "@/lib/utils";
+import { capitalize } from "@/utils/text";
 import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,7 +15,10 @@ interface ExerciseScreenProps {
   route: any;
 }
 
-export default function ExerciseScreen({ navigation, route }: ExerciseScreenProps) {
+export default function ExerciseScreen({
+  navigation,
+  route,
+}: ExerciseScreenProps) {
   const exercise = route.params?.exercise;
 
   const { t } = useTranslation();
@@ -28,15 +31,21 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
     navigation.goBack();
   };
 
-  const targetMuscle = exercise.targetMuscles && exercise.targetMuscles.length > 0 ? exercise.targetMuscles[0] : "";
+  const targetMuscle =
+    exercise.targetMuscles && exercise.targetMuscles.length > 0
+      ? exercise.targetMuscles[0]
+      : "";
 
   const exerciseKey = exercise?.name?.toLowerCase() ?? "";
   const translatedExercise = t(`exercises.${exerciseKey}`, {
     returnObjects: true,
     defaultValue: {},
   }) as ExerciseTranslations;
-  const displayName = translatedExercise?.name ?? (exercise?.name ? capitalize(exercise.name) : "");
-  const instructions = translatedExercise?.instructions ?? exercise?.instructions ?? [];
+  const displayName =
+    translatedExercise?.name ??
+    (exercise?.name ? capitalize(exercise.name) : "");
+  const instructions =
+    translatedExercise?.instructions ?? exercise?.instructions ?? [];
 
   useEffect(() => {
     if (displayName) {
@@ -53,9 +62,17 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
   }
 
   return (
-    <ScrollView className="flex-1 bg-white dark:bg-neutral-900" contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
-      <TouchableOpacity onPress={addToRoutine} className="bg-red-400 dark:bg-red-500 m-3 p-3 rounded-lg">
-        <Text className="text-white text-center font-bold">Agregar a la rutina</Text>
+    <ScrollView
+      className="flex-1 bg-white dark:bg-neutral-900"
+      contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+    >
+      <TouchableOpacity
+        onPress={addToRoutine}
+        className="bg-red-400 dark:bg-red-500 m-3 p-3 rounded-lg"
+      >
+        <Text className="text-white text-center font-bold">
+          Agregar a la rutina
+        </Text>
       </TouchableOpacity>
 
       {/* Exercise Info */}
@@ -65,23 +82,32 @@ export default function ExerciseScreen({ navigation, route }: ExerciseScreenProp
 
         <View className="flex-row gap-4 flex-1">
           <View className="flex-[1.25]">
-            <Text className="mb-0.5 text-sm font-semibold text-neutral-600 dark:text-neutral-400">Musculos afectados</Text>
+            <Text className="mb-0.5 text-sm font-semibold text-neutral-600 dark:text-neutral-400">
+              Musculos afectados
+            </Text>
 
             <Text>
               {/* Target Muscle */}
-              <Text className="text-xs font-medium text-red-400 dark:text-red-500">{capitalize(targetMuscle)},</Text>
+              <Text className="text-xs font-medium text-red-400 dark:text-red-500">
+                {capitalize(targetMuscle)},
+              </Text>
               {/* Secondary Muscles */}
               <Text className="text-neutral-400 dark:text-neutral-500 text-xs">
                 {exercise.secondaryMuscles &&
                   exercise.secondaryMuscles.length > 0 &&
-                  " " + exercise.secondaryMuscles.map((muscle: string) => capitalize(muscle)).join(", ")}
+                  " " +
+                    exercise.secondaryMuscles
+                      .map((muscle: string) => capitalize(muscle))
+                      .join(", ")}
               </Text>
             </Text>
           </View>
 
           {/* Equipment */}
           <View className="flex-1">
-            <Text className="mb-0.5 text-sm font-semibold text-neutral-600 dark:text-neutral-400">{t("screens.exercise.equipment")}</Text>
+            <Text className="mb-0.5 text-sm font-semibold text-neutral-600 dark:text-neutral-400">
+              {t("screens.exercise.equipment")}
+            </Text>
             <Text className="text-xs text-neutral-400 dark:text-neutral-500">
               {exercise.equipments && exercise.equipments.length > 0
                 ? capitalize(exercise.equipments.join(", "))

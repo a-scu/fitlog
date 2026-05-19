@@ -1,5 +1,11 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Text, TextInput, View, Keyboard, TouchableOpacity } from "react-native";
+import {
+  Text,
+  TextInput,
+  View,
+  Keyboard,
+  TouchableOpacity,
+} from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { useMemo, useRef, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,6 +21,8 @@ import EXERCISES from "@/assets/data/exercises.json";
 import { useWorkoutsHistoryStore } from "@/stores/WorkoutsHistoryStore";
 import { isSameDay } from "date-fns";
 import { randomId } from "@/utils/random";
+import colors from "tailwindcss/colors";
+import { useThemeStore } from "@/stores/ThemeStore";
 
 export default function ExercisesScreen({ navigation, route }: any) {
   const workoutSessionDate = route?.params?.workoutSessionDate;
@@ -24,14 +32,18 @@ export default function ExercisesScreen({ navigation, route }: any) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const workoutSessions = useWorkoutsHistoryStore((s) => s.workoutSessions);
-  const updateWorkoutSessionField = useWorkoutsHistoryStore((state) => state.updateWorkoutSessionField);
+  const updateWorkoutSessionField = useWorkoutsHistoryStore(
+    (state) => state.updateWorkoutSessionField,
+  );
 
   const addSelectedToRoutine = () => {
     selectedIds.forEach((id) => addSet(id, {}));
     navigation.goBack();
 
     if (workoutSessionDate) {
-      const workoutSession = workoutSessions.find((ws) => isSameDay(ws.date, workoutSessionDate));
+      const workoutSession = workoutSessions.find((ws) =>
+        isSameDay(ws.date, workoutSessionDate),
+      );
       const currentSets = workoutSession?.sets || [];
 
       const newSets = selectedIds.map((id) => ({
@@ -46,7 +58,10 @@ export default function ExercisesScreen({ navigation, route }: any) {
         partialReps: "",
       }));
 
-      updateWorkoutSessionField(workoutSessionDate, "sets", [...currentSets, ...newSets] as any);
+      updateWorkoutSessionField(workoutSessionDate, "sets", [
+        ...currentSets,
+        ...newSets,
+      ] as any);
     }
   };
 
@@ -60,10 +75,18 @@ export default function ExercisesScreen({ navigation, route }: any) {
       </View>
 
       <View className="h-14 pb-3 flex-row items-center">
-        <TouchableOpacity onPress={() => navigation.goBack()} className="px-4 items-center justify-center">
-          <Ionicons name="arrow-back" className="!text-xl left-px !text-neutral-800 dark:!text-white" />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          className="px-4 items-center justify-center"
+        >
+          <Ionicons
+            name="arrow-back"
+            className="!text-xl left-px !text-neutral-800 dark:!text-white"
+          />
         </TouchableOpacity>
-        <Text className="text-xl font-medium text-neutral-800 dark:text-white">Agregar ejercicios</Text>
+        <Text className="text-xl font-medium text-neutral-800 dark:text-white">
+          Agregar ejercicios
+        </Text>
       </View>
 
       <ExerciseList
@@ -75,8 +98,13 @@ export default function ExercisesScreen({ navigation, route }: any) {
 
       {selectedIds.length > 0 && (
         <View className="absolute bottom-4 w-full px-4">
-          <TouchableOpacity onPress={addSelectedToRoutine} className="bg-black dark:bg-white p-5 rounded-lg shadow-lg">
-            <Text className="text-white dark:text-black text-center font-medium text-lg">Agregar {selectedIds.length} ejercicios</Text>
+          <TouchableOpacity
+            onPress={addSelectedToRoutine}
+            className="bg-black dark:bg-white p-5 rounded-lg shadow-lg"
+          >
+            <Text className="text-white dark:text-black text-center font-medium text-lg">
+              Agregar {selectedIds.length} ejercicios
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -91,9 +119,15 @@ interface ExerciseListProps {
   workoutSessionDate?: string;
 }
 
-const ExerciseList = ({ workoutSessionDate, search, selectedIds, setSelectedIds }: ExerciseListProps) => {
+const ExerciseList = ({
+  workoutSessionDate,
+  search,
+  selectedIds,
+  setSelectedIds,
+}: ExerciseListProps) => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const isDarkTheme = useThemeStore((state) => state.mode === "dark");
 
   const setField = useFilters((state) => state.setField);
   const showFilters = useFilters((state) => state.showFilters);
@@ -127,12 +161,18 @@ const ExerciseList = ({ workoutSessionDate, search, selectedIds, setSelectedIds 
       if (search) {
         const searchWords = search.toLowerCase().trim().split(/\s+/);
         const exerciseName = exercise.name.toLowerCase();
-        const matchesSearch = searchWords.every((word) => exerciseName.includes(word));
+        const matchesSearch = searchWords.every((word) =>
+          exerciseName.includes(word),
+        );
         if (!matchesSearch) return false;
       }
       if (bodyParts && !exercise.bodyParts.includes(bodyParts)) return false;
       if (equipments && !exercise.equipments.includes(equipments)) return false;
-      if (muscles && !exercise.targetMuscles.includes(muscles) && !exercise.secondaryMuscles.includes(muscles))
+      if (
+        muscles &&
+        !exercise.targetMuscles.includes(muscles) &&
+        !exercise.secondaryMuscles.includes(muscles)
+      )
         return false;
 
       return true;
@@ -141,7 +181,9 @@ const ExerciseList = ({ workoutSessionDate, search, selectedIds, setSelectedIds 
 
   const onToggle = (item: any) => {
     setSelectedIds((prev: any) =>
-      prev.includes(item.exerciseId) ? prev.filter((i: any) => i !== item.exerciseId) : [...prev, item.exerciseId],
+      prev.includes(item.exerciseId)
+        ? prev.filter((i: any) => i !== item.exerciseId)
+        : [...prev, item.exerciseId],
     );
   };
 
@@ -178,8 +220,15 @@ const ExerciseList = ({ workoutSessionDate, search, selectedIds, setSelectedIds 
                 <TextInput
                   ref={inputRef}
                   style={{ includeFontPadding: false }}
-                  placeholder={t("screens.exercises.search") + " " + t("screens.tabs.exercises").toLowerCase()}
-                  className="flex-1 p-4 text-base text-neutral-800 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+                  placeholder={
+                    t("screens.exercises.search") +
+                    " " +
+                    t("screens.tabs.exercises").toLowerCase()
+                  }
+                  className="flex-1 p-4 text-base text-neutral-800 dark:text-white"
+                  placeholderTextColor={
+                    isDarkTheme ? colors.neutral[500] : colors.neutral[400]
+                  }
                   value={search}
                   onChangeText={(text) => setField("search", text)}
                   cursorColor={"#a3a3a380"}
@@ -187,7 +236,11 @@ const ExerciseList = ({ workoutSessionDate, search, selectedIds, setSelectedIds 
                   selectionHandleColor={"#a3a3a380"}
                   selectTextOnFocus
                 />
-                <Ionicons pointerEvents="none" name="search-outline" className="!text-xl !text-neutral-400 dark:!text-neutral-500 right-3" />
+                <Ionicons
+                  pointerEvents="none"
+                  name="search-outline"
+                  className="!text-xl !text-neutral-400 dark:!text-neutral-500 right-3"
+                />
               </View>
 
               {/* <TouchableOpacity
@@ -211,7 +264,9 @@ const ExerciseList = ({ workoutSessionDate, search, selectedIds, setSelectedIds 
         initialNumToRender={15}
         ListEmptyComponent={() => (
           <View className="items-center py-12">
-            <Text className="text-center max-w-xs text-neutral-400 dark:text-neutral-500">{t("screens.exercises.noExercisesFound")}</Text>
+            <Text className="text-center max-w-xs text-neutral-400 dark:text-neutral-500">
+              {t("screens.exercises.noExercisesFound")}
+            </Text>
           </View>
         )}
       />

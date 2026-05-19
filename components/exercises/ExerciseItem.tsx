@@ -4,8 +4,11 @@ import { Pressable, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
-import { capitalize } from "@/lib/utils";
-import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import { capitalize } from "@/utils/text";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import ExerciseGif from "../ExerciseGif";
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
@@ -47,17 +50,24 @@ const ExerciseItem = ({
       </View>
 
       <View className="flex flex-col flex-1 py-3">
-        <Text className="mb-1 text-neutral-800 dark:text-white text-sm font-medium">{capitalize(name)}</Text>
+        <Text className="mb-1 text-neutral-800 dark:text-white text-sm font-medium">
+          {capitalize(name)}
+        </Text>
 
         <View className="flex flex-row flex-wrap items-center gap-1 mb-1">
           {targetMuscles.map((muscle: string) => (
-            <Text key={muscle} className="text-xs border border-red-200 dark:border-red-800 px-1 py-px rounded text-red-400 dark:text-red-500">
+            <Text
+              key={muscle}
+              className="text-xs border border-red-200 dark:border-red-800 px-1 py-px rounded text-red-400 dark:text-red-500"
+            >
               {capitalize(muscle)}
             </Text>
           ))}
         </View>
 
-        <Text className="self-start text-xs text-neutral-400 dark:text-neutral-500">{capitalize(equipments.join(", "))}</Text>
+        <Text className="self-start text-xs text-neutral-400 dark:text-neutral-500">
+          {capitalize(equipments.join(", "))}
+        </Text>
       </View>
     </Pressable>
   );

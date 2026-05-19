@@ -50,7 +50,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { dayNames } from "@/constants/DayNames";
 import { RoutineDay } from "@/types/Routine";
 import { ReorderableList } from "@/components/ReorderableList";
-import { clamp, objectMove, FAST_SPRING } from "@/lib/dragAndDropUtils";
+import { clamp, objectMove, FAST_SPRING } from "@/utils/dragAndDrop";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

@@ -96,3 +96,30 @@ export const getSortedMusclesWithImages = (
   // Sort by priority descending
   return displayData.sort((a, b) => b.priority - a.priority);
 };
+
+import EXERCISES from "@/constants/Exercises";
+import { Set } from "@/types/Workout";
+
+export const getWorkoutMuscles = (sets: Set[]) => {
+  const targetMuscles = new Set<string>();
+  const secondaryMuscles = new Set<string>();
+
+  sets.forEach((set) => {
+    const exerciseId = set.exerciseId;
+    const exercise = EXERCISES.find((e) => e.exerciseId === exerciseId);
+    if (exercise) {
+      exercise.targetMuscles.forEach((m) => targetMuscles.add(m));
+      exercise.secondaryMuscles.forEach((m) => secondaryMuscles.add(m));
+    }
+  });
+
+  // Remove muscles that are already in target from secondary
+  const filteredSecondary = Array.from(secondaryMuscles).filter(
+    (m) => !targetMuscles.has(m),
+  );
+
+  return {
+    target: Array.from(targetMuscles),
+    secondary: filteredSecondary,
+  };
+};

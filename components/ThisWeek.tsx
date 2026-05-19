@@ -6,11 +6,7 @@ import colors from "tailwindcss/colors";
 import { Routine, RoutineDay } from "@/types/Routine";
 import { dayNames } from "@/constants/DayNames";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
-import { getWorkoutMuscles } from "@/utils/routineMuscles";
-import {
-  getMuscleImage,
-  getSortedMusclesWithImages,
-} from "@/utils/muscleUtils";
+import { getMuscleImage, getWorkoutMuscles } from "@/utils/muscles";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 
