@@ -47,14 +47,15 @@ import {
 import { scheduleOnRN } from "react-native-worklets";
 import colors from "tailwindcss/colors";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { dayNames } from "@/constants/DayNames";
+import { getLocalizedDayShort } from "@/utils/date";
+import { useTranslation } from "react-i18next";
 import { RoutineDay } from "@/types/Routine";
 import { ReorderableList } from "@/components/ReorderableList";
 import { clamp, objectMove, FAST_SPRING } from "@/utils/dragAndDrop";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const TOTAL_PAGES = 1;
+const TOTAL_PAGES = 200;
 const INITIAL_PAGE = 0;
 const FLATLIST_DATA = Array.from({ length: TOTAL_PAGES }, (_, i) => i);
 
@@ -68,7 +69,6 @@ const ROW_STEP = ROW_HEIGHT + ROW_GAP;
 const NUM_DAYS = 7;
 
 // Day abbreviations, Mon→Sun
-const DAY_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
 
@@ -264,6 +264,7 @@ export default function WeeksScreen({ navigation, route }: any) {
 // ─── DayContent (one page per week) ───────────────────────────────────────────
 
 const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
+  const { t } = useTranslation();
   const weekId = getWeekId(date);
 
   const updateWeekOverride = useRoutinesStore((s) => s.updateWeekOverride);
@@ -314,9 +315,24 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
   const handleReorder = useCallback(
     (reordered: RoutineDay[]) => {
       setAssignments(reordered);
-      updateWeekOverride(routine.id, weekId, reordered);
+      const isIdentical =
+        reordered.length === routine.days.length &&
+        reordered.every((day, idx) => {
+          const originalDay = routine.days[idx];
+          return (
+            day.dayIndex === originalDay.dayIndex &&
+            day.workoutId === originalDay.workoutId &&
+            day.isRestDay === originalDay.isRestDay
+          );
+        });
+
+      if (isIdentical) {
+        discardWeekOverride(routine.id, weekId);
+      } else {
+        updateWeekOverride(routine.id, weekId, reordered);
+      }
     },
-    [routine.id, weekId, updateWeekOverride],
+    [routine.id, weekId, routine.days, updateWeekOverride, discardWeekOverride],
   );
 
   const renderLeftColumn = useCallback(
@@ -329,7 +345,7 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
           position: "relative",
         }}
       >
-        {DAY_LABELS.map((label, index) => (
+        {Array.from({ length: NUM_DAYS }).map((_, index) => (
           <View
             key={index}
             style={{
@@ -343,13 +359,13 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
             }}
           >
             <Text className="text-neutral-400 dark:text-neutral-500 font-bold text-sm">
-              {label}
+              {getLocalizedDayShort(index, t)}
             </Text>
           </View>
         ))}
       </View>
     ),
-    [],
+    [t],
   );
 
   return (

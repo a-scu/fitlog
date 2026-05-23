@@ -10,5 +10,28 @@
       "back": "Back",
       "waist": "Waist"
     }
+  },
+  "screens": {
+    "settings": {
+      "general": "General",
+      "language": "Language",
+      "selectLanguage": "Select Language"
+    }
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "monday_short": "M",
+    "tuesday_short": "T",
+    "wednesday_short": "W",
+    "thursday_short": "T",
+    "friday_short": "F",
+    "saturday_short": "S",
+    "sunday_short": "S"
   }
 }

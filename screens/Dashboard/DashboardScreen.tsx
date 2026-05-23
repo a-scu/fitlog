@@ -12,15 +12,14 @@ import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { useRoutinesStore } from "@/stores/RoutinesStore";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 
-import WorkoutQuickView from "@/components/WorkoutQuickView";
+import WorkoutOverview from "@/components/WorkoutOverview";
 import WorkoutRecords from "@/components/WorkoutRecords";
 import RoutineQuickView from "@/components/RoutineQuickView";
-import RestQuickView from "@/components/RestQuickView";
 
 import { SCREEN_WIDTH } from "@/constants/layout";
 import { useNavigation } from "@react-navigation/native";
 import colors from "tailwindcss/colors";
-import ThisWeek from "@/components/ThisWeek";
+import WeekOverview from "@/components/WeekOverview";
 import { getWeekId } from "@/screens/Weeks/WeeksScreen";
 
 const TOTAL_PAGES = 1000;
@@ -214,6 +213,12 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
   const plannedDay = currentDays?.[adjustedDayIndex];
   const plannedWorkout = workouts.find((w) => w.id === plannedDay?.workoutId);
 
+  const validWorkoutSession =
+    workoutSession &&
+    (workoutSession?.sets?.length > 0 || workoutSession.status === "completed");
+
+  const showWorkoutRecords = !plannedDay?.isRestDay || validWorkoutSession;
+
   // console.log(plannedDay);
 
   return (
@@ -223,23 +228,21 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="p-4 gap-4 grow"
       >
-        {isToday && routine && <ThisWeek date={date} routine={routine} />}
+        {isToday && routine && <WeekOverview date={date} routine={routine} />}
 
         {/* {isToday && <RoutineQuickView date={date} routine={routine} />} */}
 
-        {isToday && plannedDay?.isRestDay ? (
-          <RestQuickView routineId={routine.id} date={date} />
-        ) : (
-          isToday && (
-            <WorkoutQuickView
-              date={date}
-              workout={plannedWorkout}
-              isRestDay={plannedDay?.isRestDay}
-            />
-          )
+        {isToday && (
+          <WorkoutOverview
+            date={date}
+            workout={plannedWorkout}
+            isRestDay={plannedDay?.isRestDay}
+          />
         )}
 
-        <WorkoutRecords date={date} workout={plannedWorkout} />
+        {showWorkoutRecords && (
+          <WorkoutRecords date={date} workout={plannedWorkout} />
+        )}
 
         <WorkoutNotes date={date} workoutSession={workoutSession} />
       </ScrollView>
@@ -249,6 +252,7 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
 
 const WorkoutNotes = ({ date, workoutSession }: any) => {
   const navigation = useNavigation();
+  const [textHeight, setTextHeight] = useState(0);
 
   const handleAddNotes = () => {
     navigation.navigate("addNote", { date: date.toISOString() });
@@ -257,34 +261,74 @@ const WorkoutNotes = ({ date, workoutSession }: any) => {
   if (!workoutSession || !workoutSession.notes)
     return (
       <TouchableOpacity
-        className="rounded-2xl w-full border-1.5 border-neutral-200 dark:border-neutral-700 border-dashed h-44 items-center justify-center gap-2.5"
+        className="rounded-2xl w-full border-1.5 border-neutral-200 dark:border-neutral-700 border-dashed h-44 items-center justify-center"
         onPress={handleAddNotes}
       >
         <Ionicons name="text-outline" size={28} color={colors.neutral[400]} />
-        <Text className="text-neutral-400 font-semibold text-lg">
+        <Text className="text-neutral-400 font-medium text-lg">
           Agregar notas
         </Text>
       </TouchableOpacity>
     );
 
+  const LINE_HEIGHT = 32;
+  const PADDING_TOP = 10;
+  const PADDING_BOTTOM = 24;
+  const LINE_OFFSET = 23; // Fine-tune this offset to align text perfectly on the line
+  const MIN_LINES = 5;
+
+  const textLines = textHeight > 0 ? Math.round(textHeight / LINE_HEIGHT) : 1;
+  const displayLines = Math.max(MIN_LINES, textLines);
+  const containerHeight =
+    displayLines * LINE_HEIGHT + PADDING_TOP + PADDING_BOTTOM;
+
   return (
     <TouchableOpacity
       onPress={handleAddNotes}
-      className="border-green-200 bg-green-950/25 dark:border-green-800 border border-solid rounded-2xl p-5 min-h-44"
+      activeOpacity={0.85}
+      style={{ height: containerHeight }}
+      className="border-green-300 bg-[#FFFDF7] dark:bg-[#18181C] dark:border-sky-900 border-1.5 border-solid rounded-2xl shadow-sm overflow-hidden"
     >
-      <View className="flex-row items-center gap-1">
-        <Ionicons
-          name="document-text-outline"
-          color={colors.neutral[400]}
-          size={12}
-        />
-        <Text className="text-neutral-500 dark:text-neutral-400 font-medium">
-          Notas
-        </Text>
-      </View>
+      <View
+        style={{
+          flex: 1,
+          paddingTop: PADDING_TOP,
+          paddingBottom: PADDING_BOTTOM,
+        }}
+        className="relative"
+      >
+        {/* Lined paper background horizontal lines */}
+        <View className="absolute inset-0">
+          {Array.from({ length: displayLines }).map((_, i) => (
+            <View
+              key={i}
+              style={{
+                position: "absolute",
+                top: i * LINE_HEIGHT + PADDING_TOP + LINE_OFFSET,
+                left: 0,
+                right: 0,
+                height: 1,
+              }}
+              className="bg-sky-100 dark:bg-sky-950"
+            />
+          ))}
+        </View>
 
-      <View className="mt-4">
-        <Text className="text-neutral-800 dark:text-neutral-300">
+        {/* Note Text */}
+        <Text
+          allowFontScaling={false}
+          onLayout={(e) => {
+            setTextHeight(e.nativeEvent.layout.height);
+          }}
+          style={{
+            fontSize: 12,
+            lineHeight: LINE_HEIGHT,
+            paddingLeft: 12,
+            paddingRight: 12,
+            includeFontPadding: false,
+          }}
+          className="text-start text-neutral-800 dark:text-neutral-300 font-normal"
+        >
           {workoutSession.notes}
         </Text>
       </View>

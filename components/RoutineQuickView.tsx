@@ -5,18 +5,18 @@ import colors from "tailwindcss/colors";
 
 import { Routine } from "@/types/Routine";
 
-import { dayNames } from "@/constants/DayNames";
+import { getLocalizedDayShort } from "@/utils/date";
+import { useTranslation } from "react-i18next";
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { useModalStore } from "@/stores/ModalStore";
 import { SelectRoutineModal } from "./modals/SelectRoutineModal";
 
 export default function RoutineQuickView({
-  date,
   routine,
 }: {
-  date: Date;
   routine: Routine;
 }) {
+  const { t } = useTranslation();
   const navigation = useNavigation();
 
   // No hay rutina
@@ -102,7 +102,7 @@ export default function RoutineQuickView({
             key={day.dayIndex}
             className={`${day.isRestDay ? "text-neutral-400" : "text-green-500"}`}
           >
-            {dayNames[day.dayIndex].slice(0, 1).toUpperCase()}
+            {getLocalizedDayShort(day.dayIndex, t)}
           </Text>
         ))}
       </View>

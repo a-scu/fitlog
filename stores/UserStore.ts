@@ -19,9 +19,12 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 interface UserState {
   user: User | null;
   loading: boolean;
+  isInitialized: boolean;
   setUser: (user: User | null) => void;
   signInWithGoogle: () => Promise<{ isNewUser: boolean }>;
   signInWithApple: () => Promise<{ isNewUser: boolean }>;
+  signInWithPhoneNumber: (phoneNumber: string) => Promise<any>;
+  confirmPhoneNumberCode: (confirmation: any, code: string) => Promise<{ isNewUser: boolean }>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
@@ -31,6 +34,7 @@ interface UserState {
 export const useUserStore = create<UserState>((set, get) => ({
   user: null,
   loading: false,
+  isInitialized: false,
 
   setUser: (user) => set({ user }),
 
@@ -181,6 +185,71 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
   },
 
+  signInWithPhoneNumber: async (phoneNumber: string) => {
+    try {
+      set({ loading: true });
+      const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+      return confirmation;
+    } catch (error) {
+      console.error("Phone Sign-In Error:", error);
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  confirmPhoneNumberCode: async (confirmation: any, code: string) => {
+    try {
+      set({ loading: true });
+      const userCredential = await confirmation.confirm(code);
+      if (!userCredential) {
+        throw new Error("No user credential returned");
+      }
+
+      const firebaseUser = userCredential.user;
+
+      const db = getFirestore();
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data();
+
+      const hasUsername =
+        userData?.username && userData.username.trim().length > 0;
+      const isNewUser = !userSnap.exists() || !hasUsername;
+
+      console.log("[UserStore] confirmPhoneNumberCode debug:", {
+        uid: firebaseUser.uid,
+        exists: userSnap.exists(),
+        hasUsername,
+        isNewUser,
+        username: userData?.username,
+      });
+
+      const user: User = userSnap.exists()
+        ? (userData as User)
+        : {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || null,
+            displayName: firebaseUser.displayName || null,
+            photoURL: firebaseUser.photoURL || null,
+            role: "athlete",
+            createdAt: Date.now(),
+          };
+
+      if (isNewUser) {
+        await setDoc(userRef, user);
+      }
+
+      set({ user });
+      return { isNewUser };
+    } catch (error) {
+      console.error("Confirm Phone Code Error:", error);
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
   signOut: async () => {
     try {
       set({ loading: true });
@@ -282,7 +351,7 @@ export const useUserStore = create<UserState>((set, get) => ({
               "[UserStore] initialize: found Firestore data:",
               userData,
             );
-            set({ user: userData as User });
+            set({ user: userData as User, isInitialized: true });
           } else {
             // Fallback to auth data if Firestore doc doesn't exist
             const fallbackUser: User = {
@@ -297,7 +366,7 @@ export const useUserStore = create<UserState>((set, get) => ({
               "[UserStore] initialize: using fallback data:",
               fallbackUser,
             );
-            set({ user: fallbackUser });
+            set({ user: fallbackUser, isInitialized: true });
           }
         } catch (error) {
           console.error("[UserStore] initialize error:", error);
@@ -311,13 +380,14 @@ export const useUserStore = create<UserState>((set, get) => ({
               role: "athlete",
               createdAt: Date.now(),
             },
+            isInitialized: true,
           });
         }
       } else {
         console.log(
           "[UserStore] initialize: no firebaseUser, setting user to null",
         );
-        set({ user: null });
+        set({ user: null, isInitialized: true });
       }
     });
     return unsubscribe;

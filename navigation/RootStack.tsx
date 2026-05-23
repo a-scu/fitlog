@@ -24,7 +24,8 @@ import ActiveWorkoutBubble from "@/components/ActiveWorkoutBubble";
 import InviteScreen from "@/screens/InviteScreen";
 import WorkspaceSettingsScreen from "@/screens/WorkspaceSettings/WorkspaceSettingsScreen";
 import PersonalWorkspaceSettingsScreen from "@/screens/PersonalWorkspaceSettings/PersonalWorkspaceSettingsScreen";
-import WeeksScreen from "@/screens/Weeks/WeeksScreen";
+import ActiveWeekScreen from "@/screens/ActiveWeekScreen";
+import LanguageScreen from "@/screens/Settings/LanguageScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -112,9 +113,14 @@ export default function RootStack() {
         />
 
         <Stack.Screen
-          name="weeks"
-          component={WeeksScreen}
-          options={{ headerShown: true, title: "Semanas" }}
+          name="activeWeek"
+          component={ActiveWeekScreen}
+          options={{ headerShown: true, title: "Semana activa" }}
+        />
+        <Stack.Screen
+          name="language"
+          component={LanguageScreen}
+          options={{ headerShown: true, title: "Idioma" }}
         />
       </Stack.Navigator>
     </View>

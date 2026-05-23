@@ -27,7 +27,8 @@ import { SET_TYPES } from "@/constants/SetTypes";
 import EXERCISES from "@/assets/data/exercises.json";
 import { Routine } from "@/types/Routine";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
-import { dayNames } from "@/constants/DayNames";
+import { getLocalizedDayName } from "@/utils/date";
+import { useTranslation } from "react-i18next";
 import { SelectRoutineModal } from "@/components/modals/SelectRoutineModal";
 import { useModalStore } from "@/stores/ModalStore";
 import { Image } from "expo-image";
@@ -314,6 +315,7 @@ const RestView = ({
   todayNumber: number;
   routineId: string;
 }) => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
 
   return (
@@ -323,7 +325,7 @@ const RestView = ({
     >
       <View>
         <Text className="text-neutral-400 font-medium text-sm uppercase tracking-wider">
-          {dayNames[todayNumber]}
+          {getLocalizedDayName(todayNumber, t)}
         </Text>
         <Text className="font-bold text-2xl text-neutral-900 dark:text-white">
           Descanso
@@ -343,6 +345,7 @@ const RestView = ({
 };
 
 const WorkoutView = ({ routine }: { routine: Routine }) => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
 
   const adjustedDay = (new Date().getDay() + 6) % 7; // Map 0 (Sun) -> 6, 1 (Mon) -> 0, etc.
@@ -364,7 +367,7 @@ const WorkoutView = ({ routine }: { routine: Routine }) => {
         <View className="mb-5 flex-row items-start justify-between">
           <View>
             <Text className="text-neutral-400 font-medium text-sm uppercase tracking-wider">
-              {dayNames[today.dayIndex]}
+              {getLocalizedDayName(today.dayIndex, t)}
             </Text>
             <Text className="font-bold text-2xl text-neutral-900 dark:text-white">
               Entreno
@@ -403,7 +406,7 @@ const WorkoutView = ({ routine }: { routine: Routine }) => {
         <View className="mb-5">
           <View className="flex-row justify-between items-center">
             <Text className="text-neutral-400 font-medium text-sm uppercase tracking-wider">
-              {dayNames[today.dayIndex]}
+              {getLocalizedDayName(today.dayIndex, t)}
             </Text>
 
             <View className="justify-center items-start flex-row gap-1">
@@ -437,7 +440,7 @@ const WorkoutView = ({ routine }: { routine: Routine }) => {
       <View className="mb-5">
         <View className="flex-row justify-between items-center">
           <Text className="text-neutral-400 font-medium text-sm uppercase tracking-wider">
-            {dayNames[today.dayIndex]}
+            {getLocalizedDayName(today.dayIndex, t)}
           </Text>
 
           <View className="justify-center items-start flex-row gap-1">

@@ -13,7 +13,6 @@ interface ActiveWorkoutStore {
   startTime: string | null;
   isPaused: boolean;
   lastInteractionTime: string | null;
-  currentRoute: string | null;
   showAutoFinishNotification: boolean;
   freeWorkout: boolean;
 
@@ -21,7 +20,6 @@ interface ActiveWorkoutStore {
   pauseWorkout: () => void;
   resumeWorkout: () => void;
   finishWorkout: () => void;
-  setCurrentRoute: (route: string | null) => void;
   updateInteractionTime: () => void;
   checkTimeout: () => void;
   clearAutoFinishNotification: () => void;
@@ -35,7 +33,6 @@ export const useActiveWorkoutStore = create<ActiveWorkoutStore>()(
       startTime: null,
       isPaused: false,
       lastInteractionTime: null,
-      currentRoute: null,
       showAutoFinishNotification: false,
       freeWorkout: false,
 
@@ -47,7 +44,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutStore>()(
         useWorkoutsHistoryStore
           .getState()
           .updateWorkoutSessionField(today, "workoutId", actualWorkoutId);
-        
+
         if (isFree) {
           useWorkoutsHistoryStore
             .getState()
@@ -98,8 +95,6 @@ export const useActiveWorkoutStore = create<ActiveWorkoutStore>()(
           freeWorkout: false,
         });
       },
-
-      setCurrentRoute: (route) => set({ currentRoute: route }),
 
       updateInteractionTime: () => {
         if (get().activeWorkoutId) {

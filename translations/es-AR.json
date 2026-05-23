@@ -130,8 +130,29 @@
       "title": "¡Ups!",
       "description": "Esta pantalla no existe.",
       "cta": "Ir a la pantalla principal"
+    },
+    "settings": {
+      "general": "General",
+      "language": "Idioma",
+      "selectLanguage": "Seleccionar idioma"
     }
   },
 
-  "exercises": {}
+  "exercises": {},
+  "days": {
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábado",
+    "sunday": "Domingo",
+    "monday_short": "L",
+    "tuesday_short": "M",
+    "wednesday_short": "M",
+    "thursday_short": "J",
+    "friday_short": "V",
+    "saturday_short": "S",
+    "sunday_short": "D"
+  }
 }

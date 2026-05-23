@@ -3,7 +3,6 @@ import {
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
 import React from "react";
-import { useTranslation } from "react-i18next";
 
 import ExercisesScreen from "@/screens/ExercisesScreen";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,7 +20,6 @@ const Tab = createBottomTabNavigator();
 
 export default function BottomTabsNavigator() {
   const colorScheme = useColorScheme();
-  const { t } = useTranslation();
 
   return (
     <View className="flex-1">
@@ -57,7 +55,6 @@ export default function BottomTabsNavigator() {
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
 
   return (
     <View>

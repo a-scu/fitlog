@@ -62,6 +62,7 @@ export const MUSCLE_IMAGES = {
   calves: require("@/assets/images/muscles/calves.png"),
   forearms: require("@/assets/images/muscles/forearms.png"),
   abs: require("@/assets/images/muscles/abs.png"),
+  // back: require("@/assets/images/muscles/back.png"),
   lowerAbs: require("@/assets/images/muscles/lower-abs.png"),
   upperAbs: require("@/assets/images/muscles/upper-abs.png"),
   traps: require("@/assets/images/muscles/traps.png"),

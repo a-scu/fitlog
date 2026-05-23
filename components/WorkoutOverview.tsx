@@ -1,20 +1,20 @@
-import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
-import { Alert } from "react-native";
-import { isSameDay } from "date-fns";
+
 import { Image } from "expo-image";
 
 import { useWorkoutsHistoryStore } from "@/stores/WorkoutsHistoryStore";
 import { useActiveWorkoutStore } from "@/stores/ActiveWorkoutStore";
 
 import { Step, Workout } from "@/types/Workout";
-import { Routine } from "@/types/Routine";
 
 import { getWorkoutMuscles, getSortedMusclesWithImages } from "@/utils/muscles";
-import { WorkoutSession } from "@/types/History";
+
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
+import RestOverview from "./RestOverview";
+import { isSameDay } from "date-fns";
 
 interface Props {
   date: Date;
@@ -22,12 +22,12 @@ interface Props {
   isRestDay?: boolean;
 }
 
-export default function WorkoutQuickView({ date, workout, isRestDay }: Props) {
+export default function WorkoutOverview({ date, workout, isRestDay }: Props) {
   const activeWorkoutId = useActiveWorkoutStore((s) => s.activeWorkoutId);
 
   // console.log(date, workout, isRestDay);
 
-  const isToday = isSameDay(date, new Date());
+  if (isRestDay) return <RestOverview date={date} />;
 
   if (activeWorkoutId) return <ActiveView date={date} />;
 
@@ -168,7 +168,6 @@ const EmptyView = ({
 }) => {
   const navigation = useNavigation<any>();
 
-  const activeWorkoutId = useActiveWorkoutStore((s) => s.activeWorkoutId);
   const startWorkout = useActiveWorkoutStore((s) => s.startWorkout);
 
   const personalWorkspace = useWorkspacesStore((s) => s.personalWorkspace);
@@ -187,55 +186,64 @@ const EmptyView = ({
   };
 
   return (
-    <View className="gap-3 flex-1">
-      {isToday &&
-        (activeWorkoutId ? (
+    <View className="gap-3">
+      <View className="border-1.5 dark:bg-green-950/50 dark:border-green-900 p-5 rounded-2xl">
+        {/* <View className="top-5 right-5 absolute">
+                <Ionicons
+                  name="create-outline"
+                  size={16}
+                  color={colors.green[500]}
+                />
+              </View> */}
+
+        <View className="flex-row items-center gap-1">
+          <Ionicons
+            name="fitness-outline"
+            size={16}
+            color={colors.green[500]}
+          />
+          <Text className="text-green-500 dark:text-green-500 text-lg font-medium">
+            Entreno
+          </Text>
+        </View>
+
+        <View className="size-44 self-center">
+          <Image
+            source={require("@/assets/images/etc/training-bear.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+            contentFit="contain"
+          />
+        </View>
+
+        <View className="flex-row gap-2.5">
           <TouchableOpacity
-            onPress={() => navigation.navigate("workoutSession", { date })}
-            className="rounded-2xl border-1.5 border-neutral-200 dark:border-blue-900 border-solid bg-blue-950/25 h-44 items-center justify-center gap-2.5"
+            onPress={handleEditRoutine}
+            className="flex-row items-center flex-1 border rounded-xl border-green-200 dark:border-green-500 py-3 px-6 gap-1 justify-center"
           >
-            <Text className="text-blue-600 font-medium">Entreno en curso</Text>
+            <Ionicons
+              name="create-outline"
+              size={14}
+              color={colors.green[500]}
+            />
+            <Text className="text-green-500">Editar rutina</Text>
           </TouchableOpacity>
-        ) : (
-          !isRestDay && (
-            <View className="border-1.5 rounded-2xl border-green-600 p-5">
-              <Text className="text-white">Hoy toca entreno</Text>
-              <Text className="text-neutral-400 text-sm mb-3">
-                Aun no agregaste ejercicios a tu entreno de hoy
-              </Text>
 
-              <View className="flex-row gap-3">
-                <TouchableOpacity
-                  onPress={handleEditRoutine}
-                  className="rounded-2xl border-1.5 border-neutral-200 dark:border-white flex-1 items-center justify-center p-3 gap-1"
-                >
-                  <Ionicons
-                    name="create-outline"
-                    size={20}
-                    color={colors.white}
-                  />
-                  <Text className="text-white font-semibold">
-                    Editar rutina
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={handleStartFreeWorkout}
-                  className="rounded-2xl border-1.5 border-neutral-200 dark:border-neutral-700 flex-1 border-dashed items-center justify-center p-3 gap-1"
-                >
-                  <Ionicons
-                    name="barbell-outline"
-                    size={20}
-                    color={colors.neutral[400]}
-                  />
-                  <Text className="text-neutral-400 font-semibold">
-                    Realizar entreno libre
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )
-        ))}
+          <TouchableOpacity
+            onPress={handleStartFreeWorkout}
+            className="flex-row items-center flex-1 border rounded-xl border-green-200 dark:border-green-500 py-3 px-6 gap-1 justify-center"
+          >
+            <Ionicons
+              name="barbell-outline"
+              size={14}
+              color={colors.green[500]}
+            />
+            <Text className="text-green-500">Realizar entreno libre</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
@@ -246,12 +254,19 @@ const ActiveView = ({ date }: { date: Date }) => {
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate("workoutSession", { date: date })}
-      className="p-5 rounded-xl border flex-1 border-neutral-200 dark:border-neutral-800"
+      className="p-5 rounded-xl flex-row justify-between items-center border-1.5 bg-blue-950/25 border-neutral-200 dark:border-blue-800"
     >
-      <Text className="text-white">Entreno en curso</Text>
-      <Text className="text-blue-600 dark:text-blue-400 font-bold text-xs">
-        REANUDAR
-      </Text>
+      <View className="flex-row items-center gap-1">
+        <Ionicons name="fitness-outline" size={20} color={colors.blue[500]} />
+        <Text className="text-blue-500 font-medium">Entreno en curso</Text>
+      </View>
+
+      <View className="flex-row items-center gap-1">
+        <Ionicons name="play-outline" size={20} color={colors.blue[500]} />
+        <Text className="text-blue-600 dark:text-blue-500 font-medium">
+          Reanudar entreno
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };

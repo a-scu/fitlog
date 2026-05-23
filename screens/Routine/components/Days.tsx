@@ -33,7 +33,8 @@ import { SET_TYPES } from "@/constants/SetTypes";
 import { capitalize } from "@/utils/text";
 import ExerciseGif from "@/components/ExerciseGif";
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
-import { dayNames } from "@/constants/DayNames";
+import { getLocalizedDayName, getLocalizedDayShort } from "@/utils/date";
+import { useTranslation } from "react-i18next";
 import { SelectWorkoutModal } from "@/components/modals/SelectWorkoutModal";
 import { useModalStore } from "@/stores/ModalStore";
 
@@ -204,6 +205,7 @@ const DayButton = memo(
     hasWorkout: boolean;
     onPress: (index: number) => void;
   }) => {
+    const { t } = useTranslation();
     const inputRange = [
       (index - 1) * screenWidth,
       index * screenWidth,
@@ -261,7 +263,7 @@ const DayButton = memo(
           ]}
         >
           <Animated.Text style={[animatedTextStyle]} className="font-black">
-            {dayNames[index].slice(0, 1).toUpperCase()}
+            {getLocalizedDayShort(index, t)}
           </Animated.Text>
         </Animated.View>
       </TouchableOpacity>
@@ -279,6 +281,7 @@ const DayHeader = memo(
     day: RoutineDay;
     workout?: Workout;
   }) => {
+    const { t } = useTranslation();
     const updateRoutineDay = useRoutinesStore((s) => s.updateRoutineDay);
 
     const isRest = day.isRestDay;
@@ -315,7 +318,7 @@ const DayHeader = memo(
       <View className="flex-row items-start justify-between mb-5">
         <View>
           <Text className="text-neutral-400 dark:text-neutral-500 font-medium text-sm uppercase tracking-wider">
-            {dayNames[day.dayIndex]}
+            {getLocalizedDayName(day.dayIndex, t)}
           </Text>
           <Text className="font-bold text-2xl text-neutral-900 dark:text-white">
             {day.isRestDay ? "Descanso" : workout?.name || "Entrenamiento"}

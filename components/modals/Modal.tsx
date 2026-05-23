@@ -5,9 +5,11 @@ import { BackHandler, View } from "react-native";
 import { SCREEN_HEIGHT } from "@/constants/layout";
 
 import { useModalStore } from "@/stores/ModalStore";
+import { useTheme } from "@/stores/ThemeStore";
 
 const Modal = () => {
   const { config, isOpen, hideModal } = useModalStore();
+  const { isDark } = useTheme();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const currentIndexRef = useRef<number>(-1);
@@ -61,6 +63,12 @@ const Modal = () => {
       onDismiss={hideModal}
       backdropComponent={renderBackdrop}
       enablePanDownToClose
+      backgroundStyle={{
+        backgroundColor: isDark ? "#171717" : "#ffffff",
+      }}
+      handleIndicatorStyle={{
+        backgroundColor: isDark ? "#404040" : "#d4d4d4",
+      }}
     >
       {config?.withBottomSheetView === false ? (
         <View className="flex-1 ">{config?.content}</View>
