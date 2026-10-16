@@ -16,16 +16,16 @@ interface Props {
 
 export default function WorkoutRecords({ date, workout }: Props) {
   const navigation = useNavigation<any>();
-  const workoutSession = useWorkoutsHistoryStore((s) =>
-    s.getWorkoutSession(date.toISOString()),
-  );
+  const workoutSession = useWorkoutsHistoryStore((s) => s.getWorkoutSession(date.toISOString()));
 
   const handleRegisterWorkoutSession = () => {
     navigation.navigate("workoutSession", { date: date });
   };
 
   const hasSets = workoutSession?.sets && workoutSession.sets.length > 0;
-  const isCompleted = workoutSession?.status === "completed";
+  const isCompleted = workoutSession?.isCompleted;
+
+  console.log("workoutSession", workoutSession);
 
   // Sin completar y sin registros
   if (!hasSets && !isCompleted) {
@@ -34,14 +34,8 @@ export default function WorkoutRecords({ date, workout }: Props) {
         onPress={handleRegisterWorkoutSession}
         className="rounded-2xl w-full border-1.5 border-neutral-200 dark:border-neutral-700 border-dashed flex-1 items-center justify-center h-44"
       >
-        <Ionicons
-          name="fitness-outline"
-          size={32}
-          color={colors.neutral[400]}
-        />
-        <Text className="text-neutral-400 font-medium text-lg">
-          Agregar entreno
-        </Text>
+        <Ionicons name="fitness-outline" size={32} color={colors.neutral[400]} />
+        <Text className="text-neutral-400 font-medium text-lg">Agregar entreno</Text>
       </TouchableOpacity>
     );
   }
@@ -58,13 +52,13 @@ export default function WorkoutRecords({ date, workout }: Props) {
         </View>
 
         <Ionicons name="fitness-outline" size={32} color={colors.green[500]} />
-        <Text className="text-green-500 font-medium text-lg">
-          Entreno completado
-        </Text>
+        <Text className="text-green-500 font-medium text-lg">Entreno completado</Text>
+
+        <Text className="text-neutral-500">No se anoto ningun ejercicio</Text>
 
         <View className="flex-row items-center gap-0.5 mt-0.5">
           <Ionicons name="time-outline" size={12} color={colors.neutral[400]} />
-          <Text className="text-neutral-400 font-medium text-sm">17:42</Text>
+          <Text className="text-neutral-400 font-medium text-sm">{workoutSession.duration}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -78,11 +72,7 @@ export default function WorkoutRecords({ date, workout }: Props) {
     >
       <View className="flex-row items-center gap-1 justify-between p-5">
         <View className="flex-row items-center gap-1">
-          <Ionicons
-            name="fitness-outline"
-            size={16}
-            color={colors.green[500]}
-          />
+          <Ionicons name="fitness-outline" size={16} color={colors.green[500]} />
           <Text className="font-medium text-green-500">Entreno completado</Text>
         </View>
 
@@ -108,8 +98,6 @@ const Set = ({ set, index }: { set: any; index: number }) => {
   const hasMetrics = set.weight || set.reps || set.rir;
   const hasDropsets = set.dropSets && set.dropSets.length > 0;
 
-  console.log(set);
-
   return (
     <View key={set.id} className="dark:bg-green-950/50 p-5">
       <View className="flex-row items-center gap-2">
@@ -117,9 +105,7 @@ const Set = ({ set, index }: { set: any; index: number }) => {
           <Text className="dark:text-green-500 text-xs">{index + 1}</Text>
         </View> */}
 
-        <Text className="dark:text-white font-medium">
-          {capitalize(exercise.name)}
-        </Text>
+        <Text className="dark:text-white font-medium">{capitalize(exercise.name)}</Text>
       </View>
 
       {hasMetrics && (
@@ -133,16 +119,12 @@ const Set = ({ set, index }: { set: any; index: number }) => {
           )}
           {set.reps && (
             <View className="flex-1 bg-green-950 p-2 rounded-md">
-              <Text className="text-lg text-center font-medium text-green-500">
-                x {set.reps}
-              </Text>
+              <Text className="text-lg text-center font-medium text-green-500">x {set.reps}</Text>
             </View>
           )}
           {set.rir && (
             <View className="flex-1 bg-green-950 p-2 rounded-md">
-              <Text className="text-lg text-center font-medium text-green-500">
-                rir {set.rir}
-              </Text>
+              <Text className="text-lg text-center font-medium text-green-500">rir {set.rir}</Text>
             </View>
           )}
         </View>
@@ -151,10 +133,7 @@ const Set = ({ set, index }: { set: any; index: number }) => {
       {hasDropsets && (
         <View className="gap-1 mt-2">
           {set.dropSets.map((dropSet: any, dIndex: number) => (
-            <View
-              className="flex-row border border-neutral-200 dark:border-neutral-800 rounded-xl p-3"
-              key={dropSet.id}
-            >
+            <View className="flex-row border border-neutral-200 dark:border-neutral-800 rounded-xl p-3" key={dIndex}>
               <Text className="dark:text-white">Dropset {dIndex + 1}</Text>
               <Text className="flex-1 text-center dark:text-white">
                 weight:{dropSet.weight} reps:{dropSet.reps}

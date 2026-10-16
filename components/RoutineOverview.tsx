@@ -11,11 +11,7 @@ import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { useModalStore } from "@/stores/ModalStore";
 import { SelectRoutineModal } from "./modals/SelectRoutineModal";
 
-export default function RoutineQuickView({
-  routine,
-}: {
-  routine: Routine;
-}) {
+export default function RoutineOverview({ routine }: { routine: Routine }) {
   const { t } = useTranslation();
   const navigation = useNavigation();
 
@@ -49,15 +45,11 @@ export default function RoutineQuickView({
         onPress={handleAssignRoutine}
         className="rounded-2xl border border-neutral-200 gap-1 dark:border-amber-900 bg-amber-950/25 items-center justify-center p-4"
       >
-        <View className="justify-end flex-row gap-1 absolute top-4 right-4">
+        <View className="justify-center items-center flex-row gap-1 absolute top-4 right-4">
           <Text className="text-amber-700 text-end text-xs">
             Asignar rutina
           </Text>
-          <Ionicons
-            name="enter-outline"
-            className="!text-xs !leading-none"
-            color={colors.amber[700]}
-          />
+          <Ionicons name="enter-outline" size={12} color={colors.amber[700]} />
         </View>
 
         <View className="items-center">

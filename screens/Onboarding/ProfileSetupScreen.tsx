@@ -21,34 +21,51 @@ export default function ProfileSetupScreen({ navigation }: any) {
 
   const handleContinue = async () => {
     if (!username.trim()) return;
-    await updateProfile({ username: username.trim(), nickname: nickname.trim() || undefined });
+    await updateProfile({
+      username: username.trim(),
+      nickname: nickname.trim() || undefined,
+    });
     navigation.navigate("tour");
   };
 
   const handleSkip = async () => {
     // If skipping, we still save the auto-generated username
     if (username) {
-      await updateProfile({ username: username.trim(), nickname: nickname.trim() || undefined });
+      await updateProfile({
+        username: username.trim(),
+        nickname: nickname.trim() || undefined,
+      });
     }
     navigation.navigate("tour");
   };
 
   // Skip photo upload for now since storage is paid
   return (
-    <View className="flex-1 bg-neutral-900 px-6" style={{ paddingTop: insets.top + 40 }}>
-      <Text className="text-white text-3xl font-black mb-2 tracking-tight">Completa tu perfil</Text>
-      <Text className="text-neutral-400 text-base mb-10">Personaliza cómo te verán los demás.</Text>
+    <View
+      className="flex-1 bg-neutral-950 px-6"
+      style={{ paddingTop: insets.top + 40 }}
+    >
+      <Text className="text-white text-3xl font-black mb-2 tracking-tight">
+        Completa tu perfil
+      </Text>
+      <Text className="text-neutral-400 text-base mb-10">
+        Personaliza cómo te verán los demás.
+      </Text>
 
       <View className="items-center mb-10">
         <View className="w-32 h-32 bg-neutral-800 rounded-full items-center justify-center border-2 border-neutral-700 border-dashed">
           <Ionicons name="camera" size={40} color={colors.neutral[500]} />
         </View>
-        <Text className="text-neutral-500 mt-4 text-sm font-medium">Subir foto (Próximamente)</Text>
+        <Text className="text-neutral-500 mt-4 text-sm font-medium">
+          Subir foto (Próximamente)
+        </Text>
       </View>
 
       <View className="gap-6">
         <View>
-          <Text className="text-neutral-400 font-semibold mb-2 ml-1">Nombre de usuario (único)</Text>
+          <Text className="text-neutral-400 font-semibold mb-2 ml-1">
+            Nombre de usuario (único)
+          </Text>
           <TextInput
             value={username}
             onChangeText={setUsername}
@@ -60,7 +77,9 @@ export default function ProfileSetupScreen({ navigation }: any) {
         </View>
 
         <View>
-          <Text className="text-neutral-400 font-semibold mb-2 ml-1">Apodo (Opcional)</Text>
+          <Text className="text-neutral-400 font-semibold mb-2 ml-1">
+            Apodo (Opcional)
+          </Text>
           <TextInput
             value={nickname}
             onChangeText={setNickname}
@@ -77,11 +96,17 @@ export default function ProfileSetupScreen({ navigation }: any) {
           disabled={loading || !username}
           className={`p-4 rounded-2xl items-center ${username ? "bg-emerald-500" : "bg-neutral-700"}`}
         >
-          <Text className={`${username ? "text-neutral-900" : "text-neutral-500"} font-black text-lg`}>Continuar</Text>
+          <Text
+            className={`${username ? "text-neutral-900" : "text-neutral-500"} font-black text-lg`}
+          >
+            Continuar
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleSkip} className="p-4 items-center">
-          <Text className="text-neutral-500 font-semibold text-base">Hacerlo más tarde</Text>
+          <Text className="text-neutral-500 font-semibold text-base">
+            Hacerlo más tarde
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

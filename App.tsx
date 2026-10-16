@@ -7,10 +7,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useColorScheme, AppState } from "react-native";
+import { useColorScheme } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import * as Linking from "expo-linking";
 import { useFonts } from "expo-font";
 import {
@@ -20,7 +20,6 @@ import {
 } from "@react-navigation/native";
 
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
-import { useActiveWorkoutStore } from "@/stores/ActiveWorkoutStore";
 import { useUserStore } from "./stores/UserStore";
 
 import OnboardingStack from "./navigation/OnboardingStack";
@@ -37,7 +36,6 @@ GoogleSignin.configure({
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const appState = useRef(AppState.currentState);
 
   const [loaded, error] = useFonts({
     SpaceMono: require("./assets/fonts/SpaceMono-Regular.ttf"),
@@ -57,20 +55,6 @@ export default function App() {
   useEffect(() => {
     if (loaded && isInitialized) {
       SplashScreen.hideAsync();
-
-      // Ensure store is hydrated before checking timeout
-      const checkTimeoutWhenHydrated = () => {
-        if (useActiveWorkoutStore.persist.hasHydrated()) {
-          useActiveWorkoutStore.getState().checkTimeout();
-        } else {
-          const unsub = useActiveWorkoutStore.persist.onFinishHydration(() => {
-            useActiveWorkoutStore.getState().checkTimeout();
-            unsub();
-          });
-        }
-      };
-
-      checkTimeoutWhenHydrated();
     }
   }, [loaded, isInitialized]);
 
@@ -79,27 +63,7 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === "active"
-      ) {
-        console.log("App has come to the foreground!");
-        useActiveWorkoutStore.getState().checkTimeout();
-      }
 
-      if (nextAppState === "background" || nextAppState === "inactive") {
-        useActiveWorkoutStore.getState().updateInteractionTime();
-      }
-
-      appState.current = nextAppState;
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
 
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";

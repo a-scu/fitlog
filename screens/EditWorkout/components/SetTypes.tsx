@@ -9,7 +9,7 @@ export default function SetTypes({ set, hideCustom }: { set: any; hideCustom?: b
   const updateSetField = useWorkoutsStore((s) => s.updateSetField);
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="ml-2" contentContainerClassName="">
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="" contentContainerClassName="">
       {SET_TYPES.map((setType) => {
         if (setType.id === "custom") {
           return null;

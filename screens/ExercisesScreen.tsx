@@ -68,7 +68,7 @@ export default function ExercisesScreen({ navigation, route }: any) {
   const search = useFilters((state) => state.search);
 
   return (
-    <View className="bg-white dark:bg-neutral-900 mt-24 flex-1 rounded-3xl">
+    <View className="bg-white dark:bg-neutral-950 mt-24 flex-1 rounded-3xl">
       {/* Grabber */}
       <View className="w-full pt-4 items-center justify-center">
         <View className="h-1 w-8 rounded-full bg-neutral-300 dark:bg-neutral-700" />

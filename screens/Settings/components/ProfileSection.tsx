@@ -94,7 +94,7 @@ export default function ProfileSection() {
               }
               placeholder="Tu nombre"
               placeholderTextColor="#9ca3af"
-              className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-2xl text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700"
+              className="bg-neutral-50 dark:bg-neutral-950 p-4 rounded-2xl text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700"
             />
           </View>
 
@@ -109,7 +109,7 @@ export default function ProfileSection() {
               }
               placeholder="Ej: El Guerrero"
               placeholderTextColor="#9ca3af"
-              className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-2xl text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700"
+              className="bg-neutral-50 dark:bg-neutral-950 p-4 rounded-2xl text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700"
             />
           </View>
 
@@ -125,7 +125,7 @@ export default function ProfileSection() {
               placeholder="usuario123"
               autoCapitalize="none"
               placeholderTextColor="#9ca3af"
-              className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-2xl text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700"
+              className="bg-neutral-50 dark:bg-neutral-950 p-4 rounded-2xl text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700"
             />
           </View>
 

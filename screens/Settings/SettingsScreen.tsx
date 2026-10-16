@@ -98,17 +98,39 @@ export default function SettingsScreen({ navigation, route }: any) {
 
   return (
     <ScrollView
-      className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+      className="flex-1 bg-neutral-50 dark:bg-neutral-950"
       contentContainerClassName="p-4 grow"
     >
       <ProfileSection />
 
       <ThemeSelector />
 
-      <View className="mt-8">
-        <Text className="text-sm font-bold text-neutral-400 uppercase mb-3 ml-1">
+      <View className="mt-8 gap-3">
+        <Text className="text-sm font-bold text-neutral-400 uppercase ml-1">
           {t("screens.settings.general", "General")}
         </Text>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate("programs")}
+          className="bg-white dark:bg-neutral-800 p-4 rounded-3xl flex-row items-center justify-between border border-neutral-100 dark:border-neutral-700"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.08,
+            shadowRadius: 2,
+            elevation: 1,
+          }}
+        >
+          <View className="flex-row items-center gap-3">
+            <View className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+              <Ionicons name="barbell-outline" size={20} color="#10b981" />
+            </View>
+            <Text className="text-neutral-800 dark:text-white font-semibold text-lg">
+              Mis rutinas / Workouts
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+        </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => navigation.navigate("language")}
@@ -131,7 +153,8 @@ export default function SettingsScreen({ navigation, route }: any) {
           </View>
           <View className="flex-row items-center gap-2">
             <Text className="text-neutral-400 dark:text-neutral-500 text-sm">
-              {AVAILABLE_LANGUAGES[i18n.language as AppLanguage]?.label || i18n.language}
+              {AVAILABLE_LANGUAGES[i18n.language as AppLanguage]?.label ||
+                i18n.language}
             </Text>
             <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
           </View>

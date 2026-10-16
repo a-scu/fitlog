@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, TextInput, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+  Alert,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUserStore } from "@/stores/UserStore";
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
@@ -10,8 +17,16 @@ type ScreenStep = "methods" | "phone" | "code";
 
 export default function WelcomeScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
-  const { signInWithGoogle, signInWithApple, signInWithPhoneNumber, confirmPhoneNumberCode, loading } = useUserStore();
-  const setHasCompletedOnboarding = useGlobalSettingsStore((s) => s.setHasCompletedOnboarding);
+  const {
+    signInWithGoogle,
+    signInWithApple,
+    signInWithPhoneNumber,
+    confirmPhoneNumberCode,
+    loading,
+  } = useUserStore();
+  const setHasCompletedOnboarding = useGlobalSettingsStore(
+    (s) => s.setHasCompletedOnboarding,
+  );
 
   const [step, setStep] = useState<ScreenStep>("methods");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -59,7 +74,7 @@ export default function WelcomeScreen({ navigation }: any) {
       console.log(e);
       Alert.alert(
         "Error",
-        `No se pudo enviar el código de verificación.\n\n${e.message || e.toString()}`
+        `No se pudo enviar el código de verificación.\n\n${e.message || e.toString()}`,
       );
     }
   };
@@ -70,7 +85,10 @@ export default function WelcomeScreen({ navigation }: any) {
       return;
     }
     try {
-      const { isNewUser } = await confirmPhoneNumberCode(confirmation, code.trim());
+      const { isNewUser } = await confirmPhoneNumberCode(
+        confirmation,
+        code.trim(),
+      );
       if (isNewUser) {
         navigation.navigate("profileSetup");
       } else {
@@ -84,8 +102,10 @@ export default function WelcomeScreen({ navigation }: any) {
 
   return (
     <>
-      <View className="flex-1 bg-neutral-900 justify-center px-6" style={{ paddingTop: insets.top }}>
-        
+      <View
+        className="flex-1 bg-neutral-950 justify-center px-6"
+        style={{ paddingTop: insets.top }}
+      >
         {/* Back Button for phone/code steps */}
         {step !== "methods" && (
           <TouchableOpacity
@@ -101,8 +121,12 @@ export default function WelcomeScreen({ navigation }: any) {
           <>
             <View className="flex-1 justify-center items-center">
               <Ionicons name="barbell" size={80} color={colors.emerald[400]} />
-              <Text className="text-white text-5xl font-black mt-6 tracking-tighter">Fitlog</Text>
-              <Text className="text-neutral-400 text-lg mt-2 text-center">Registra y domina tus entrenamientos.</Text>
+              <Text className="text-white text-5xl font-black mt-6 tracking-tighter">
+                Fitlog
+              </Text>
+              <Text className="text-neutral-400 text-lg mt-2 text-center">
+                Registra y domina tus entrenamientos.
+              </Text>
             </View>
 
             <View className="gap-4 pb-12">
@@ -111,8 +135,14 @@ export default function WelcomeScreen({ navigation }: any) {
                 disabled={loading}
                 className="bg-white p-4 rounded-2xl flex-row items-center justify-center gap-3 min-h-[60px]"
               >
-                <Ionicons name="logo-google" size={24} color={colors.neutral[800]} />
-                <Text className="text-neutral-900 font-bold text-lg">Continuar con Google</Text>
+                <Ionicons
+                  name="logo-google"
+                  size={24}
+                  color={colors.neutral[800]}
+                />
+                <Text className="text-neutral-900 font-bold text-lg">
+                  Continuar con Google
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -121,7 +151,9 @@ export default function WelcomeScreen({ navigation }: any) {
                 className="bg-neutral-800 p-4 rounded-2xl flex-row items-center justify-center gap-3 border border-neutral-700 min-h-[60px]"
               >
                 <Ionicons name="logo-apple" size={24} color={colors.white} />
-                <Text className="text-white font-bold text-lg">Continuar con Apple</Text>
+                <Text className="text-white font-bold text-lg">
+                  Continuar con Apple
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -130,7 +162,9 @@ export default function WelcomeScreen({ navigation }: any) {
                 className="bg-emerald-500 p-4 rounded-2xl flex-row items-center justify-center gap-3 min-h-[60px]"
               >
                 <Ionicons name="call" size={24} color={colors.neutral[900]} />
-                <Text className="text-neutral-900 font-bold text-lg">Continuar con Teléfono</Text>
+                <Text className="text-neutral-900 font-bold text-lg">
+                  Continuar con Teléfono
+                </Text>
               </TouchableOpacity>
             </View>
           </>
@@ -138,7 +172,9 @@ export default function WelcomeScreen({ navigation }: any) {
 
         {step === "phone" && (
           <View className="flex-1 justify-center">
-            <Text className="text-white text-3xl font-black mb-2 tracking-tight">Tu número de teléfono</Text>
+            <Text className="text-white text-3xl font-black mb-2 tracking-tight">
+              Tu número de teléfono
+            </Text>
             <Text className="text-neutral-400 text-base mb-6">
               Te enviaremos un código SMS para verificar tu cuenta.
             </Text>
@@ -160,10 +196,14 @@ export default function WelcomeScreen({ navigation }: any) {
               onPress={handleSendCode}
               disabled={loading || !phoneNumber.trim()}
               className={`p-4 rounded-2xl items-center min-h-[60px] justify-center ${
-                phoneNumber.trim() ? "bg-emerald-500" : "bg-neutral-800 border border-neutral-700"
+                phoneNumber.trim()
+                  ? "bg-emerald-500"
+                  : "bg-neutral-800 border border-neutral-700"
               }`}
             >
-              <Text className={`${phoneNumber.trim() ? "text-neutral-900" : "text-neutral-500"} font-bold text-lg`}>
+              <Text
+                className={`${phoneNumber.trim() ? "text-neutral-900" : "text-neutral-500"} font-bold text-lg`}
+              >
                 Enviar Código
               </Text>
             </TouchableOpacity>
@@ -172,7 +212,9 @@ export default function WelcomeScreen({ navigation }: any) {
 
         {step === "code" && (
           <View className="flex-1 justify-center">
-            <Text className="text-white text-3xl font-black mb-2 tracking-tight">Código de verificación</Text>
+            <Text className="text-white text-3xl font-black mb-2 tracking-tight">
+              Código de verificación
+            </Text>
             <Text className="text-neutral-400 text-base mb-6">
               Ingresa el código de 6 dígitos enviado a {phoneNumber}.
             </Text>
@@ -192,10 +234,14 @@ export default function WelcomeScreen({ navigation }: any) {
               onPress={handleVerifyCode}
               disabled={loading || code.length < 6}
               className={`p-4 rounded-2xl items-center min-h-[60px] justify-center ${
-                code.length === 6 ? "bg-emerald-500" : "bg-neutral-800 border border-neutral-700"
+                code.length === 6
+                  ? "bg-emerald-500"
+                  : "bg-neutral-800 border border-neutral-700"
               }`}
             >
-              <Text className={`${code.length === 6 ? "text-neutral-900" : "text-neutral-500"} font-bold text-lg`}>
+              <Text
+                className={`${code.length === 6 ? "text-neutral-900" : "text-neutral-500"} font-bold text-lg`}
+              >
                 Verificar Código
               </Text>
             </TouchableOpacity>
@@ -204,7 +250,7 @@ export default function WelcomeScreen({ navigation }: any) {
       </View>
 
       {loading && (
-        <View className="absolute inset-0 bg-neutral-900/60 justify-center items-center z-50">
+        <View className="absolute inset-0 bg-neutral-950/60 justify-center items-center z-50">
           <View className="bg-neutral-800 p-6 rounded-3xl items-center justify-center shadow-xl border border-neutral-700 gap-4">
             <ActivityIndicator size="large" color={colors.emerald[400]} />
             <Text className="text-white font-bold">Procesando...</Text>

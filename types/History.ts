@@ -2,25 +2,30 @@ import { SetTypes } from "./Workout";
 
 export interface WorkoutSession {
   id: string;
-  name: string;
   date: string; // ISO string
-  duration: number; // in seconds
+  duration?: number; // in seconds
   notes: string;
-  status?: "in_progress" | "completed";
+  isCompleted?: boolean;
   sets: LoggedSet[];
   workoutId?: string | null;
-  routineId?: string | null;
-  freeWorkout?: boolean;
+  isFreeWorkout?: boolean;
 }
 
-export type LoggedSet = {
+export interface LoggedSet {
   id: string;
   type?: SetTypes;
   exerciseId: string;
   completed: boolean;
-  weight?: string;
-  reps?: string;
-  rir?: string;
-  dropSets?: [{ id: string; weight: number; reps: number }];
+  weight?: number;
+  reps?: number;
+  rir?: number;
   partialReps?: number;
-};
+  dropSets?: LoggedDropSet[];
+}
+
+export interface LoggedDropSet {
+  id: string;
+  plannedDropSetId?: string;
+  weight: number;
+  reps: number;
+}

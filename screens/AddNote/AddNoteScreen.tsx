@@ -35,7 +35,10 @@ export default function AddNoteScreen({ route }: any) {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-neutral-900" style={{ paddingBottom: insets.bottom }}>
+    <View
+      className="flex-1 bg-white dark:bg-neutral-950"
+      style={{ paddingBottom: insets.bottom }}
+    >
       <TextInput
         autoFocus
         placeholder="Notas del entreno..."

@@ -43,7 +43,7 @@ const ExerciseItem = ({
   return (
     <Pressable
       onPress={handlePress}
-      className={`flex flex-row flex-1 h-32 justify-between gap-2 pr-2 overflow-hidden rounded-lg ${selected ? "bg-red-50 dark:bg-red-900/30 border border-red-400 dark:border-red-800" : "bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800"}`}
+      className={`flex flex-row flex-1 h-32 justify-between gap-2 pr-2 overflow-hidden rounded-lg ${selected ? "bg-red-50 dark:bg-red-900/30 border border-red-400 dark:border-red-800" : "bg-white dark:bg-neutral-950 border border-neutral-100 dark:border-neutral-800"}`}
     >
       <View className="h-full bg-white dark:bg-neutral-800 px-2 pt-2">
         <ExerciseGif exerciseId={exercise.exerciseId} className="size-24" />

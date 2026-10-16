@@ -14,18 +14,18 @@ import CreateRoutineScreen from "@/screens/Routine/CreateRoutineScreen";
 import EditWorkoutScreen from "@/screens/EditWorkout/EditWorkoutScreen";
 import CreateWorkoutScreen from "@/screens/EditWorkout/CreateWorkoutScreen";
 import WorkoutScreen from "@/screens/Workout/WorkoutScreen";
-// import ActiveWorkoutScreen from "@/screens/ActiveWorkout/ActiveWorkoutScreen";
+import ActiveWorkoutScreen from "@/screens/ActiveWorkout/ActiveWorkoutScreen";
 
 import CreateWorkspaceScreen from "@/screens/CreateWorkspace/CreateWorkspaceScreen";
 import WorkspaceScreen from "@/screens/Workspace/WorkspaceScreen";
 import AddNoteScreen from "@/screens/AddNote/AddNoteScreen";
-import WorkoutSessionScreen from "@/screens/ActiveWorkout/WorkoutSessionScreen";
-import ActiveWorkoutBubble from "@/components/ActiveWorkoutBubble";
+import WorkoutSessionScreen from "@/screens/WorkoutSession/WorkoutSessionScreen";
 import InviteScreen from "@/screens/InviteScreen";
 import WorkspaceSettingsScreen from "@/screens/WorkspaceSettings/WorkspaceSettingsScreen";
-import PersonalWorkspaceSettingsScreen from "@/screens/PersonalWorkspaceSettings/PersonalWorkspaceSettingsScreen";
 import ActiveWeekScreen from "@/screens/ActiveWeekScreen";
 import LanguageScreen from "@/screens/Settings/LanguageScreen";
+import ProgramsScreen from "@/screens/ProgramsScreen";
+import WorkoutSummaryScreen from "@/screens/WorkoutSummaryScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -39,11 +39,7 @@ export default function RootStack() {
           headerShadowVisible: false,
         }}
       >
-        <Stack.Screen
-          name="(tabs)"
-          component={BottomTabsNavigator}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="(tabs)" component={BottomTabsNavigator} options={{ headerShown: false }} />
         <Stack.Screen
           name="exercises"
           component={ExercisesScreen}
@@ -67,6 +63,19 @@ export default function RootStack() {
         <Stack.Screen name="workout" component={WorkoutScreen} />
 
         <Stack.Screen
+          name="activeWorkout"
+          component={ActiveWorkoutScreen}
+          options={{
+            title: "Workout session",
+            presentation: "formSheet",
+            contentStyle: {
+              backgroundColor: "transparent",
+              shadowOpacity: 0,
+              shadowColor: "transparent",
+            },
+          }}
+        />
+        <Stack.Screen
           name="workoutSession"
           component={WorkoutSessionScreen}
           options={{
@@ -79,49 +88,17 @@ export default function RootStack() {
             },
           }}
         />
-        <Stack.Screen
-          name="addNote"
-          component={AddNoteScreen}
-          options={{ title: "Add note" }}
-        />
-        <Stack.Screen
-          name="workoutSessionSummary"
-          component={
-            require("@/screens/ActiveWorkout/WorkoutSessionSummaryScreen")
-              .default
-          }
-          options={{ title: "Resumen" }}
-        />
+        <Stack.Screen name="workoutSessionSummary" component={WorkoutSummaryScreen} options={{ title: "Resumen" }} />
+        <Stack.Screen name="addNote" component={AddNoteScreen} options={{ title: "Add note" }} />
 
-        <Stack.Screen
-          name="createWorkspace"
-          component={CreateWorkspaceScreen}
-        />
+        <Stack.Screen name="createWorkspace" component={CreateWorkspaceScreen} />
         <Stack.Screen name="workspace" component={WorkspaceScreen} />
-        <Stack.Screen
-          name="workspaceSettings"
-          component={WorkspaceSettingsScreen}
-        />
-        <Stack.Screen
-          name="personalWorkspaceSettings"
-          component={PersonalWorkspaceSettingsScreen}
-        />
-        <Stack.Screen
-          name="invite"
-          component={InviteScreen}
-          options={{ headerShown: true, title: "Invitación" }}
-        />
+        <Stack.Screen name="workspaceSettings" component={WorkspaceSettingsScreen} />
+        <Stack.Screen name="invite" component={InviteScreen} options={{ headerShown: true, title: "Invitación" }} />
 
-        <Stack.Screen
-          name="activeWeek"
-          component={ActiveWeekScreen}
-          options={{ headerShown: true, title: "Semana activa" }}
-        />
-        <Stack.Screen
-          name="language"
-          component={LanguageScreen}
-          options={{ headerShown: true, title: "Idioma" }}
-        />
+        <Stack.Screen name="activeWeek" component={ActiveWeekScreen} options={{ headerShown: true, title: "Semana activa" }} />
+        <Stack.Screen name="language" component={LanguageScreen} options={{ headerShown: true, title: "Idioma" }} />
+        <Stack.Screen name="programs" component={ProgramsScreen} options={{ headerShown: true, title: "Mis rutinas / Workouts" }} />
       </Stack.Navigator>
     </View>
   );

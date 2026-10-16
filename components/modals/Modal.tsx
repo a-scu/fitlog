@@ -2,7 +2,7 @@ import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from "@gorhom/
 import { useCallback, useEffect, useRef } from "react";
 import { BackHandler, View } from "react-native";
 
-import { SCREEN_HEIGHT } from "@/constants/layout";
+import { SCREEN_HEIGHT } from "@/constants/Layout";
 
 import { useModalStore } from "@/stores/ModalStore";
 import { useTheme } from "@/stores/ThemeStore";

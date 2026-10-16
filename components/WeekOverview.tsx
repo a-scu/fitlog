@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, TouchableOpacity } from "react-native";
 import colors from "tailwindcss/colors";
 
 import { Routine } from "@/types/Routine";
@@ -29,22 +29,11 @@ export default function WeekOverview({ date, routine }: WeekOverviewProps) {
   const hasAnyChange = comparisonDays.some((d) => d.hasChanged);
 
   return (
-    <Pressable
-      onPress={() => navigation.navigate("activeWeek")}
-      className="bg-white dark:bg-neutral-900"
-    >
-      <View className="flex-row justify-between items-center mb-3">
-        <Text className="text-neutral-800 dark:text-white">Esta semana</Text>
-        {hasAnyChange && (
-          <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
-            <Text className="text-[10px] text-center text-amber-800 dark:text-amber-500 font-bold">
-              Modificado
-            </Text>
-          </View>
-        )}
-      </View>
-
-      <View className="flex-row gap-1.5">
+    <View className="bg-white dark:bg-neutral-950">
+      <TouchableOpacity
+        onPress={() => navigation.navigate("activeWeek")}
+        className="flex-row gap-1.5 px-2"
+      >
         {comparisonDays.map((d, index) => {
           const workout = workouts.find((w) => w.id === d.workoutId);
 
@@ -52,7 +41,9 @@ export default function WeekOverview({ date, routine }: WeekOverviewProps) {
 
           const { target, secondary } = getWorkoutMuscles(workoutSets || []);
 
-          const isActiveDay = getDayOfWeek(date) === index + 1;
+          const isActiveDay =
+            (getDayOfWeek(date) === 0 && index === 6) ||
+            getDayOfWeek(date) === index + 1;
 
           return (
             <View
@@ -125,7 +116,7 @@ export default function WeekOverview({ date, routine }: WeekOverviewProps) {
             </View>
           );
         })}
-      </View>
-    </Pressable>
+      </TouchableOpacity>
+    </View>
   );
 }

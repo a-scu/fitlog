@@ -13,7 +13,9 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function RoutinesScreen({ navigation }: any) {
   const routines = useRoutinesStore((state) => state.routines);
-  const deleteAllRoutines = useRoutinesStore((state) => state.deleteAllRoutines);
+  const deleteAllRoutines = useRoutinesStore(
+    (state) => state.deleteAllRoutines,
+  );
   const showModal = useModalStore((s) => s.showModal);
 
   console.log("Routines", routines);
@@ -38,27 +40,33 @@ export default function RoutinesScreen({ navigation }: any) {
   };
 
   return (
-    <View className="flex-1 bg-neutral-50 dark:bg-neutral-900">
+    <View className="flex-1 bg-neutral-50 dark:bg-neutral-950">
       <ScrollView contentContainerClassName="p-4 gap-4 flex-1">
-        <TouchableOpacity 
-          onPress={handleCreateRoutine} 
+        <TouchableOpacity
+          onPress={handleCreateRoutine}
           className="p-6 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-2xl items-center justify-center flex-row gap-2"
         >
           <Ionicons name="add-circle-outline" size={24} color="#10b981" />
-          <Text className="text-neutral-900 dark:text-white font-bold text-lg">Crear Rutina</Text>
+          <Text className="text-neutral-900 dark:text-white font-bold text-lg">
+            Crear Rutina
+          </Text>
         </TouchableOpacity>
 
         {routines.length > 0 ? (
-          <TouchableOpacity 
-            onPress={handleDeleteAll} 
+          <TouchableOpacity
+            onPress={handleDeleteAll}
             className="border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 p-3 rounded-xl flex-row items-center justify-center gap-2"
           >
             <Ionicons name="trash-bin-outline" size={18} color="#ef4444" />
-            <Text className="text-red-600 dark:text-red-500 font-medium">Eliminar todas las rutinas</Text>
+            <Text className="text-red-600 dark:text-red-500 font-medium">
+              Eliminar todas las rutinas
+            </Text>
           </TouchableOpacity>
         ) : (
           <View className="items-center py-6">
-            <Text className="text-neutral-400 dark:text-neutral-500">No hay rutinas guardadas</Text>
+            <Text className="text-neutral-400 dark:text-neutral-500">
+              No hay rutinas guardadas
+            </Text>
           </View>
         )}
 
@@ -72,7 +80,13 @@ export default function RoutinesScreen({ navigation }: any) {
   );
 }
 
-const RoutineItem = ({ routine, index }: { routine: Routine; index: number }) => {
+const RoutineItem = ({
+  routine,
+  index,
+}: {
+  routine: Routine;
+  index: number;
+}) => {
   const navigation = useNavigation();
 
   const deleteRoutine = useRoutinesStore((state) => state.deleteRoutine);
@@ -84,10 +98,14 @@ const RoutineItem = ({ routine, index }: { routine: Routine; index: number }) =>
   };
 
   const handleDelete = () => {
-    const activeInWorkspaces = workspaces.filter((w) => w.routineId === routine.id);
+    const activeInWorkspaces = workspaces.filter(
+      (w) => w.routineId === routine.id,
+    );
 
     if (activeInWorkspaces.length > 0) {
-      const workspaceNames = activeInWorkspaces.map((w) => w.name || "Sin nombre").join(", ");
+      const workspaceNames = activeInWorkspaces
+        .map((w) => w.name || "Sin nombre")
+        .join(", ");
       showModal({
         snapPoints: ["45%"],
         content: (
@@ -107,8 +125,8 @@ const RoutineItem = ({ routine, index }: { routine: Routine; index: number }) =>
 
   return (
     <View className="flex-row items-center gap-2">
-      <TouchableOpacity 
-        onPress={handleNavigate} 
+      <TouchableOpacity
+        onPress={handleNavigate}
         className="p-4 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-2xl flex-1 flex-row items-center justify-between shadow-sm"
       >
         <View className="flex-1">
@@ -118,7 +136,10 @@ const RoutineItem = ({ routine, index }: { routine: Routine; index: number }) =>
           <Text className="text-neutral-500 dark:text-neutral-400 text-xs font-medium">
             {routine.days.length} Dias
           </Text>
-          <Text className="text-neutral-400 dark:text-neutral-500 text-[10px] mt-2" numberOfLines={1}>
+          <Text
+            className="text-neutral-400 dark:text-neutral-500 text-[10px] mt-2"
+            numberOfLines={1}
+          >
             {workspaces.filter((w) => w.routineId === routine.id).length > 0
               ? `En uso en: ${workspaces
                   .filter((w) => w.routineId === routine.id)
@@ -130,8 +151,8 @@ const RoutineItem = ({ routine, index }: { routine: Routine; index: number }) =>
         <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
       </TouchableOpacity>
 
-      <TouchableOpacity 
-        onPress={handleDelete} 
+      <TouchableOpacity
+        onPress={handleDelete}
         className="p-4 border border-red-200 dark:border-red-900/30 bg-white dark:bg-neutral-800 rounded-2xl items-center justify-center shadow-sm"
       >
         <Ionicons name="trash-outline" size={24} color="#ef4444" />

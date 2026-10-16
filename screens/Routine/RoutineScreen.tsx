@@ -97,7 +97,7 @@ export default function RoutineScreen({ navigation, route }: any) {
 
   if (!routine) {
     return (
-      <View className="flex-1 bg-white dark:bg-neutral-900 items-center justify-center">
+      <View className="flex-1 bg-white dark:bg-neutral-950 items-center justify-center">
         <Text className="text-neutral-400 dark:text-neutral-500 font-medium">
           Cargando rutina...
         </Text>
@@ -107,7 +107,7 @@ export default function RoutineScreen({ navigation, route }: any) {
 
   return (
     <View
-      className="flex-1 bg-white dark:bg-neutral-900"
+      className="flex-1 bg-white dark:bg-neutral-950"
       style={{ paddingBottom: insets.bottom }}
     >
       <ScrollView

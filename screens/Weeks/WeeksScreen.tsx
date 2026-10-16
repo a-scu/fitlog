@@ -14,19 +14,12 @@
  *   Tracks which slot each assignment card currently occupies.
  */
 
-import { SCREEN_WIDTH } from "@/constants/layout";
+import { SCREEN_WIDTH } from "@/constants/Layout";
 import { useRoutinesStore } from "@/stores/RoutinesStore";
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  addWeeks,
-  format,
-  isSameWeek,
-  startOfWeek,
-  getISOWeek,
-  getISOWeekYear,
-} from "date-fns";
+import { addWeeks, format, isSameWeek, startOfWeek, getISOWeek, getISOWeekYear } from "date-fns";
 import { es } from "date-fns/locale";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
@@ -39,11 +32,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
+import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import { scheduleOnRN } from "react-native-worklets";
 import colors from "tailwindcss/colors";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -94,10 +83,7 @@ function buildPositions(assignments: RoutineDay[]): Record<string, number> {
  * Reconstruct the ordered assignments array from a positions map + source array.
  * slot[i] = assignments.find(d => positions[d.dayIndex] === i)
  */
-function positionsToAssignments(
-  source: RoutineDay[],
-  pos: Record<string, number>,
-): RoutineDay[] {
+function positionsToAssignments(source: RoutineDay[], pos: Record<string, number>): RoutineDay[] {
   const result = new Array<RoutineDay>(source.length);
   for (const day of source) {
     const slot = pos[day.dayIndex];
@@ -114,9 +100,7 @@ export default function WeeksScreen({ navigation, route }: any) {
   const personalWorkspace = useWorkspacesStore((s) => s.personalWorkspace);
   const routines = useRoutinesStore((state) => state.routines);
 
-  const [baseDate, setBaseDate] = useState(
-    startOfWeek(date || new Date(), { weekStartsOn: 1 }),
-  );
+  const [baseDate, setBaseDate] = useState(startOfWeek(date || new Date(), { weekStartsOn: 1 }));
   const [currentPage, setCurrentPage] = useState(INITIAL_PAGE);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -181,7 +165,7 @@ export default function WeeksScreen({ navigation, route }: any) {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View className="flex-1 bg-white dark:bg-neutral-900">
+      <View className="flex-1 bg-white dark:bg-neutral-950">
         {/* Header */}
         <View className="flex-row items-center justify-between h-14 border-b border-neutral-100 dark:border-neutral-800">
           <TouchableOpacity
@@ -190,47 +174,20 @@ export default function WeeksScreen({ navigation, route }: any) {
             disabled={currentPage === 0}
             style={{ opacity: currentPage === 0 ? 0.3 : 1 }}
           >
-            <Ionicons
-              name="chevron-back-outline"
-              size={18}
-              className="!text-neutral-800 dark:!text-white"
-            />
+            <Ionicons name="chevron-back-outline" size={18} className="!text-neutral-800 dark:!text-white" />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => setShowDatePicker(true)}
-            className="flex-row items-center gap-2.5 h-14 justify-center"
-          >
-            <Ionicons
-              name="calendar-outline"
-              size={16}
-              color={colors.neutral[400]}
-            />
-            <Text className="text-xl font-medium text-neutral-800 dark:text-white text-center">
-              {getHeaderText()}
-            </Text>
+          <TouchableOpacity onPress={() => setShowDatePicker(true)} className="flex-row items-center gap-2.5 h-14 justify-center">
+            <Ionicons name="calendar-outline" size={16} color={colors.neutral[400]} />
+            <Text className="text-xl font-medium text-neutral-800 dark:text-white text-center">{getHeaderText()}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={jumpToNext}
-            className="h-14 px-4 justify-center items-center"
-          >
-            <Ionicons
-              name="chevron-forward-outline"
-              size={18}
-              className="!text-neutral-800 dark:!text-white"
-            />
+          <TouchableOpacity onPress={jumpToNext} className="h-14 px-4 justify-center items-center">
+            <Ionicons name="chevron-forward-outline" size={18} className="!text-neutral-800 dark:!text-white" />
           </TouchableOpacity>
         </View>
 
-        {showDatePicker && (
-          <DateTimePicker
-            value={selectedDate}
-            mode="date"
-            display="default"
-            onChange={handleDatePicked}
-          />
-        )}
+        {showDatePicker && <DateTimePicker value={selectedDate} mode="date" display="default" onChange={handleDatePicked} />}
 
         <Animated.FlatList
           ref={flatListRef}
@@ -274,26 +231,16 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
 
   if (!routine) {
     return (
-      <View
-        style={{ width: SCREEN_WIDTH, flex: 1 }}
-        className="items-center justify-center"
-      >
-        <Text className="text-neutral-400 dark:text-neutral-500">
-          Sin rutina asignada
-        </Text>
+      <View style={{ width: SCREEN_WIDTH, flex: 1 }} className="items-center justify-center">
+        <Text className="text-neutral-400 dark:text-neutral-500">Sin rutina asignada</Text>
       </View>
     );
   }
 
   // Resolve source: override → base days. Filter corrupt entries.
-  const resolve = (src: any[]) =>
-    (src ?? []).filter(
-      (d: any) => d && typeof d === "object" && typeof d.dayIndex === "number",
-    );
+  const resolve = (src: any[]) => (src ?? []).filter((d: any) => d && typeof d === "object" && typeof d.dayIndex === "number");
 
-  let sourceDays: RoutineDay[] = resolve(
-    routine.weekOverrides?.[weekId]?.days ?? routine.days,
-  );
+  let sourceDays: RoutineDay[] = resolve(routine.weekOverrides?.[weekId]?.days ?? routine.days);
   if (sourceDays.length < NUM_DAYS) {
     sourceDays = resolve(routine.days);
   }
@@ -303,9 +250,7 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
 
   // Sync when week/routine/overrides change
   useEffect(() => {
-    const fresh = resolve(
-      routine.weekOverrides?.[weekId]?.days ?? routine.days,
-    );
+    const fresh = resolve(routine.weekOverrides?.[weekId]?.days ?? routine.days);
     setAssignments(fresh.length >= NUM_DAYS ? fresh : resolve(routine.days));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weekId, routine.days, routine.weekOverrides]);
@@ -319,11 +264,7 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
         reordered.length === routine.days.length &&
         reordered.every((day, idx) => {
           const originalDay = routine.days[idx];
-          return (
-            day.dayIndex === originalDay.dayIndex &&
-            day.workoutId === originalDay.workoutId &&
-            day.isRestDay === originalDay.isRestDay
-          );
+          return day.dayIndex === originalDay.dayIndex && day.workoutId === originalDay.workoutId && day.isRestDay === originalDay.isRestDay;
         });
 
       if (isIdentical) {
@@ -358,9 +299,7 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
               alignItems: "center",
             }}
           >
-            <Text className="text-neutral-400 dark:text-neutral-500 font-bold text-sm">
-              {getLocalizedDayShort(index, t)}
-            </Text>
+            <Text className="text-neutral-400 dark:text-neutral-500 font-bold text-sm">{getLocalizedDayShort(index, t)}</Text>
           </View>
         ))}
       </View>
@@ -373,24 +312,15 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
       <View style={{ flex: 1, padding: 16 }}>
         {hasOverride && (
           <View className="bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 p-3 rounded-xl mb-4">
-            <Text className="text-amber-800 dark:text-amber-400 font-medium text-center text-sm">
-              Orden alternativo activo esta semana
-            </Text>
+            <Text className="text-amber-800 dark:text-amber-400 font-medium text-center text-sm">Orden alternativo activo esta semana</Text>
           </View>
         )}
 
-        <TouchableOpacity
-          onPress={() => discardWeekOverride(routine.id, weekId)}
-          className="p-3 mb-4 border rounded-xl border-neutral-300"
-        >
-          <Text className="text-neutral-800 dark:text-neutral-400 font-medium text-center text-sm">
-            Descartar cambios
-          </Text>
+        <TouchableOpacity onPress={() => discardWeekOverride(routine.id, weekId)} className="p-3 mb-4 border rounded-xl border-neutral-300">
+          <Text className="text-neutral-800 dark:text-neutral-400 font-medium text-center text-sm">Descartar cambios</Text>
         </TouchableOpacity>
 
-        <Text className="text-xs text-neutral-400 dark:text-neutral-500 mb-4">
-          Mantén presionado la asignación para moverla a otro día
-        </Text>
+        <Text className="text-xs text-neutral-400 dark:text-neutral-500 mb-4">Mantén presionado la asignación para moverla a otro día</Text>
 
         <View style={{ flex: 1 }}>
           <ReorderableList<RoutineDay>
@@ -412,40 +342,23 @@ const DayContent = memo(({ date, routine }: { date: Date; routine: any }) => {
                   {day.isRestDay ? (
                     <View className="flex-1 flex-row items-center gap-3">
                       <View className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-700 items-center justify-center">
-                        <Ionicons
-                          name="moon-outline"
-                          size={14}
-                          color={colors.neutral[400]}
-                        />
+                        <Ionicons name="moon-outline" size={14} color={colors.neutral[400]} />
                       </View>
-                      <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-base">
-                        {workout?.name || "Descanso"}
-                      </Text>
+                      <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-base">{workout?.name || "Descanso"}</Text>
                     </View>
                   ) : (
                     <View className="flex-1 flex-row items-center gap-3">
                       <View className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 items-center justify-center">
-                        <Ionicons
-                          name="barbell-outline"
-                          size={14}
-                          color={colors.green[500]}
-                        />
+                        <Ionicons name="barbell-outline" size={14} color={colors.green[500]} />
                       </View>
-                      <Text
-                        className="flex-1 font-bold text-base text-neutral-900 dark:text-white"
-                        numberOfLines={1}
-                      >
+                      <Text className="flex-1 font-bold text-base text-neutral-900 dark:text-white" numberOfLines={1}>
                         {workout?.name ?? "Entrenamiento"}
                       </Text>
                     </View>
                   )}
 
                   {/* Drag handle */}
-                  <Ionicons
-                    name="menu-outline"
-                    size={20}
-                    color={colors.neutral[300]}
-                  />
+                  <Ionicons name="menu-outline" size={20} color={colors.neutral[300]} />
                 </View>
               );
             }}

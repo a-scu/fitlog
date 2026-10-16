@@ -6,35 +6,28 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { PersonalWorkspace, Workspace } from "@/types/Workspace";
 import { useUserStore } from "./UserStore";
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-} from "@react-native-firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from "@react-native-firebase/firestore";
 
 import { Alert } from "react-native";
+
+export const PERSONAL_WORKSPACE_ID = "personal";
 
 interface WorkspacesStore {
   personalWorkspace: PersonalWorkspace;
   workspaces: Workspace[];
 
   updatePersonalWorkspace: (personalWorkspace: PersonalWorkspace) => void;
+  updatePersonalWorkspaceField: (field: keyof PersonalWorkspace, value: any) => void;
   setWorkspaces: (workspaces: Workspace[]) => void;
   addWorkspace: (workspace: Workspace) => void;
-  updateWorkspace: (
-    workspaceId: string,
-    field: keyof Workspace,
-    value: any,
-  ) => void;
+  updateWorkspaceField: (workspaceId: string, field: keyof Workspace, value: any) => void;
   deleteWorkspace: (workspaceId: string) => void;
   deleteAllWorkspaces: () => void;
 
   generateInviteLink: (workspaceId: string) => Promise<string | null>;
   acceptInvitation: (workspaceId: string) => Promise<void>;
   syncWorkspaceToFirestore: (workspace: Workspace) => Promise<void>;
-  updateWorkspaceFull: (workspace: Workspace) => void;
+  updateWorkspace: (workspace: Workspace) => void;
   fetchWorkspace: (workspaceId: string) => Promise<void>;
 }
 
@@ -42,7 +35,7 @@ export const useWorkspacesStore = create<WorkspacesStore>()(
   persist(
     (set, get) => ({
       personalWorkspace: {
-        id: "personal",
+        id: PERSONAL_WORKSPACE_ID,
         name: "Yo",
         routineId: "",
         notes: [],
@@ -54,46 +47,37 @@ export const useWorkspacesStore = create<WorkspacesStore>()(
         set((state) => ({ personalWorkspace }));
       },
 
+      updatePersonalWorkspaceField: (field: keyof PersonalWorkspace, value: any) => {
+        set((state) => ({
+          personalWorkspace: { ...state.personalWorkspace, [field]: value },
+        }));
+      },
+
       setWorkspaces: (workspaces: Workspace[]) => set({ workspaces }),
 
-      addWorkspace: (workspace: Workspace) =>
-        set((state) => ({ workspaces: [workspace, ...state.workspaces] })),
+      addWorkspace: (workspace: Workspace) => set((state) => ({ workspaces: [workspace, ...state.workspaces] })),
 
-      updateWorkspace: (
-        workspaceId: string,
-        field: keyof Workspace,
-        value: any,
-      ) => {
+      updateWorkspaceField: (workspaceId: string, field: keyof Workspace, value: any) => {
         set((state) => ({
-          workspaces: state.workspaces.map((workspace) =>
-            workspace.id === workspaceId
-              ? { ...workspace, [field]: value }
-              : workspace,
-          ),
+          workspaces: state.workspaces.map((workspace) => (workspace.id === workspaceId ? { ...workspace, [field]: value } : workspace)),
         }));
 
         // If it's a shared workspace, sync the update to Firestore
-        const updatedWorkspace = get().workspaces.find(
-          (w) => w.id === workspaceId,
-        );
+        const updatedWorkspace = get().workspaces.find((w) => w.id === workspaceId);
         if (updatedWorkspace?.isShared) {
           get().syncWorkspaceToFirestore(updatedWorkspace);
         }
       },
 
-      updateWorkspaceFull: (updatedWorkspace: Workspace) => {
+      updateWorkspace: (updatedWorkspace: Workspace) => {
         set((state) => ({
-          workspaces: state.workspaces.map((w) =>
-            w.id === updatedWorkspace.id ? updatedWorkspace : w,
-          ),
+          workspaces: state.workspaces.map((w) => (w.id === updatedWorkspace.id ? updatedWorkspace : w)),
         }));
       },
 
       deleteWorkspace: (workspaceId: string) =>
         set((state) => ({
-          workspaces: state.workspaces.filter(
-            (workspace) => workspace.id !== workspaceId,
-          ),
+          workspaces: state.workspaces.filter((workspace) => workspace.id !== workspaceId),
         })),
 
       deleteAllWorkspaces: () =>
@@ -104,11 +88,7 @@ export const useWorkspacesStore = create<WorkspacesStore>()(
       syncWorkspaceToFirestore: async (workspace: Workspace) => {
         try {
           const workspaceToSync = { ...workspace, isShared: true };
-          await setDoc(
-            doc(getFirestore(), "workspaces", workspace.id),
-            workspaceToSync,
-            { merge: true },
-          );
+          await setDoc(doc(getFirestore(), "workspaces", workspace.id), workspaceToSync, { merge: true });
         } catch (error) {
           console.error("Error syncing workspace to Firestore:", error);
         }
@@ -125,10 +105,7 @@ export const useWorkspacesStore = create<WorkspacesStore>()(
         if (!workspace) return null;
 
         if (workspace.id === "default") {
-          Alert.alert(
-            "Error",
-            "No puedes invitar a otros a tu workspace personal.",
-          );
+          Alert.alert("Error", "No puedes invitar a otros a tu workspace personal.");
           return null;
         }
 
@@ -143,15 +120,12 @@ export const useWorkspacesStore = create<WorkspacesStore>()(
             ...workspace,
             isShared: true,
             coachId: currentUser.uid,
-            coachName:
-              currentUser.displayName ||
-              currentUser.username ||
-              "Un entrenador",
+            coachName: currentUser.displayName || currentUser.username || "Un entrenador",
           };
           await get().syncWorkspaceToFirestore(workspaceToSync);
 
           // Update local workspace as well
-          get().updateWorkspaceFull(workspaceToSync);
+          get().updateWorkspace(workspaceToSync);
 
           const link = `https://fitlog-4c7db.web.app/invite?id=${workspaceId}`;
           return link;
@@ -164,8 +138,7 @@ export const useWorkspacesStore = create<WorkspacesStore>()(
 
       acceptInvitation: async (workspaceId: string) => {
         const currentUser = useUserStore.getState().user;
-        if (!currentUser)
-          throw new Error("Debes iniciar sesión para aceptar una invitación.");
+        if (!currentUser) throw new Error("Debes iniciar sesión para aceptar una invitación.");
 
         try {
           const wsRef = doc(getFirestore(), "workspaces", workspaceId);
@@ -174,16 +147,12 @@ export const useWorkspacesStore = create<WorkspacesStore>()(
           if (!wsSnap.exists) throw new Error("El workspace no existe.");
           const workspaceData = wsSnap.data() as Workspace;
 
-          if (
-            workspaceData.athleteId &&
-            workspaceData.athleteId !== currentUser.uid
-          ) {
+          if (workspaceData.athleteId && workspaceData.athleteId !== currentUser.uid) {
             throw new Error("Este workspace ya tiene un atleta.");
           }
 
           // Update workspace with new athlete
-          const athleteName =
-            currentUser.displayName || currentUser.username || "Un alumno";
+          const athleteName = currentUser.displayName || currentUser.username || "Un alumno";
           await updateDoc(wsRef, { athleteId: currentUser.uid, athleteName });
 
           // Save to local store
@@ -196,20 +165,16 @@ export const useWorkspacesStore = create<WorkspacesStore>()(
           // Use update if it exists, otherwise add
           const exists = get().workspaces.find((w) => w.id === newWorkspace.id);
           if (exists) {
-            get().updateWorkspaceFull(newWorkspace);
+            get().updateWorkspace(newWorkspace);
           } else {
             get().addWorkspace(newWorkspace);
           }
 
           // Fetch routine if the workspace has one
           if (workspaceData.routineId) {
-            const routineRef = doc(
-              getFirestore(),
-              "routines",
-              workspaceData.routineId,
-            );
+            const routineRef = doc(getFirestore(), "routines", workspaceData.routineId);
             const routineSnap = await getDoc(routineRef);
-            if (routineSnap.exists) {
+            if (routineSnap.exists()) {
               const { useRoutinesStore } = require("@/stores/RoutinesStore");
               useRoutinesStore.getState().addRoutine(routineSnap.data() as any);
             }
@@ -225,23 +190,17 @@ export const useWorkspacesStore = create<WorkspacesStore>()(
           const wsRef = doc(getFirestore(), "workspaces", workspaceId);
           const wsSnap = await getDoc(wsRef);
 
-          if (wsSnap.exists) {
+          if (wsSnap.exists()) {
             const workspaceData = wsSnap.data() as Workspace;
-            get().updateWorkspaceFull(workspaceData);
+            get().updateWorkspace(workspaceData);
 
             // Also refresh routine if it changed
             if (workspaceData.routineId) {
-              const routineRef = doc(
-                getFirestore(),
-                "routines",
-                workspaceData.routineId,
-              );
+              const routineRef = doc(getFirestore(), "routines", workspaceData.routineId);
               const routineSnap = await getDoc(routineRef);
-              if (routineSnap.exists) {
+              if (routineSnap.exists()) {
                 const { useRoutinesStore } = require("@/stores/RoutinesStore");
-                useRoutinesStore
-                  .getState()
-                  .addRoutine(routineSnap.data() as any);
+                useRoutinesStore.getState().addRoutine(routineSnap.data() as any);
               }
             }
           }

@@ -57,7 +57,7 @@ export interface DropSet {
   partialReps: PartialReps;
 }
 
-export type ExerciseTranslations = {
+export interface ExerciseTranslations {
   name: string;
   instructions?: string[];
-};
+}

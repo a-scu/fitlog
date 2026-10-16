@@ -9,13 +9,11 @@ import colors from "tailwindcss/colors";
 export function SelectWorkoutModal({
   onSelectWorkout,
   excludeId,
-  templateOnly,
-  hideTemplate,
+  mode,
 }: {
   onSelectWorkout: (workout: Workout, asTemplate: boolean) => void;
   excludeId?: string;
-  templateOnly?: boolean;
-  hideTemplate?: boolean;
+  mode?: "template" | "import" | "both";
 }) {
   const workouts = useWorkoutsStore((s) => s.workouts);
   const routines = useRoutinesStore((s) => s.routines);
@@ -46,7 +44,7 @@ export function SelectWorkoutModal({
                 </Text>
               </View>
 
-              {!templateOnly && (
+              {mode !== "template" && (
                 <TouchableOpacity
                   onPress={() => {
                     onSelectWorkout(workout, false);
@@ -58,7 +56,7 @@ export function SelectWorkoutModal({
                 </TouchableOpacity>
               )}
 
-              {!hideTemplate && (
+              {mode !== "import" && (
                 <TouchableOpacity
                   onPress={() => {
                     onSelectWorkout(workout, true);

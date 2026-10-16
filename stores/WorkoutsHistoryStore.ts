@@ -1,60 +1,42 @@
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { isSameDay } from "date-fns";
+import { create } from "zustand";
+
 import { LoggedSet, WorkoutSession } from "@/types/History";
-import { randomId } from "@/utils/random";
-import { format, isSameDay } from "date-fns";
 import { DropSet } from "@/types/Workout";
+
+import { randomId } from "@/utils/random";
 
 interface WorkoutsHistoryStore {
   workoutSessions: WorkoutSession[];
+
   addWorkoutSession: (workoutSession: WorkoutSession) => void;
-  updateWorkoutSession: (
-    date: string | Date,
-    workoutSession: Partial<WorkoutSession>,
-  ) => void;
-  updateWorkoutSessionField: (
-    date: string | Date,
-    field: keyof WorkoutSession,
-    value: string | number | string[],
-  ) => void;
+  getWorkoutSession: (date: string | Date) => WorkoutSession;
+  updateWorkoutSession: (date: string | Date, workoutSession: Partial<WorkoutSession>) => void;
+  updateWorkoutSessionField: (date: string | Date, field: keyof WorkoutSession, value: any) => void;
   deleteWorkoutSession: (id: string) => void;
 
-  getWorkoutSessionsByDate: (date: string) => WorkoutSession[];
-
-  getWorkoutSession: (date: string | Date) => WorkoutSession | undefined;
-
   addSet: (date: string | Date, exerciseId: string) => void;
-  updateSetField: (
-    date: string | Date,
-    setId: string,
-    exerciseId: string,
-    field: keyof LoggedSet,
-    value: string | number | boolean,
-  ) => void;
-  toggleSetCompleted: (
-    date: string | Date,
-    setId: string,
-    exerciseId: string,
-  ) => void;
+  toggleSetCompleted: (date: string | Date, setId: string, exerciseId: string) => void;
+  updateSetField: (date: string | Date, setId: string, exerciseId: string, field: keyof LoggedSet, value: string | number | boolean) => void;
   removeSet: (date: string | Date, setId: string) => void;
 
-  deleteAllHistory: () => void;
+  addDropSet: (date: string | Date, setId: string, exerciseId: string, plannedDropSetId?: string) => void;
+  updateDropSetField: (date: string | Date, setId: string, exerciseId: string, dropSetId: string, field: string, value: string | number, plannedDropSetId?: string) => void;
+  removeDropSet: (date: string | Date, setId: string, dropSetId: string) => void;
 
-  addDropSet: (date: string | Date, setId: string) => void;
-  updateDropSetField: (
-    date: string | Date,
-    setId: string,
-    dropSetId: string,
-    field: keyof DropSet,
-    value: string | number,
-  ) => void;
-  removeDropSet: (
-    date: string | Date,
-    setId: string,
-    dropSetId: string,
-  ) => void;
+  deleteAllHistory: () => void;
 }
+
+const createNewSession = (date: string | Date, sets: LoggedSet[] = [], extra: Partial<WorkoutSession> = {}): WorkoutSession => ({
+  id: randomId(),
+  date: typeof date === "string" ? date : date.toISOString(),
+  duration: 0,
+  notes: "",
+  sets,
+  ...extra,
+});
 
 export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
   persist(
@@ -62,9 +44,12 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
       workoutSessions: [],
 
       getWorkoutSession: (date) => {
-        const workoutSession = get().workoutSessions.find((s) =>
-          isSameDay(s.date, date),
-        );
+        const workoutSession = get().workoutSessions.find((s) => isSameDay(s.date, date));
+        if (!workoutSession) {
+          const newSession = createNewSession(date);
+          set((state) => ({ workoutSessions: [newSession, ...state.workoutSessions] }));
+          return newSession;
+        }
         return workoutSession;
       },
 
@@ -75,93 +60,27 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
 
       updateWorkoutSession: (date, workoutSessionUpdate) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) =>
-            isSameDay(s.date, date),
-          );
-
-          if (sessionIndex !== -1) {
-            return {
-              workoutSessions: state.workoutSessions.map((s, i) =>
-                i === sessionIndex ? { ...s, ...workoutSessionUpdate } : s,
-              ),
-            };
-          } else {
-            const newSession: WorkoutSession = {
-              id: randomId(),
-              name: "Entrenamiento",
-              date: typeof date === "string" ? date : date.toISOString(),
-              duration: 0,
-              notes: "",
-              sets: [],
-              ...workoutSessionUpdate,
-            };
+          const exists = state.workoutSessions.some((s) => isSameDay(s.date, date));
+          if (!exists) {
+            const newSession = createNewSession(date, [], workoutSessionUpdate);
             return { workoutSessions: [newSession, ...state.workoutSessions] };
           }
+          return {
+            workoutSessions: state.workoutSessions.map((s) => (isSameDay(s.date, date) ? { ...s, ...workoutSessionUpdate } : s)),
+          };
         });
       },
 
       updateWorkoutSessionField: (date, field, value) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) =>
-            isSameDay(s.date, date),
-          );
-
-          if (sessionIndex !== -1) {
-            return {
-              workoutSessions: state.workoutSessions.map((s, i) =>
-                i === sessionIndex ? { ...s, [field]: value } : s,
-              ),
-            };
-          } else {
-            const newSession: WorkoutSession = {
-              id: randomId(),
-              name: "Entrenamiento",
-              date: typeof date === "string" ? date : date.toISOString(),
-              duration: 0,
-              notes: "",
-              sets: [],
-              [field]: value,
-            };
+          const exists = state.workoutSessions.some((s) => isSameDay(s.date, date));
+          if (!exists) {
+            const newSession = createNewSession(date, [], { [field]: value });
             return { workoutSessions: [newSession, ...state.workoutSessions] };
           }
-        });
-      },
-
-      getWorkoutSessionsByDate: (date) => {
-        // Assume date is YYYY-MM-DD
-        return get().workoutSessions.filter((s) => s.date.startsWith(date));
-      },
-
-      addSet: (date, exerciseId) => {
-        set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) =>
-            isSameDay(s.date, date),
-          );
-
-          if (sessionIndex !== -1) {
-            return {
-              workoutSessions: state.workoutSessions.map((s, i) =>
-                i === sessionIndex
-                  ? {
-                      ...s,
-                      sets: [
-                        ...s.sets,
-                        {
-                          id: randomId(),
-                          exerciseId: exerciseId,
-                          weight: 0,
-                          reps: 0,
-                          rir: 0,
-                          dropSets: [],
-                        },
-                      ],
-                    }
-                  : s,
-              ),
-            };
-          }
-
-          return state;
+          return {
+            workoutSessions: state.workoutSessions.map((s) => (isSameDay(s.date, date) ? { ...s, [field]: value } : s)),
+          };
         });
       },
 
@@ -170,243 +89,215 @@ export const useWorkoutsHistoryStore = create<WorkoutsHistoryStore>()(
           workoutSessions: state.workoutSessions.filter((s) => s.id !== id),
         })),
 
-      updateSetField: (date, setId, exerciseId, field, value) => {
+      addSet: (date, exerciseId) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) =>
-            isSameDay(s.date, date),
-          );
+          const exists = state.workoutSessions.some((s) => isSameDay(s.date, date));
+          const newSet: LoggedSet = {
+            id: randomId(),
+            exerciseId,
+            completed: false,
+            weight: 0,
+            reps: 0,
+            rir: 0,
+            dropSets: [],
+          };
 
-          if (sessionIndex !== -1) {
-            return {
-              workoutSessions: state.workoutSessions.map((s, i) => {
-                if (i === sessionIndex) {
-                  const setExists = s.sets.some((set) => set.id === setId);
-                  if (setExists) {
-                    return {
-                      ...s,
-                      sets: s.sets.map((set) =>
-                        set.id === setId ? { ...set, [field]: value } : set,
-                      ),
-                    };
-                  } else {
-                    return {
-                      ...s,
-                      sets: [
-                        ...s.sets,
-                        {
-                          id: setId,
-                          exerciseId,
-                          completed: false,
-                          dropSets: [],
-                          [field]: value,
-                        },
-                      ],
-                    };
-                  }
-                }
-                return s;
-              }),
-            };
-          } else {
-            // Create the session if it doesn't exist
-            const newSession: WorkoutSession = {
-              id: randomId(),
-              name: "Entrenamiento",
-              date: typeof date === "string" ? date : date.toISOString(),
-              duration: 0,
-              notes: "",
-              sets: [
-                {
-                  id: setId,
-                  exerciseId,
-                  completed: false,
-                  dropSets: [],
-                  [field]: value,
-                },
-              ],
-            };
+          if (!exists) {
+            const newSession = createNewSession(date, [newSet]);
             return { workoutSessions: [newSession, ...state.workoutSessions] };
           }
+
+          return {
+            workoutSessions: state.workoutSessions.map((s) => (isSameDay(s.date, date) ? { ...s, sets: [...s.sets, newSet] } : s)),
+          };
+        });
+      },
+
+      updateSetField: (date, setId, exerciseId, field, value) => {
+        set((state) => {
+          const exists = state.workoutSessions.some((s) => isSameDay(s.date, date));
+          const newSet: LoggedSet = {
+            id: setId,
+            exerciseId,
+            completed: false,
+            dropSets: [],
+            [field]: value,
+          };
+
+          if (!exists) {
+            const newSession = createNewSession(date, [newSet]);
+            return { workoutSessions: [newSession, ...state.workoutSessions] };
+          }
+
+          return {
+            workoutSessions: state.workoutSessions.map((session) => {
+              if (!isSameDay(session.date, date)) return session;
+
+              const setExists = session.sets.some((set) => set.id === setId);
+              const updatedSets = setExists
+                ? session.sets.map((set) => (set.id === setId ? { ...set, [field]: value } : set))
+                : [...session.sets, newSet];
+
+              return { ...session, sets: updatedSets };
+            }),
+          };
         });
       },
 
       toggleSetCompleted: (date, setId, exerciseId) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) =>
-            isSameDay(s.date, date),
-          );
-
-          if (sessionIndex !== -1) {
-            return {
-              workoutSessions: state.workoutSessions.map((s, i) => {
-                if (i === sessionIndex) {
-                  const setExists = s.sets.some((set) => set.id === setId);
-                  if (setExists) {
-                    const currentSet = s.sets.find((set) => set.id === setId);
-                    if (currentSet?.completed) {
-                      // If it was completed, and we toggle, we remove it
-                      return {
-                        ...s,
-                        sets: s.sets.filter((set) => set.id !== setId),
-                      };
-                    } else {
-                      // If it wasn't completed (shouldn't happen with current logic), we mark as true
-                      return {
-                        ...s,
-                        sets: s.sets.map((set) =>
-                          set.id === setId ? { ...set, completed: true } : set,
-                        ),
-                      };
-                    }
-                  } else {
-                    return {
-                      ...s,
-                      sets: [
-                        ...s.sets,
-                        {
-                          id: setId,
-                          exerciseId,
-                          completed: true,
-                          dropSets: [],
-                        },
-                      ],
-                    };
-                  }
-                }
-                return s;
-              }),
-            };
-          } else {
-            const newSession: WorkoutSession = {
-              id: randomId(),
-              name: "Entrenamiento",
-              date: typeof date === "string" ? date : date.toISOString(),
-              duration: 0,
-              notes: "",
-              sets: [{ id: setId, exerciseId, completed: true, dropSets: [] }],
-            };
+          const exists = state.workoutSessions.some((s) => isSameDay(s.date, date));
+          if (!exists) {
+            const newSession = createNewSession(date, [{ id: setId, exerciseId, completed: true, dropSets: [] }]);
             return { workoutSessions: [newSession, ...state.workoutSessions] };
           }
+
+          return {
+            workoutSessions: state.workoutSessions.map((session) => {
+              if (!isSameDay(session.date, date)) return session;
+
+              const currentSet = session.sets.find((set) => set.id === setId);
+              if (!currentSet) {
+                return {
+                  ...session,
+                  sets: [...session.sets, { id: setId, exerciseId, completed: true, dropSets: [] }],
+                };
+              }
+
+              // If it was completed, toggle removes it. Otherwise, mark as completed.
+              const updatedSets = currentSet.completed
+                ? session.sets.filter((set) => set.id !== setId)
+                : session.sets.map((set) => (set.id === setId ? { ...set, completed: true } : set));
+
+              return { ...session, sets: updatedSets };
+            }),
+          };
         });
       },
 
       removeSet: (date, setId) => {
-        set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) =>
-            isSameDay(s.date, date),
-          );
+        set((state) => ({
+          workoutSessions: state.workoutSessions.map((s) => (isSameDay(s.date, date) ? { ...s, sets: s.sets.filter((set) => set.id !== setId) } : s)),
+        }));
+      },
 
-          if (sessionIndex !== -1) {
-            return {
-              workoutSessions: state.workoutSessions.map((s, i) =>
-                i === sessionIndex
-                  ? { ...s, sets: s.sets.filter((s) => s.id !== setId) }
-                  : s,
-              ),
-            };
+      addDropSet: (date, setId, exerciseId, plannedDropSetId) => {
+        set((state) => {
+          const exists = state.workoutSessions.some((s) => isSameDay(s.date, date));
+          const newSet: LoggedSet = {
+            id: setId,
+            exerciseId,
+            completed: false,
+            weight: 0,
+            reps: 0,
+            rir: 0,
+            dropSets: [{ id: randomId(), plannedDropSetId, weight: 0, reps: 0 }],
+          };
+
+          if (!exists) {
+            const newSession = createNewSession(date, [newSet]);
+            return { workoutSessions: [newSession, ...state.workoutSessions] };
           }
 
-          return state;
+          return {
+            workoutSessions: state.workoutSessions.map((session) => {
+              if (!isSameDay(session.date, date)) return session;
+
+              const setExists = session.sets.some((set) => set.id === setId);
+              const updatedSets = setExists
+                ? session.sets.map((set) =>
+                    set.id === setId
+                      ? {
+                          ...set,
+                          dropSets: [...(set.dropSets || []), { id: randomId(), plannedDropSetId, weight: 0, reps: 0 }],
+                        }
+                      : set,
+                  )
+                : [...session.sets, newSet];
+
+              return { ...session, sets: updatedSets };
+            }),
+          };
         });
       },
 
-      addDropSet: (date, setId) => {
+      updateDropSetField: (date, setId, exerciseId, dropSetId, field, value, plannedDropSetId) => {
         set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) =>
-            isSameDay(s.date, date),
-          );
+          const exists = state.workoutSessions.some((s) => isSameDay(s.date, date));
+          
+          const newDropSet = { 
+            id: plannedDropSetId ? randomId() : dropSetId, 
+            plannedDropSetId, 
+            weight: field === "weight" ? Number(value) || 0 : 0, 
+            reps: field === "reps" ? Number(value) || 0 : 0, 
+          };
+          
+          const newSet: LoggedSet = {
+            id: setId,
+            exerciseId,
+            completed: false,
+            weight: 0,
+            reps: 0,
+            rir: 0,
+            dropSets: [newDropSet],
+          };
 
-          if (sessionIndex !== -1) {
-            return {
-              workoutSessions: state.workoutSessions.map((s, i) =>
-                i === sessionIndex
-                  ? {
-                      ...s,
-                      sets: s.sets.map((set) =>
-                        set.id === setId
-                          ? {
-                              ...set,
-                              dropSets: [
-                                ...(set.dropSets || []),
-                                { id: randomId(), weight: 0, reps: 0 },
-                              ],
-                            }
-                          : set,
-                      ),
-                    }
-                  : s,
-              ),
-            };
+          if (!exists) {
+            const newSession = createNewSession(date, [newSet]);
+            return { workoutSessions: [newSession, ...state.workoutSessions] };
           }
 
-          return state;
-        });
-      },
+          return {
+            workoutSessions: state.workoutSessions.map((session) => {
+              if (!isSameDay(session.date, date)) return session;
 
-      updateDropSetField: (date, setId, dropSetId, field, value) => {
-        set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) =>
-            isSameDay(s.date, date),
-          );
+              const setExists = session.sets.some((set) => set.id === setId);
+              if (!setExists) {
+                return { ...session, sets: [...session.sets, newSet] };
+              }
 
-          if (sessionIndex !== -1) {
-            return {
-              workoutSessions: state.workoutSessions.map((s, i) =>
-                i === sessionIndex
-                  ? {
-                      ...s,
-                      sets: s.sets.map((s) =>
-                        s.id === setId
-                          ? {
-                              ...s,
-                              dropSets: s.dropSets.map((ds) =>
-                                ds.id === dropSetId
-                                  ? { ...ds, [field]: value }
-                                  : ds,
-                              ),
-                            }
-                          : s,
-                      ),
-                    }
-                  : s,
-              ),
-            };
-          }
+              const updatedSets = session.sets.map((set) => {
+                if (set.id !== setId) return set;
 
-          return state;
+                const currentDropSets = set.dropSets || [];
+                const existingIndex = currentDropSets.findIndex(
+                  (ds) => ds.id === dropSetId || (plannedDropSetId && ds.plannedDropSetId === plannedDropSetId)
+                );
+
+                const updatedDropSets = [...currentDropSets];
+                if (existingIndex !== -1) {
+                  updatedDropSets[existingIndex] = {
+                    ...updatedDropSets[existingIndex],
+                    [field]: Number(value) || 0,
+                    ...(plannedDropSetId ? { plannedDropSetId } : {}),
+                  };
+                } else {
+                  updatedDropSets.push(newDropSet);
+                }
+
+                return { ...set, dropSets: updatedDropSets };
+              });
+
+              return { ...session, sets: updatedSets };
+            }),
+          };
         });
       },
 
       removeDropSet: (date, setId, dropSetId) => {
-        set((state) => {
-          const sessionIndex = state.workoutSessions.findIndex((s) =>
-            isSameDay(s.date, date),
-          );
+        set((state) => ({
+          workoutSessions: state.workoutSessions.map((session) => {
+            if (!isSameDay(session.date, date)) return session;
 
-          if (sessionIndex !== -1) {
-            return {
-              workoutSessions: state.workoutSessions.map((s, i) =>
-                i === sessionIndex
-                  ? {
-                      ...s,
-                      sets: s.sets.map((s) =>
-                        s.id === setId
-                          ? {
-                              ...s,
-                              dropSets: s.dropSets.filter(
-                                (ds) => ds.id !== dropSetId,
-                              ),
-                            }
-                          : s,
-                      ),
-                    }
-                  : s,
-              ),
-            };
-          }
+            const updatedSets = session.sets.map((set) => {
+              if (set.id !== setId) return set;
 
-          return state;
-        });
+              const updatedDropSets = (set.dropSets || []).filter((ds) => ds.id !== dropSetId);
+              return { ...set, dropSets: updatedDropSets };
+            });
+            return { ...session, sets: updatedSets };
+          }),
+        }));
       },
 
       deleteAllHistory: () => set({ workoutSessions: [] }),

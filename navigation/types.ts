@@ -5,7 +5,7 @@ export type RootStackParamList = {
   exercises: undefined;
   exercise: { exercise: any };
 
-  createRoutine: undefined;
+  createRoutine: { workspaceId: string };
   routine: { routineId: string };
 
   createWorkout: undefined;
@@ -17,15 +17,17 @@ export type RootStackParamList = {
 
   createWorkspace: undefined;
   workspace: { workspaceId: string; initialTab?: "overview" | "routine" };
-  workspaceSettings: { workspaceId: string };
+  workspaceSettings?: { workspaceId?: string };
   invite: { id: string };
   activeWeek: undefined;
   language: undefined;
+  programs: undefined;
+  activeWorkout: undefined;
 };
 
 export type BottomTabParamList = {
   dashboard: undefined;
-  programs: undefined;
+  diary: undefined;
   workspaces: undefined;
   settings: undefined;
 };

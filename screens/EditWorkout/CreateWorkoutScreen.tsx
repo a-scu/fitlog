@@ -19,6 +19,8 @@ export default function CreateWorkoutScreen({ navigation, route }: any) {
     navigation.setOptions({ title: "Crear entrenamiento" });
   }, []);
 
+  // Adaptar screen para poder crear workouts sin asignarlos a ninguna rutina, simplemente stand alone
+
   const handleCreateWorkout = () => {
     const { routineId, dayIndex } = route.params || {};
     const newWorkoutId = randomId();
@@ -39,7 +41,7 @@ export default function CreateWorkoutScreen({ navigation, route }: any) {
   };
 
   return (
-    <View className="bg-white dark:bg-neutral-900 flex-1" style={{ paddingBottom: insets.bottom }}>
+    <View className="bg-white dark:bg-neutral-950 flex-1" style={{ paddingBottom: insets.bottom }}>
       <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} contentContainerClassName="py-3 gap-6">
         <View className="gap-1 px-3">
           <Text className="text-neutral-500 dark:text-neutral-400 font-medium mb-1">Nombre del entrenamiento</Text>
@@ -53,10 +55,7 @@ export default function CreateWorkoutScreen({ navigation, route }: any) {
         </View>
       </ScrollView>
 
-      <TouchableOpacity
-        onPress={handleCreateWorkout}
-        className="bg-black dark:bg-white items-center justify-center p-8 mx-3 mb-3 rounded-xl"
-      >
+      <TouchableOpacity onPress={handleCreateWorkout} className="bg-black dark:bg-white items-center justify-center p-8 mx-3 mb-3 rounded-xl">
         <Text className="text-center text-lg font-semibold text-white dark:text-black">Crear entrenamiento</Text>
       </TouchableOpacity>
     </View>

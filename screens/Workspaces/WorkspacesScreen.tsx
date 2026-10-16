@@ -26,8 +26,8 @@ export default function WorkspacesScreen({ navigation }: any) {
       snapPoints: ["40%"],
       content: (
         <ConfirmationModal
-          title="¿Eliminar todos los workspaces?"
-          description="Esta acción no se puede deshacer. Se eliminarán todos los workspaces excepto el personal."
+          title="¿Eliminar todos los alumnos?"
+          description="Esta acción no se puede deshacer. Se eliminarán todos los alumnos excepto el espacio personal."
           onConfirm={deleteAllWorkspaces}
           confirmText="Eliminar todos"
           type="danger"
@@ -37,14 +37,14 @@ export default function WorkspacesScreen({ navigation }: any) {
   };
 
   return (
-    <ScrollView contentContainerClassName="p-4 gap-4 flex-1 bg-neutral-50 dark:bg-neutral-900">
+    <ScrollView contentContainerClassName="p-4 gap-4 flex-1 bg-neutral-50 dark:bg-neutral-950">
       <TouchableOpacity
         onPress={handleCreateWorkspace}
         className="p-6 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-2xl items-center justify-center flex-row gap-2"
       >
         <Ionicons name="add-circle-outline" size={24} color="#10b981" />
         <Text className="text-neutral-900 dark:text-white font-bold text-lg">
-          Crear Workspace
+          Crear Alumno
         </Text>
       </TouchableOpacity>
 
@@ -55,13 +55,13 @@ export default function WorkspacesScreen({ navigation }: any) {
         >
           <Ionicons name="trash-bin-outline" size={18} color="#ef4444" />
           <Text className="text-red-600 dark:text-red-500 font-medium">
-            Eliminar todos los workspaces
+            Eliminar todos los alumnos
           </Text>
         </TouchableOpacity>
       ) : (
         <View className="items-center py-6">
           <Text className="text-neutral-400 dark:text-neutral-500">
-            No hay workspaces adicionales
+            No hay alumnos adicionales
           </Text>
         </View>
       )}
@@ -103,8 +103,8 @@ const WorkspaceItem = ({
         snapPoints: ["40%"],
         content: (
           <ConfirmationModal
-            title="¿Eliminar workspace compartido?"
-            description={`Este workspace está compartido con un alumno. Si lo eliminas, perderá el acceso a sus rutinas.`}
+            title="¿Eliminar alumno compartido?"
+            description={`Este espacio está compartido con un alumno. Si lo eliminas, perderá el acceso a sus rutinas.`}
             onConfirm={() => deleteWorkspace(workspace.id)}
             confirmText="Eliminar"
             type="danger"
@@ -132,7 +132,7 @@ const WorkspaceItem = ({
           </View>
           <View>
             <Text className="font-bold text-neutral-900 dark:text-white text-base">
-              {workspace.name || `Workspace ${index + 1}`}
+              {workspace.name || `Alumno ${index + 1}`}
             </Text>
             {workspace.id === "default" && (
               <Text className="text-neutral-500 dark:text-neutral-400 text-xs">

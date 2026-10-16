@@ -1,4 +1,4 @@
-import { SCREEN_WIDTH } from "@/constants/layout";
+import { SCREEN_WIDTH } from "@/constants/Layout";
 import { useRoutinesStore } from "@/stores/RoutinesStore";
 import { useWorkspacesStore } from "@/stores/WorkspacesStore";
 import { useWorkoutsStore } from "@/stores/WorkoutsStore";
@@ -42,26 +42,16 @@ export default function ActiveWeekScreen({ navigation, route }: any) {
 
   if (!routine) {
     return (
-      <View
-        style={{ width: SCREEN_WIDTH, flex: 1 }}
-        className="items-center justify-center"
-      >
-        <Text className="text-neutral-400 dark:text-neutral-500">
-          Sin rutina asignada
-        </Text>
+      <View style={{ width: SCREEN_WIDTH, flex: 1 }} className="items-center justify-center">
+        <Text className="text-neutral-400 dark:text-neutral-500">Sin rutina asignada</Text>
       </View>
     );
   }
 
   // Resolve source: override → base days. Filter corrupt entries.
-  const resolve = (src: any[]) =>
-    (src ?? []).filter(
-      (d: any) => d && typeof d === "object" && typeof d.dayIndex === "number",
-    );
+  const resolve = (src: any[]) => (src ?? []).filter((d: any) => d && typeof d === "object" && typeof d.dayIndex === "number");
 
-  let sourceDays: RoutineDay[] = resolve(
-    routine.weekOverrides?.[weekId]?.days ?? routine.days,
-  );
+  let sourceDays: RoutineDay[] = resolve(routine.weekOverrides?.[weekId]?.days ?? routine.days);
   if (sourceDays.length < NUM_DAYS) {
     sourceDays = resolve(routine.days);
   }
@@ -71,9 +61,7 @@ export default function ActiveWeekScreen({ navigation, route }: any) {
 
   // Sync when week/routine/overrides change
   useEffect(() => {
-    const fresh = resolve(
-      routine.weekOverrides?.[weekId]?.days ?? routine.days,
-    );
+    const fresh = resolve(routine.weekOverrides?.[weekId]?.days ?? routine.days);
     setAssignments(fresh.length >= NUM_DAYS ? fresh : resolve(routine.days));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weekId, routine.days, routine.weekOverrides]);
@@ -87,11 +75,7 @@ export default function ActiveWeekScreen({ navigation, route }: any) {
         reordered.length === routine.days.length &&
         reordered.every((day, idx) => {
           const originalDay = routine.days[idx];
-          return (
-            day.dayIndex === originalDay.dayIndex &&
-            day.workoutId === originalDay.workoutId &&
-            day.isRestDay === originalDay.isRestDay
-          );
+          return day.dayIndex === originalDay.dayIndex && day.workoutId === originalDay.workoutId && day.isRestDay === originalDay.isRestDay;
         });
 
       if (isIdentical) {
@@ -126,9 +110,7 @@ export default function ActiveWeekScreen({ navigation, route }: any) {
               alignItems: "center",
             }}
           >
-            <Text className="text-neutral-400 dark:text-neutral-500 font-bold text-sm">
-              {getLocalizedDayShort(index, t)}
-            </Text>
+            <Text className="text-neutral-400 dark:text-neutral-500 font-bold text-sm">{getLocalizedDayShort(index, t)}</Text>
           </View>
         ))}
       </View>
@@ -138,28 +120,19 @@ export default function ActiveWeekScreen({ navigation, route }: any) {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View className="flex-1 bg-white dark:bg-neutral-900">
+      <View className="flex-1 bg-white dark:bg-neutral-950">
         <View style={{ flex: 1, padding: 16 }}>
           {hasOverride && (
             <View className="bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 p-3 rounded-xl mb-4">
-              <Text className="text-amber-800 dark:text-amber-400 font-medium text-center text-sm">
-                Orden alternativo activo esta semana
-              </Text>
+              <Text className="text-amber-800 dark:text-amber-400 font-medium text-center text-sm">Orden alternativo activo esta semana</Text>
             </View>
           )}
 
-          <TouchableOpacity
-            onPress={() => discardWeekOverride(routine.id, weekId)}
-            className="p-3 mb-4 border rounded-xl border-neutral-300"
-          >
-            <Text className="text-neutral-800 dark:text-neutral-400 font-medium text-center text-sm">
-              Descartar cambios
-            </Text>
+          <TouchableOpacity onPress={() => discardWeekOverride(routine.id, weekId)} className="p-3 mb-4 border rounded-xl border-neutral-300">
+            <Text className="text-neutral-800 dark:text-neutral-400 font-medium text-center text-sm">Descartar cambios</Text>
           </TouchableOpacity>
 
-          <Text className="text-xs text-neutral-400 dark:text-neutral-500 mb-4">
-            Mantén presionado la asignación para moverla a otro día
-          </Text>
+          <Text className="text-xs text-neutral-400 dark:text-neutral-500 mb-4">Mantén presionado la asignación para moverla a otro día</Text>
 
           <View style={{ flex: 1 }}>
             <ReorderableList<RoutineDay>
@@ -181,40 +154,23 @@ export default function ActiveWeekScreen({ navigation, route }: any) {
                     {day.isRestDay ? (
                       <View className="flex-1 flex-row items-center gap-3">
                         <View className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-700 items-center justify-center">
-                          <Ionicons
-                            name="moon-outline"
-                            size={14}
-                            color={colors.neutral[400]}
-                          />
+                          <Ionicons name="moon-outline" size={14} color={colors.neutral[400]} />
                         </View>
-                        <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-base">
-                          {workout?.name || "Descanso"}
-                        </Text>
+                        <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-base">{workout?.name || "Descanso"}</Text>
                       </View>
                     ) : (
                       <View className="flex-1 flex-row items-center gap-3">
                         <View className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 items-center justify-center">
-                          <Ionicons
-                            name="barbell-outline"
-                            size={14}
-                            color={colors.green[500]}
-                          />
+                          <Ionicons name="barbell-outline" size={14} color={colors.green[500]} />
                         </View>
-                        <Text
-                          className="flex-1 font-bold text-base text-neutral-900 dark:text-white"
-                          numberOfLines={1}
-                        >
+                        <Text className="flex-1 font-bold text-base text-neutral-900 dark:text-white" numberOfLines={1}>
                           {workout?.name ?? "Entrenamiento"}
                         </Text>
                       </View>
                     )}
 
                     {/* Drag handle */}
-                    <Ionicons
-                      name="menu-outline"
-                      size={20}
-                      color={colors.neutral[300]}
-                    />
+                    <Ionicons name="menu-outline" size={20} color={colors.neutral[300]} />
                   </View>
                 );
               }}

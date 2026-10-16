@@ -63,7 +63,7 @@ export default function ExerciseScreen({
 
   return (
     <ScrollView
-      className="flex-1 bg-white dark:bg-neutral-900"
+      className="flex-1 bg-white dark:bg-neutral-950"
       contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
     >
       <TouchableOpacity

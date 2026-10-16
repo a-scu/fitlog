@@ -29,12 +29,19 @@ export const ConfirmationModal = ({
   return (
     <View className="gap-6">
       <View className="gap-2">
-        <Text className="text-xl font-bold text-neutral-900">{title}</Text>
-        <Text className="text-base text-neutral-600 leading-6">{description}</Text>
+        <Text className="text-xl font-bold dark:text-white text-neutral-900">
+          {title}
+        </Text>
+        <Text className="text-base dark:text-neutral-300 text-neutral-600 leading-6">
+          {description}
+        </Text>
       </View>
 
       <View className="flex-row gap-3">
-        <TouchableOpacity onPress={hideModal} className="flex-1 p-4 rounded-2xl bg-neutral-100 items-center">
+        <TouchableOpacity
+          onPress={hideModal}
+          className="flex-1 p-4 rounded-2xl bg-neutral-100 items-center"
+        >
           <Text className="text-neutral-900 font-semibold">{cancelText}</Text>
         </TouchableOpacity>
         <TouchableOpacity

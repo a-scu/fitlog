@@ -31,7 +31,7 @@ export default function LanguageScreen({ navigation }: any) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-neutral-50 dark:bg-neutral-900 p-4">
+    <ScrollView className="flex-1 bg-neutral-50 dark:bg-neutral-950 p-4">
       <Text className="text-sm font-bold text-neutral-400 uppercase mb-3 ml-1">
         {t("screens.settings.selectLanguage", "Seleccionar Idioma")}
       </Text>

@@ -20,6 +20,8 @@ export interface Workspace {
   createdAt: string;
   coachId: string | null;
   athleteId: string | null;
+  coachName?: string | null;
+  athleteName?: string | null;
 }
 
 export interface Invitation {

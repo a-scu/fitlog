@@ -46,7 +46,7 @@ const Header = ({
   return (
     <View
       style={{ paddingTop: insets.top }}
-      className="bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800"
+      className="bg-white dark:bg-neutral-950 border-b border-neutral-100 dark:border-neutral-900"
     >
       <View className="p-3 pr-0 h-14 flex-row items-center justify-between">
         <View className="flex-row items-center flex-1">

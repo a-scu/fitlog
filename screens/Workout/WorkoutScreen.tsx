@@ -25,10 +25,14 @@ export default function WorkoutScreen({ navigation, route }: any) {
   }, [workout?.name, navigation]);
 
   const handleDeleteWorkout = () => {
-    const routinesUsingWorkout = routines.filter((r) => r.days.some((d) => d.workoutId === workoutId));
+    const routinesUsingWorkout = routines.filter((r) =>
+      r.days.some((d) => d.workoutId === workoutId),
+    );
 
     if (routinesUsingWorkout.length > 0) {
-      const routineNames = routinesUsingWorkout.map((r) => r.name || "Sin nombre").join(", ");
+      const routineNames = routinesUsingWorkout
+        .map((r) => r.name || "Sin nombre")
+        .join(", ");
       showModal({
         snapPoints: ["45%"],
         content: (
@@ -53,7 +57,10 @@ export default function WorkoutScreen({ navigation, route }: any) {
   if (!workout) return null;
 
   return (
-    <View className="flex-1 flex-grow bg-white dark:bg-neutral-900" style={{ paddingBottom: insets.bottom }}>
+    <View
+      className="flex-1 flex-grow bg-white dark:bg-neutral-950"
+      style={{ paddingBottom: insets.bottom }}
+    >
       <Text className="dark:text-white">{workout.type}</Text>
 
       <ScrollView className="flex-1 p-3">
@@ -66,13 +73,20 @@ export default function WorkoutScreen({ navigation, route }: any) {
           onPress={() => navigation.navigate("editWorkout", { workoutId })}
           className="flex-1 p-3 bg-neutral-800 dark:bg-white rounded-lg"
         >
-          <Text className="text-center text-white dark:text-black font-medium">Editar rutina</Text>
+          <Text className="text-center text-white dark:text-black font-medium">
+            Editar rutina
+          </Text>
         </TouchableOpacity>
       </View>
 
       <View className="flex-row items-center gap-2 px-3 mb-3">
-        <TouchableOpacity onPress={handleDeleteWorkout} className="flex-1 p-3 border-red-400 dark:border-red-800 border rounded-lg">
-          <Text className="text-center text-red-500 dark:text-red-400 font-medium">Eliminar</Text>
+        <TouchableOpacity
+          onPress={handleDeleteWorkout}
+          className="flex-1 p-3 border-red-400 dark:border-red-800 border rounded-lg"
+        >
+          <Text className="text-center text-red-500 dark:text-red-400 font-medium">
+            Eliminar
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="flex-1 p-3 bg-red-400 dark:bg-red-500 rounded-lg">

@@ -12,7 +12,7 @@ import DashboardScreen from "@/screens/Dashboard/DashboardScreen";
 import { capitalize } from "@/utils/text";
 import SettingsScreen from "@/screens/Settings/SettingsScreen";
 import Header from "@/components/Header";
-import ProgramsScreen from "@/screens/ProgramsScreen";
+import DiaryScreen from "@/screens/Diary/DiaryScreen";
 import WorkspacesScreen from "@/screens/Workspaces/WorkspacesScreen";
 import ActiveWorkoutBubble from "@/components/ActiveWorkoutBubble";
 
@@ -35,13 +35,17 @@ export default function BottomTabsNavigator() {
         <Tab.Screen
           name="dashboard"
           component={DashboardScreen}
-          options={{ headerShown: true, title: "Dashboard" }}
+          options={{ headerShown: false, title: "Dashboard" }}
         />
-        <Tab.Screen name="programs" component={ProgramsScreen} />
+        <Tab.Screen
+          name="diary"
+          component={DiaryScreen}
+          options={{ headerShown: false, title: "Diario" }}
+        />
         <Tab.Screen
           name="workspaces"
           component={WorkspacesScreen}
-          options={{ headerShown: true, title: "Workspaces" }}
+          options={{ headerShown: true, title: "Alumnos" }}
         />
         <Tab.Screen
           name="settings"
@@ -62,7 +66,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
       <View
         style={{ paddingBottom: insets.bottom }}
-        className="bg-white dark:bg-neutral-900 border-t border-neutral-100 dark:border-neutral-800"
+        className="bg-white dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800"
       >
         <View className="flex-row items-center justify-around py-4">
           {state.routes.map((route, index) => {
@@ -91,14 +95,18 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
             let iconName: any = "dashboard-outline";
             if (route.name === "dashboard")
               iconName = isFocused ? "grid-outline" : "grid-outline";
-            if (route.name === "programs")
-              iconName = isFocused ? "calendar-outline" : "calendar-outline";
+            if (route.name === "diary")
+              iconName = isFocused ? "book-outline" : "book-outline";
             if (route.name === "workspaces")
-              iconName = isFocused
-                ? "folder-open-outline"
-                : "folder-open-outline";
+              iconName = isFocused ? "people-outline" : "people-outline";
             if (route.name === "settings")
               iconName = isFocused ? "options-outline" : "options-outline";
+
+            let label = capitalize(route.name);
+            if (route.name === "dashboard") label = "Dashboard";
+            if (route.name === "diary") label = "Diario";
+            if (route.name === "workspaces") label = "Alumnos";
+            if (route.name === "settings") label = "Configuración";
 
             return (
               <TouchableOpacity
@@ -121,9 +129,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
                   style={{ includeFontPadding: false }}
                   className={`text-[10px] mt-1 font-semibold ${isFocused ? "text-red-400" : "text-neutral-400"}`}
                 >
-                  {route.name === "dashboard"
-                    ? "Dashboard"
-                    : capitalize(route.name)}
+                  {label}
                 </Text>
               </TouchableOpacity>
             );

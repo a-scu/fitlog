@@ -8,11 +8,13 @@ interface Props {
 export default function NotesTab({ workspace }: Props) {
   return (
     <ScrollView
-      className="flex-1 bg-white dark:bg-neutral-900"
+      className="flex-1 bg-white dark:bg-neutral-950"
       contentContainerStyle={{ flexGrow: 1 }}
       contentContainerClassName="p-4 gap-4"
     >
-      <Text className="text-neutral-400 text-center mt-10">Aun no hay notas</Text>
+      <Text className="text-neutral-400 text-center mt-10">
+        Aun no hay notas
+      </Text>
     </ScrollView>
   );
 }

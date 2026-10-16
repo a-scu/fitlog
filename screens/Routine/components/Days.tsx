@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  Pressable,
-} from "react-native";
+import { View, Text, TouchableOpacity, useWindowDimensions, Pressable } from "react-native";
 import { useRef, useState, useCallback, memo, useMemo, useEffect } from "react";
 import Animated, {
   useSharedValue,
@@ -33,24 +27,19 @@ import { SET_TYPES } from "@/constants/SetTypes";
 import { capitalize } from "@/utils/text";
 import ExerciseGif from "@/components/ExerciseGif";
 import { useGlobalSettingsStore } from "@/stores/GlobalSettingsStore";
-import { getLocalizedDayName, getLocalizedDayShort } from "@/utils/date";
+import { getAdjustedDayIndex, getLocalizedDayName, getLocalizedDayShort } from "@/utils/date";
 import { useTranslation } from "react-i18next";
 import { SelectWorkoutModal } from "@/components/modals/SelectWorkoutModal";
 import { useModalStore } from "@/stores/ModalStore";
 
-export default function Days({
-  routineId,
-  days,
-}: {
-  routineId: string;
-  days: RoutineDay[];
-}) {
+export default function Days({ routineId, days }: { routineId: string; days: RoutineDay[] }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
   const workouts = useWorkoutsStore((s) => s.workouts);
 
-  // Calculate current day index (0: Monday, ..., 6: Sunday)
-  const initialIndex = (new Date().getDay() + 6) % 7;
+  const date = new Date();
+
+  const initialIndex = getAdjustedDayIndex(date);
 
   const [activeIndex, setActiveIndex] = useState(initialIndex);
 
@@ -95,23 +84,14 @@ export default function Days({
   const renderItem = useCallback(
     ({ item: day }: { item: RoutineDay }) => {
       const workout = workouts.find((w) => w.id === day.workoutId);
-      return (
-        <DaySlide
-          day={day}
-          routineId={routineId}
-          screenWidth={screenWidth}
-          workout={workout}
-        />
-      );
+      return <DaySlide day={day} routineId={routineId} screenWidth={screenWidth} workout={workout} />;
     },
     [workouts, routineId, screenWidth],
   );
 
   return (
     <View className="flex-1 gap-4">
-      <Text className="text-neutral-500 dark:text-neutral-400 font-medium ml-3">
-        Días de entrenamiento
-      </Text>
+      <Text className="text-neutral-500 dark:text-neutral-400 font-medium ml-3">Días de entrenamiento</Text>
 
       {/* Days indicator */}
       <View className="flex-row items-center justify-center gap-2 px-3">
@@ -153,43 +133,27 @@ export default function Days({
   );
 }
 
-const DaySlide = memo(
-  ({
-    day,
-    routineId,
-    screenWidth,
-    workout,
-  }: {
-    day: RoutineDay;
-    routineId: string;
-    screenWidth: number;
-    workout?: Workout;
-  }) => {
-    return (
-      <View style={{ width: screenWidth }} className="px-3">
-        <View className="flex-1 rounded-3xl p-5 border border-neutral-200 dark:border-neutral-800">
-          <DayHeader routineId={routineId} day={day} workout={workout} />
+const DaySlide = memo(({ day, routineId, screenWidth, workout }: { day: RoutineDay; routineId: string; screenWidth: number; workout?: Workout }) => {
+  return (
+    <View style={{ width: screenWidth }} className="px-3">
+      <View className="flex-1 rounded-3xl p-5 border border-neutral-200 dark:border-neutral-800">
+        <DayHeader routineId={routineId} day={day} workout={workout} />
 
-          {day.isRestDay ? (
-            <RestDayView />
-          ) : (
-            <View className="flex-1">
-              {workout ? (
-                <WorkoutView
-                  routineId={routineId}
-                  dayIndex={day.dayIndex}
-                  workout={workout}
-                />
-              ) : (
-                <EmptyWorkoutView routineId={routineId} day={day} />
-              )}
-            </View>
-          )}
-        </View>
+        {day.isRestDay ? (
+          <RestDayView />
+        ) : (
+          <View className="flex-1">
+            {workout ? (
+              <WorkoutView routineId={routineId} dayIndex={day.dayIndex} workout={workout} />
+            ) : (
+              <EmptyWorkoutView routineId={routineId} day={day} />
+            )}
+          </View>
+        )}
       </View>
-    );
-  },
-);
+    </View>
+  );
+});
 
 const DayButton = memo(
   ({
@@ -206,26 +170,14 @@ const DayButton = memo(
     onPress: (index: number) => void;
   }) => {
     const { t } = useTranslation();
-    const inputRange = [
-      (index - 1) * screenWidth,
-      index * screenWidth,
-      (index + 1) * screenWidth,
-    ];
+    const inputRange = [(index - 1) * screenWidth, index * screenWidth, (index + 1) * screenWidth];
 
     const animatedStyle = useAnimatedStyle(() => {
-      const backgroundColor = interpolateColor(scrollX.value, inputRange, [
-        "transparent",
-        "black",
-        "transparent",
-      ]);
+      const backgroundColor = interpolateColor(scrollX.value, inputRange, ["transparent", "black", "transparent"]);
 
       const borderColor = hasWorkout
         ? colors.green[500]
-        : interpolateColor(scrollX.value, inputRange, [
-            colors.neutral[200],
-            colors.black,
-            colors.neutral[200],
-          ]);
+        : interpolateColor(scrollX.value, inputRange, [colors.neutral[200], colors.black, colors.neutral[200]]);
 
       return {
         backgroundColor,
@@ -236,11 +188,7 @@ const DayButton = memo(
     const animatedTextStyle = useAnimatedStyle(() => {
       const color = hasWorkout
         ? colors.green[500]
-        : interpolateColor(scrollX.value, inputRange, [
-            colors.neutral[400],
-            colors.white,
-            colors.neutral[400],
-          ]);
+        : interpolateColor(scrollX.value, inputRange, [colors.neutral[400], colors.white, colors.neutral[400]]);
 
       return {
         color,
@@ -271,126 +219,94 @@ const DayButton = memo(
   },
 );
 
-const DayHeader = memo(
-  ({
-    routineId,
-    day,
-    workout,
-  }: {
-    routineId: string;
-    day: RoutineDay;
-    workout?: Workout;
-  }) => {
-    const { t } = useTranslation();
-    const updateRoutineDay = useRoutinesStore((s) => s.updateRoutineDay);
+const DayHeader = memo(({ routineId, day, workout }: { routineId: string; day: RoutineDay; workout?: Workout }) => {
+  const { t } = useTranslation();
+  const updateRoutineDay = useRoutinesStore((s) => s.updateRoutineDay);
 
-    const isRest = day.isRestDay;
-    const progress = useSharedValue(isRest ? 1 : 0);
-    const BUTTON_WIDTH = 48;
-    const BUTTON_HEIGHT = 32;
-    const PADDING = 6;
+  const isRest = day.isRestDay;
+  const progress = useSharedValue(isRest ? 1 : 0);
+  const BUTTON_WIDTH = 48;
+  const BUTTON_HEIGHT = 32;
+  const PADDING = 6;
 
-    useEffect(() => {
-      progress.value = withTiming(isRest ? 1 : 0, { duration: 200 });
-    }, [isRest]);
+  useEffect(() => {
+    progress.value = withTiming(isRest ? 1 : 0, { duration: 200 });
+  }, [isRest]);
 
-    const pillStyle = useAnimatedStyle(() => ({
-      transform: [{ translateX: progress.value * BUTTON_WIDTH }],
-    }));
+  const pillStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: progress.value * BUTTON_WIDTH }],
+  }));
 
-    const workoutIconStyle = useAnimatedStyle(() => ({
-      color: interpolateColor(
-        progress.value,
-        [0, 1],
-        [colors.red[400], colors.neutral[400]],
-      ),
-    }));
+  const workoutIconStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(progress.value, [0, 1], [colors.red[400], colors.neutral[400]]),
+  }));
 
-    const restIconStyle = useAnimatedStyle(() => ({
-      color: interpolateColor(
-        progress.value,
-        [0, 1],
-        [colors.neutral[400], colors.indigo[500]],
-      ),
-    }));
+  const restIconStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(progress.value, [0, 1], [colors.neutral[400], colors.indigo[500]]),
+  }));
 
-    return (
-      <View className="flex-row items-start justify-between mb-5">
-        <View>
-          <Text className="text-neutral-400 dark:text-neutral-500 font-medium text-sm uppercase tracking-wider">
-            {getLocalizedDayName(day.dayIndex, t)}
-          </Text>
-          <Text className="font-bold text-2xl text-neutral-900 dark:text-white">
-            {day.isRestDay ? "Descanso" : workout?.name || "Entrenamiento"}
-          </Text>
-        </View>
-
-        {/* Toggle */}
-        <View
-          style={{
-            padding: PADDING,
-            borderWidth: 1,
-            borderColor: colors.neutral[100],
-            borderRadius: 99,
-            flexDirection: "row",
-            alignItems: "center",
-            position: "relative",
-          }}
-        >
-          <Animated.View
-            style={[
-              pillStyle,
-              {
-                width: BUTTON_WIDTH,
-                height: BUTTON_HEIGHT,
-                position: "absolute",
-                left: PADDING,
-                top: PADDING,
-                borderRadius: 99,
-                backgroundColor: colors.white,
-                // borderWidth: 1,
-                // borderColor: colors.neutral[100],
-                shadowColor: colors.neutral[600],
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.1,
-                shadowRadius: 1,
-                elevation: 2,
-              },
-            ]}
-          />
-
-          <TouchableOpacity
-            onPress={() =>
-              updateRoutineDay(routineId, day.dayIndex, "isRestDay", false)
-            }
-            style={{ width: BUTTON_WIDTH, height: BUTTON_HEIGHT }}
-            className="items-center justify-center z-10"
-          >
-            <AnimatedIonicons
-              name="fitness"
-              size={18}
-              style={workoutIconStyle}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() =>
-              updateRoutineDay(routineId, day.dayIndex, "isRestDay", true)
-            }
-            style={{ width: BUTTON_WIDTH, height: BUTTON_HEIGHT }}
-            className="items-center justify-center z-10"
-          >
-            <AnimatedIonicons
-              name={"cloudy-night"}
-              size={18}
-              style={restIconStyle}
-            />
-          </TouchableOpacity>
-        </View>
+  return (
+    <View className="flex-row items-start justify-between mb-5">
+      <View>
+        <Text className="text-neutral-400 dark:text-neutral-500 font-medium text-sm uppercase tracking-wider">
+          {getLocalizedDayName(day.dayIndex, t)}
+        </Text>
+        <Text className="font-bold text-2xl text-neutral-900 dark:text-white">{day.isRestDay ? "Descanso" : workout?.name || "Entrenamiento"}</Text>
       </View>
-    );
-  },
-);
+
+      {/* Toggle */}
+      <View
+        style={{
+          padding: PADDING,
+          borderWidth: 1,
+          borderColor: colors.neutral[100],
+          borderRadius: 99,
+          flexDirection: "row",
+          alignItems: "center",
+          position: "relative",
+        }}
+      >
+        <Animated.View
+          style={[
+            pillStyle,
+            {
+              width: BUTTON_WIDTH,
+              height: BUTTON_HEIGHT,
+              position: "absolute",
+              left: PADDING,
+              top: PADDING,
+              borderRadius: 99,
+              backgroundColor: colors.white,
+              // borderWidth: 1,
+              // borderColor: colors.neutral[100],
+              shadowColor: colors.neutral[600],
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.1,
+              shadowRadius: 1,
+              elevation: 2,
+            },
+          ]}
+        />
+
+        <TouchableOpacity
+          onPress={() => updateRoutineDay(routineId, day.dayIndex, "isRestDay", false)}
+          style={{ width: BUTTON_WIDTH, height: BUTTON_HEIGHT }}
+          className="items-center justify-center z-10"
+        >
+          <AnimatedIonicons name="fitness" size={18} style={workoutIconStyle} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => updateRoutineDay(routineId, day.dayIndex, "isRestDay", true)}
+          style={{ width: BUTTON_WIDTH, height: BUTTON_HEIGHT }}
+          className="items-center justify-center z-10"
+        >
+          <AnimatedIonicons name={"cloudy-night"} size={18} style={restIconStyle} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+});
 
 const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 
@@ -405,174 +321,122 @@ const RestDayView = memo(() => (
   </View>
 ));
 
-const EmptyWorkoutView = memo(
-  ({ routineId, day }: { routineId: string; day: RoutineDay }) => {
-    const navigation = useNavigation();
+const EmptyWorkoutView = memo(({ routineId, day }: { routineId: string; day: RoutineDay }) => {
+  const navigation = useNavigation();
 
-    const updateRoutineDay = useRoutinesStore((s) => s.updateRoutineDay);
-    const addWorkout = useWorkoutsStore((s) => s.addWorkout);
+  const updateRoutineDay = useRoutinesStore((s) => s.updateRoutineDay);
+  const addWorkout = useWorkoutsStore((s) => s.addWorkout);
 
-    const handleCreateWorkout = useCallback(() => {
-      navigation.navigate("createWorkout");
-    }, [navigation, routineId, day.dayIndex]);
+  const handleCreateWorkout = useCallback(() => {
+    navigation.navigate("createWorkout");
+  }, [navigation, routineId, day.dayIndex]);
 
-    const showModal = useModalStore((s) => s.showModal);
+  const showModal = useModalStore((s) => s.showModal);
 
-    const handleImportWorkout = useCallback(() => {
-      showModal({
-        snapPoints: ["60%", "90%"],
-        content: (
-          <SelectWorkoutModal
-            hideTemplate={true}
-            onSelectWorkout={(selectedWorkout, asTemplate) => {
-              if (asTemplate) {
-                const newWorkoutId = randomId();
-                const newSteps = selectedWorkout.steps.map((step) => ({
-                  ...step,
-                  id: randomId(),
-                }));
-                addWorkout({
-                  ...selectedWorkout,
-                  id: newWorkoutId,
-                  name: `${selectedWorkout.name} (Copia)`,
-                  steps: newSteps,
-                });
-                updateRoutineDay(
-                  routineId,
-                  day.dayIndex,
-                  "workoutId",
-                  newWorkoutId,
-                );
-              } else {
-                updateRoutineDay(
-                  routineId,
-                  day.dayIndex,
-                  "workoutId",
-                  selectedWorkout.id,
-                );
-              }
-              updateRoutineDay(routineId, day.dayIndex, "isRestDay", false);
-            }}
-          />
-        ),
-      });
-    }, [routineId, day.dayIndex, addWorkout, updateRoutineDay, showModal]);
+  const handleImportWorkout = useCallback(() => {
+    showModal({
+      snapPoints: ["60%", "90%"],
+      content: (
+        <SelectWorkoutModal
+          mode="import"
+          onSelectWorkout={(selectedWorkout, asTemplate) => {
+            if (asTemplate) {
+              const newWorkoutId = randomId();
+              const newSteps = selectedWorkout.steps.map((step) => ({
+                ...step,
+                id: randomId(),
+              }));
+              addWorkout({
+                ...selectedWorkout,
+                id: newWorkoutId,
+                name: `${selectedWorkout.name} (Copia)`,
+                steps: newSteps,
+              });
+              updateRoutineDay(routineId, day.dayIndex, "workoutId", newWorkoutId);
+            } else {
+              updateRoutineDay(routineId, day.dayIndex, "workoutId", selectedWorkout.id);
+            }
+            updateRoutineDay(routineId, day.dayIndex, "isRestDay", false);
+          }}
+        />
+      ),
+    });
+  }, [routineId, day.dayIndex, addWorkout, updateRoutineDay, showModal]);
 
-    return (
-      <View className="w-full justify-center items-center flex-1 gap-3">
-        <TouchableOpacity
-          onPress={handleCreateWorkout}
-          className="p-3 rounded-2xl w-full border-1.5 border-neutral-200 dark:border-neutral-700 border-dashed flex-1 h-full items-center justify-center gap-2.5"
-        >
-          <Ionicons name="add-outline" size={29} color={colors.neutral[400]} />
-          <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-lg">
-            Crear entrenamiento
-          </Text>
-        </TouchableOpacity>
+  return (
+    <View className="w-full justify-center items-center flex-1 gap-3">
+      <TouchableOpacity
+        onPress={handleCreateWorkout}
+        className="p-3 rounded-2xl w-full border-1.5 border-neutral-200 dark:border-neutral-700 border-dashed flex-1 h-full items-center justify-center gap-2.5"
+      >
+        <Ionicons name="add-outline" size={29} color={colors.neutral[400]} />
+        <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-lg">Crear entrenamiento</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          className="border-1.5 border-neutral-200 dark:border-neutral-700 w-full border-dashed p-8 rounded-2xl items-center justify-center gap-3"
-          onPress={handleImportWorkout}
-        >
-          <Ionicons
-            name="download-outline"
-            size={28}
-            color={colors.neutral[400]}
-          />
-          <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-lg">
-            Usar existente
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  },
-);
+      <TouchableOpacity
+        className="border-1.5 border-neutral-200 dark:border-neutral-700 w-full border-dashed p-8 rounded-2xl items-center justify-center gap-3"
+        onPress={handleImportWorkout}
+      >
+        <Ionicons name="download-outline" size={28} color={colors.neutral[400]} />
+        <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-lg">Usar existente</Text>
+      </TouchableOpacity>
+    </View>
+  );
+});
 
-const WorkoutView = memo(
-  ({
-    routineId,
-    dayIndex,
-    workout,
-  }: {
-    routineId: string;
-    dayIndex: number;
-    workout: Workout;
-  }) => {
-    const navigation = useNavigation();
+const WorkoutView = memo(({ routineId, dayIndex, workout }: { routineId: string; dayIndex: number; workout: Workout }) => {
+  const navigation = useNavigation();
 
-    const updateRoutineDay = useRoutinesStore((s) => s.updateRoutineDay);
+  const updateRoutineDay = useRoutinesStore((s) => s.updateRoutineDay);
 
-    const onNavigate = useCallback(
-      () => navigation.navigate("editWorkout", { workoutId: workout.id }),
-      [navigation, workout.id],
-    );
+  const onNavigate = useCallback(() => navigation.navigate("editWorkout", { workoutId: workout.id }), [navigation, workout.id]);
 
-    const handleRemoveWorkout = () => {
-      updateRoutineDay(routineId, dayIndex, "workoutId", null);
-    };
+  const handleRemoveWorkout = () => {
+    updateRoutineDay(routineId, dayIndex, "workoutId", null);
+  };
 
-    return (
-      <View className="flex-1 gap-3">
-        {workout.steps.length > 0 ? (
-          <Pressable onPress={onNavigate} className="flex-1">
-            <View className="gap-3 px-1">
-              {workout.steps.slice(0, 6).map((step) => (
-                <Step key={step.id} step={step} />
-              ))}
-              {workout.steps.length > 6 && (
-                <Text className="text-neutral-400 dark:text-neutral-500 text-xs mt-1 ml-5">
-                  + {workout.steps.length - 6} más...
-                </Text>
-              )}
+  return (
+    <View className="flex-1 gap-3">
+      {workout.steps.length > 0 ? (
+        <Pressable onPress={onNavigate} className="flex-1">
+          <View className="gap-3 px-1">
+            {workout.steps.slice(0, 6).map((step) => (
+              <Step key={step.id} step={step} />
+            ))}
+            {workout.steps.length > 6 && (
+              <Text className="text-neutral-400 dark:text-neutral-500 text-xs mt-1 ml-5">+ {workout.steps.length - 6} más...</Text>
+            )}
+          </View>
+        </Pressable>
+      ) : (
+        <TouchableOpacity onPress={onNavigate} className="flex-1">
+          <View className="flex-1 items-center gap-2 justify-center border-1.5 border-dashed border-neutral-200 dark:border-neutral-700 rounded-3xl p-8">
+            <View className="justify-center items-center gap-3">
+              <Ionicons name="create-outline" size={28} color={colors.neutral[400]} />
+              <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-lg">Editar rutina</Text>
             </View>
-          </Pressable>
-        ) : (
-          <TouchableOpacity onPress={onNavigate} className="flex-1">
-            <View className="flex-1 items-center gap-2 justify-center border-1.5 border-dashed border-neutral-200 dark:border-neutral-700 rounded-3xl p-8">
-              <View className="justify-center items-center gap-3">
-                <Ionicons
-                  name="create-outline"
-                  size={28}
-                  color={colors.neutral[400]}
-                />
-                <Text className="text-neutral-400 dark:text-neutral-500 font-semibold text-lg">
-                  Editar rutina
-                </Text>
-              </View>
 
-              <Text className="text-neutral-400 dark:text-neutral-500 text-sm text-center">
-                Tu rutina todavia no tiene ejercicios
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity
-          onPress={handleRemoveWorkout}
-          className="border border-neutral-200 dark:border-neutral-800 rounded-xl p-3 justify-center items-center gap-1 flex-row"
-        >
-          <Ionicons
-            name="close-circle-outline"
-            className="!text-base !leading-none"
-            color={colors.neutral[400]}
-          />
-          <Text className="text-neutral-400 dark:text-neutral-500 font-medium text-center">
-            Quitar entreno
-          </Text>
+            <Text className="text-neutral-400 dark:text-neutral-500 text-sm text-center">Tu rutina todavia no tiene ejercicios</Text>
+          </View>
         </TouchableOpacity>
-      </View>
-    );
-  },
-);
+      )}
+
+      <TouchableOpacity
+        onPress={handleRemoveWorkout}
+        className="border border-neutral-200 dark:border-neutral-800 rounded-xl p-3 justify-center items-center gap-1 flex-row"
+      >
+        <Ionicons name="close-circle-outline" className="!text-base !leading-none" color={colors.neutral[400]} />
+        <Text className="text-neutral-400 dark:text-neutral-500 font-medium text-center">Quitar entreno</Text>
+      </TouchableOpacity>
+    </View>
+  );
+});
 
 const Rest = memo(({ step }: { step: any }) => {
   return (
     <View className="flex-row items-center gap-3 rounded-2xl px-3 py-2">
       <Ionicons name="time-outline" size={14} color={colors.neutral[500]} />
-      <Text
-        className="text-neutral-600 dark:text-neutral-400 font-medium"
-        numberOfLines={1}
-      >
+      <Text className="text-neutral-600 dark:text-neutral-400 font-medium" numberOfLines={1}>
         Descanso {step?.duration}s
       </Text>
     </View>
@@ -582,10 +446,7 @@ const Rest = memo(({ step }: { step: any }) => {
 const Step = memo(({ step }: { step: any }) => {
   if (step.type === "rest") return <Rest step={step} />;
 
-  const exercise = useMemo(
-    () => EXERCISES.find((e) => e.exerciseId === step.exerciseId),
-    [step.exerciseId],
-  );
+  const exercise = useMemo(() => EXERCISES.find((e) => e.exerciseId === step.exerciseId), [step.exerciseId]);
 
   if (!exercise) return <Text>No se encontro el ejercicio</Text>;
 
@@ -595,8 +456,7 @@ const Step = memo(({ step }: { step: any }) => {
 
   const { weight, reps, rir } = step;
 
-  const validWeight =
-    (weight.isRange && weight.min && weight.max) || weight.value;
+  const validWeight = (weight.isRange && weight.min && weight.max) || weight.value;
   const validReps = (reps.isRange && reps.min && reps.max) || reps.value;
   const validRir = (rir.isRange && rir.min && rir.max) || rir.value;
 
@@ -611,30 +471,18 @@ const Step = memo(({ step }: { step: any }) => {
         {setType.label}
       </Text>
 
-      <Text
-        className="text-neutral-800 dark:text-white font-medium"
-        numberOfLines={1}
-      >
+      <Text className="text-neutral-800 dark:text-white font-medium" numberOfLines={1}>
         {capitalize(exercise.name) || "Ejercicio"}
       </Text>
 
       <View className="flex-row gap-3">
         {validWeight && (
           <Text className="text-neutral-600 dark:text-neutral-400">
-            {weight.isRange ? `${weight.min} - ${weight.max}` : weight.value}{" "}
-            {weightUnit}
+            {weight.isRange ? `${weight.min} - ${weight.max}` : weight.value} {weightUnit}
           </Text>
         )}
-        {validReps && (
-          <Text className="text-neutral-600 dark:text-neutral-400">
-            x{reps.isRange ? `${reps.min} - ${reps.max}` : reps.value} reps
-          </Text>
-        )}
-        {validRir && (
-          <Text className="text-neutral-600 dark:text-neutral-400">
-            rir {rir.isRange ? `${rir.min} - ${rir.max}` : rir.value}
-          </Text>
-        )}
+        {validReps && <Text className="text-neutral-600 dark:text-neutral-400">x{reps.isRange ? `${reps.min} - ${reps.max}` : reps.value} reps</Text>}
+        {validRir && <Text className="text-neutral-600 dark:text-neutral-400">rir {rir.isRange ? `${rir.min} - ${rir.max}` : rir.value}</Text>}
       </View>
     </View>
   );

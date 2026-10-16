@@ -1,8 +1,18 @@
 import React from "react";
-import { View, TouchableOpacity, useWindowDimensions, Animated } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  useWindowDimensions,
+  Animated,
+} from "react-native";
 import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
 
-export default function CustomTopTabBar({ state, descriptors, navigation, position }: MaterialTopTabBarProps) {
+export default function CustomTopTabBar({
+  state,
+  descriptors,
+  navigation,
+  position,
+}: MaterialTopTabBarProps) {
   const { width } = useWindowDimensions();
   const TAB_WIDTH = width / state.routes.length;
 
@@ -18,7 +28,7 @@ export default function CustomTopTabBar({ state, descriptors, navigation, positi
   };
 
   return (
-    <View className="border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+    <View className="border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950">
       <View className="flex-row h-14 items-center">
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -56,7 +66,10 @@ export default function CustomTopTabBar({ state, descriptors, navigation, positi
               style={{ width: TAB_WIDTH }}
               className="items-center py-3"
             >
-              <Animated.Text style={{ opacity }} className="text-lg font-medium text-neutral-800 dark:text-white">
+              <Animated.Text
+                style={{ opacity }}
+                className="text-lg font-medium text-neutral-800 dark:text-white"
+              >
                 {label as string}
               </Animated.Text>
             </TouchableOpacity>
@@ -65,7 +78,10 @@ export default function CustomTopTabBar({ state, descriptors, navigation, positi
       </View>
 
       {/* Indicator */}
-      <Animated.View style={[{ width: TAB_WIDTH }, indicatorStyle]} className="h-px absolute -bottom-px bg-black dark:bg-white" />
+      <Animated.View
+        style={[{ width: TAB_WIDTH }, indicatorStyle]}
+        className="h-px absolute -bottom-px bg-black dark:bg-white"
+      />
     </View>
   );
 }
